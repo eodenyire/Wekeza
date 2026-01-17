@@ -1,0 +1,58 @@
+# Wekeza Bank - Docker Ignore File
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+LICENSE
+
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Test results
+**/TestResults/
+**/*.trx
+
+# NuGet
+**/packages/
+*.nupkg
+
+# Docker
+**/docker-compose*
+**/Dockerfile*
+.dockerignore
+
+# Logs
+**/logs/
+**/*.log
+
+# Temporary files
+**/tmp/
+**/*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/*.pfx
+**/*.key
+
+# Scripts
+scripts/
+
+# Tests
+Tests/

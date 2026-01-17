@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: wekeza-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - wekeza-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Wekeza Bank API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wekeza-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=WekezaCoreDB;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}"
+      JwtSettings__Secret: ${JWT_SECRET:-WekeZa-BaNk-PrOdUcTiOn-SeCrEt-KeY-2026-ChAnGe-ThIs-In-PrOd!}
+      JwtSettings__Issuer: ${JWT_ISSUER:-https://api.wekeza.com}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-https://wekeza.com}
+      MpesaConfig__ConsumerKey: ${MPESA_CONSUMER_KEY}
+      MpesaConfig__ConsumerSecret: ${MPESA_CONSUMER_SECRET}
+      MpesaConfig__ShortCode: ${MPESA_SHORTCODE}
+      MpesaConfig__PassKey: ${MPESA_PASSKEY}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wekeza-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+  # pgAdmin (Optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: wekeza-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@wekeza.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - wekeza-network
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    restart: unless-stopped
+    profiles:
+      - tools
+
+networks:
+  wekeza-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  pgadmin-data:
+    driver: local

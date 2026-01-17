@@ -1,0 +1,49 @@
+{
+  "dashboard": {
+    "title": "Wekeza Bank - System Overview",
+    "tags": ["wekeza", "banking", "overview"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "API Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ]
+      },
+      {
+        "title": "Transaction Volume",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(transaction_total)",
+            "legendFormat": "Total Transactions"
+          }
+        ]
+      },
+      {
+        "title": "Active Accounts",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(account_active)",
+            "legendFormat": "Active Accounts"
+          }
+        ]
+      },
+      {
+        "title": "Loan Portfolio",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "sum(loan_outstanding_amount)",
+            "legendFormat": "Outstanding Loans"
+          }
+        ]
+      }
+    ]
+  }
+}

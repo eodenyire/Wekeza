@@ -1,0 +1,44 @@
+///
+///3. BookFixedDepositHandler.cs (The Financial Engineer)
+///This handler performs the "Sweep." It debits the source account and creates the Fixed Deposit entity with a maturity date.
+///
+
+public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, Guid>
+{
+    private readonly IAccountRepository _accountRepository;
+    private readonly IFixedDepositRepository _fdRepository; // New port
+    private readonly IUnitOfWork _unitOfWork;
+
+    public async Task<Guid> Handle(BookFixedDepositCommand request, CancellationToken ct)
+    {
+        // 1. Fetch Source Account
+        var sourceAccount = await _accountRepository.GetByAccountNumberAsync(
+            new AccountNumber(request.SourceAccountNumber), ct)
+            ?? throw new NotFoundException("Account", request.SourceAccountNumber);
+
+        // 2. Validate Funds Availability
+        var amount = new Money(request.PrincipalAmount, sourceAccount.Balance.Currency);
+        sourceAccount.Debit(amount); // This will throw InsufficientFunds if they don't have it
+
+        // 3. Create Fixed Deposit Aggregate
+        // We calculate maturity date: Today + Term
+        var maturityDate = DateTime.UtcNow.AddMonths(request.TermInMonths);
+        
+        // This represents a new 'Account' type in the system
+        var fdAccount = new FixedDeposit(
+            Guid.NewGuid(),
+            sourceAccount.CustomerId,
+            amount,
+            request.AgreedInterestRate,
+            maturityDate
+        );
+
+        await _fdRepository.AddAsync(fdAccount, ct);
+        
+        // 4. Update the source account state
+        _accountRepository.Update(sourceAccount);
+
+        // TransactionBehavior handles the SaveChanges atomicity!
+        return fdAccount.Id;
+    }
+}
