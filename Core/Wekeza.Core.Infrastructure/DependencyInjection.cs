@@ -9,6 +9,8 @@ using Wekeza.Core.Infrastructure.Caching;
 using Wekeza.Core.Infrastructure.Monitoring;
 using Wekeza.Core.Infrastructure.Notifications;
 using Wekeza.Core.Infrastructure.ApiGateway;
+using Wekeza.Core.Infrastructure.HealthChecks;
+using Wekeza.Core.Infrastructure.BackgroundServices;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Services;
 using Wekeza.Core.Application.Common.Interfaces;
@@ -21,6 +23,8 @@ public static class DependencyInjection
     {
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         // Repositories
         services.AddScoped<IUnitOfWork, UnitOfWork>();

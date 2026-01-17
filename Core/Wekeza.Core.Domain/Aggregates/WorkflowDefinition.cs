@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Workflow Definition aggregate - Defines reusable business process workflows
 /// Supports maker-checker, multi-level approvals, and complex business processes
 /// </summary>
-public class WorkflowDefinition : AggregateRoot<Guid>
+public class WorkflowDefinition : AggregateRoot
 {
     public string WorkflowCode { get; private set; }
     public string WorkflowName { get; private set; }
@@ -464,35 +464,63 @@ public record WorkflowDefinitionCreatedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     string WorkflowName,
-    WorkflowCategory Category) : IDomainEvent;
+    WorkflowCategory Category) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record WorkflowDefinitionValidatedDomainEvent(
     Guid WorkflowId,
-    string WorkflowCode) : IDomainEvent;
+    string WorkflowCode) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record WorkflowDefinitionValidationFailedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
-    List<string> ValidationErrors) : IDomainEvent;
+    List<string> ValidationErrors) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record WorkflowDefinitionActivatedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
-    string ActivatedBy) : IDomainEvent;
+    string ActivatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record WorkflowDefinitionDeactivatedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     string DeactivatedBy,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record WorkflowDefinitionVersionCreatedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     int Version,
-    string ModifiedBy) : IDomainEvent;
+    string ModifiedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record WorkflowDefinitionArchivedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
-    string ArchivedBy) : IDomainEvent;
+    string ArchivedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

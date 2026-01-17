@@ -376,21 +376,33 @@ public record TellerSessionStartedDomainEvent(
     string SessionNumber,
     Guid TellerId,
     Guid BranchId,
-    Money OpeningCash) : IDomainEvent;
+    Money OpeningCash) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashDepositProcessedDomainEvent(
     Guid SessionId,
     string SessionNumber,
     Money Amount,
     string AccountNumber,
-    string? Reference) : IDomainEvent;
+    string? Reference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashWithdrawalProcessedDomainEvent(
     Guid SessionId,
     string SessionNumber,
     Money Amount,
     string AccountNumber,
-    string? Reference) : IDomainEvent;
+    string? Reference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TransferProcessedDomainEvent(
     Guid SessionId,
@@ -398,47 +410,79 @@ public record TransferProcessedDomainEvent(
     Money Amount,
     string FromAccount,
     string ToAccount,
-    string? Reference) : IDomainEvent;
+    string? Reference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashAddedToSessionDomainEvent(
     Guid SessionId,
     string SessionNumber,
     Money Amount,
     CashSource Source,
-    string? Reference) : IDomainEvent;
+    string? Reference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashRemovedFromSessionDomainEvent(
     Guid SessionId,
     string SessionNumber,
     Money Amount,
     CashDestination Destination,
-    string? Reference) : IDomainEvent;
+    string? Reference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SupervisorApprovalRequestedDomainEvent(
     Guid SessionId,
     string SessionNumber,
     string SupervisorId,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashReconciliationDomainEvent(
     Guid SessionId,
     string SessionNumber,
     Money ExpectedCash,
     Money ActualCash,
-    Money Difference) : IDomainEvent;
+    Money Difference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerSessionEndedDomainEvent(
     Guid SessionId,
     string SessionNumber,
     Money ClosingCash,
     Money? CashDifference,
-    int TransactionCount) : IDomainEvent;
+    int TransactionCount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerSessionSuspendedDomainEvent(
     Guid SessionId,
     string SessionNumber,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerSessionResumedDomainEvent(
     Guid SessionId,
-    string SessionNumber) : IDomainEvent;
+    string SessionNumber) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

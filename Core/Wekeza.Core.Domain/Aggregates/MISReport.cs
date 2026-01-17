@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// MIS Report aggregate - Management Information System reports for internal decision making
 /// Provides executive dashboards, performance metrics, and business intelligence
 /// </summary>
-public class MISReport : AggregateRoot<Guid>
+public class MISReport : AggregateRoot
 {
     public string ReportCode { get; private set; }
     public string ReportName { get; private set; }
@@ -353,41 +353,73 @@ public record MISReportCreatedDomainEvent(
     Guid ReportId,
     string ReportCode,
     MISReportType ReportType,
-    string Department) : IDomainEvent;
+    string Department) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record MISReportGeneratedDomainEvent(
     Guid ReportId,
     string ReportCode,
     int RecordCount,
-    Money? TotalAmount) : IDomainEvent;
+    Money? TotalAmount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record MISReportValidatedDomainEvent(
     Guid ReportId,
-    string ReportCode) : IDomainEvent;
+    string ReportCode) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record MISReportValidationFailedDomainEvent(
     Guid ReportId,
     string ReportCode,
-    string ValidationErrors) : IDomainEvent;
+    string ValidationErrors) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record MISReportApprovedDomainEvent(
     Guid ReportId,
     string ReportCode,
-    string ApprovedBy) : IDomainEvent;
+    string ApprovedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record MISReportPublishedDomainEvent(
     Guid ReportId,
     string ReportCode,
     string PublishedBy,
-    DateTime PublishedAt) : IDomainEvent;
+    DateTime PublishedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record MISReportRejectedDomainEvent(
     Guid ReportId,
     string ReportCode,
     string Reason,
-    string RejectedBy) : IDomainEvent;
+    string RejectedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record MISReportRegeneratedDomainEvent(
     Guid ReportId,
     string ReportCode,
-    string RegeneratedBy) : IDomainEvent;
+    string RegeneratedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

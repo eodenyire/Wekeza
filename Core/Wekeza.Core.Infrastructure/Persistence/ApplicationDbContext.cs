@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Application.Common.Interfaces;
 using System.Reflection;
 ///<summary>
 ///📂 1. Wekeza.Core.Infrastructure/Persistence
@@ -10,7 +11,7 @@ using System.Reflection;
 
 namespace Wekeza.Core.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -63,8 +64,6 @@ public class ApplicationDbContext : DbContext
     // Week 12: Integration & Middleware (Legacy - to be removed)
     public DbSet<Integration> Integrations => Set<Integration>();
     public DbSet<APIGateway> APIGateways => Set<APIGateway>();
-    public DbSet<MessageBroker> MessageBrokers => Set<MessageBroker>();
-    public DbSet<Webhook> Webhooks => Set<Webhook>();
 
     // Week 13: Security & Administration
     public DbSet<User> Users => Set<User>();

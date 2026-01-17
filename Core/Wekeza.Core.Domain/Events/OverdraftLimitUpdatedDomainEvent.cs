@@ -6,4 +6,8 @@ namespace Wekeza.Core.Domain.Events;
 public record OverdraftLimitUpdatedDomainEvent(
     Guid AccountId,
     Money NewLimit,
-    string UpdatedBy) : IDomainEvent;
+    string UpdatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

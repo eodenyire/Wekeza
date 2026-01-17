@@ -345,39 +345,67 @@ public record TellerTransactionCreatedDomainEvent(
     TellerTransactionType TransactionType,
     Money Amount,
     Guid TellerId,
-    Guid BranchId) : IDomainEvent;
+    Guid BranchId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerTransactionApprovalRequestedDomainEvent(
     Guid TransactionId,
     string TransactionNumber,
     string Reason,
-    Money Amount) : IDomainEvent;
+    Money Amount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerTransactionApprovedDomainEvent(
     Guid TransactionId,
     string TransactionNumber,
     string SupervisorId,
-    string? Comments) : IDomainEvent;
+    string? Comments) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerTransactionRejectedDomainEvent(
     Guid TransactionId,
     string TransactionNumber,
     string SupervisorId,
-    string RejectionReason) : IDomainEvent;
+    string RejectionReason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerTransactionCompletedDomainEvent(
     Guid TransactionId,
     string TransactionNumber,
     Money Amount,
-    string? AccountNumber) : IDomainEvent;
+    string? AccountNumber) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerTransactionReversedDomainEvent(
     Guid TransactionId,
     string TransactionNumber,
     string ReversalReason,
-    Money Amount) : IDomainEvent;
+    Money Amount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TellerTransactionFailedDomainEvent(
     Guid TransactionId,
     string TransactionNumber,
-    string FailureReason) : IDomainEvent;
+    string FailureReason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

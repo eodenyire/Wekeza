@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Interest Accrual Engine - Handles interest calculations and accruals for all deposit products
 /// Core component for automated interest processing in banking operations
 /// </summary>
-public class InterestAccrualEngine : AggregateRoot<Guid>
+public class InterestAccrualEngine : AggregateRoot
 {
     public string EngineName { get; private set; }
     public DateTime ProcessingDate { get; private set; }
@@ -312,19 +312,35 @@ public enum AccrualEntryStatus
 // Domain Events
 public record InterestAccrualInitiatedDomainEvent(
     Guid AccrualEngineId,
-    DateTime ProcessingDate) : IDomainEvent;
+    DateTime ProcessingDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record InterestAccrualStartedDomainEvent(
     Guid AccrualEngineId,
-    DateTime StartTime) : IDomainEvent;
+    DateTime StartTime) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record InterestAccrualCompletedDomainEvent(
     Guid AccrualEngineId,
     int TotalAccountsProcessed,
     int SuccessfulAccruals,
     int FailedAccruals,
-    Money TotalInterestAccrued) : IDomainEvent;
+    Money TotalInterestAccrued) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record InterestAccrualFailedDomainEvent(
     Guid AccrualEngineId,
-    string ErrorDetails) : IDomainEvent;
+    string ErrorDetails) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// RTGS (Real-Time Gross Settlement) Transaction aggregate
 /// Handles high-value, time-critical interbank transfers
 /// </summary>
-public class RTGSTransaction : AggregateRoot<Guid>
+public class RTGSTransaction : AggregateRoot
 {
     public string RTGSReference { get; private set; }
     public string CustomerReference { get; private set; }
@@ -276,44 +276,80 @@ public record RTGSTransactionInitiatedDomainEvent(
     Guid TransactionId,
     string RTGSReference,
     Money Amount,
-    string CreditBankCode) : IDomainEvent;
+    string CreditBankCode) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RTGSTransactionValidatedDomainEvent(
     Guid TransactionId,
-    string RTGSReference) : IDomainEvent;
+    string RTGSReference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RTGSTransactionValidationFailedDomainEvent(
     Guid TransactionId,
     string RTGSReference,
-    string ValidationErrors) : IDomainEvent;
+    string ValidationErrors) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RTGSTransactionProcessingDomainEvent(
     Guid TransactionId,
     string RTGSReference,
-    string ProcessedBy) : IDomainEvent;
+    string ProcessedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RTGSTransactionSentToCentralBankDomainEvent(
     Guid TransactionId,
     string RTGSReference,
-    string CentralBankReference) : IDomainEvent;
+    string CentralBankReference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RTGSTransactionSettledDomainEvent(
     Guid TransactionId,
     string RTGSReference,
     string SettlementReference,
-    DateTime SettledAt) : IDomainEvent;
+    DateTime SettledAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RTGSTransactionRejectedDomainEvent(
     Guid TransactionId,
     string RTGSReference,
     string RejectionReason,
-    string RejectedBy) : IDomainEvent;
+    string RejectedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RTGSTransactionTimeoutDomainEvent(
     Guid TransactionId,
-    string RTGSReference) : IDomainEvent;
+    string RTGSReference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RTGSTransactionReturnedDomainEvent(
     Guid TransactionId,
     string RTGSReference,
-    string ReturnReason) : IDomainEvent;
+    string ReturnReason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

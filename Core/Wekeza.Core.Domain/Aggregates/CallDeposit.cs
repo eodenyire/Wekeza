@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Call Deposit aggregate - On-demand deposits with flexible withdrawal terms
 /// Supports instant access, tiered interest rates, and notice periods
 /// </summary>
-public class CallDeposit : AggregateRoot<Guid>
+public class CallDeposit : AggregateRoot
 {
     public Guid AccountId { get; private set; }
     public Guid CustomerId { get; private set; }
@@ -469,40 +469,68 @@ public record CallDepositOpenedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Guid CustomerId,
-    Money InitialDeposit) : IDomainEvent;
+    Money InitialDeposit) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CallDepositDepositMadeDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Money DepositAmount,
-    Money NewBalance) : IDomainEvent;
+    Money NewBalance) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CallDepositWithdrawalNoticeSubmittedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Money Amount,
-    DateTime RequestedDate) : IDomainEvent;
+    DateTime RequestedDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CallDepositWithdrawalProcessedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Money WithdrawalAmount,
-    Money RemainingBalance) : IDomainEvent;
+    Money RemainingBalance) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CallDepositWithdrawalNoticeCancelledDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Money Amount,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CallDepositInterestRateUpdatedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     InterestRate OldRate,
-    InterestRate NewRate) : IDomainEvent;
+    InterestRate NewRate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CallDepositClosedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Guid CustomerId,
-    Money FinalBalance) : IDomainEvent;
+    Money FinalBalance) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

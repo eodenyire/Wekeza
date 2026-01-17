@@ -9,7 +9,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Supports financial, regulatory, operational, and analytical reports
 /// Industry Standard: Finacle MIS & T24 Information Reporting
 /// </summary>
-public class Report : AggregateRoot<Guid>
+public class Report : AggregateRoot
 {
     // Core Properties
     public string ReportCode { get; private set; }

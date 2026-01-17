@@ -9,7 +9,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Supports event filtering, retry mechanisms, and delivery tracking
 /// Industry Standard: Webhook patterns for real-time event notifications
 /// </summary>
-public class WebhookSubscription : AggregateRoot<Guid>
+public class WebhookSubscription : AggregateRoot
 {
     // Core Properties
     public string SubscriptionCode { get; private set; }

@@ -10,14 +10,22 @@ public record POSTransactionInitiatedDomainEvent(
     Guid AccountId,
     string MerchantId,
     POSTransactionType TransactionType,
-    Money Amount) : IDomainEvent;
+    Money Amount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSTransactionAuthorizedDomainEvent(
     Guid TransactionId,
     Guid CardId,
     Guid AccountId,
     string MerchantId,
-    Money Amount) : IDomainEvent;
+    Money Amount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSTransactionCompletedDomainEvent(
     Guid TransactionId,
@@ -26,7 +34,11 @@ public record POSTransactionCompletedDomainEvent(
     string MerchantId,
     POSTransactionType TransactionType,
     Money Amount,
-    Money AccountBalance) : IDomainEvent;
+    Money AccountBalance) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSTransactionDeclinedDomainEvent(
     Guid TransactionId,
@@ -34,14 +46,22 @@ public record POSTransactionDeclinedDomainEvent(
     Guid AccountId,
     string MerchantId,
     string ResponseCode,
-    string ResponseMessage) : IDomainEvent;
+    string ResponseMessage) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSTransactionFailedDomainEvent(
     Guid TransactionId,
     Guid CardId,
     Guid AccountId,
     string MerchantId,
-    string FailureReason) : IDomainEvent;
+    string FailureReason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSTransactionReversedDomainEvent(
     Guid TransactionId,
@@ -49,14 +69,22 @@ public record POSTransactionReversedDomainEvent(
     Guid AccountId,
     string MerchantId,
     Money Amount,
-    string ReversalReason) : IDomainEvent;
+    string ReversalReason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSTransactionRefundedDomainEvent(
     Guid TransactionId,
     Guid CardId,
     Guid AccountId,
     string MerchantId,
-    Money RefundAmount) : IDomainEvent;
+    Money RefundAmount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSTransactionSettledDomainEvent(
     Guid TransactionId,
@@ -64,13 +92,21 @@ public record POSTransactionSettledDomainEvent(
     Guid AccountId,
     string MerchantId,
     Money Amount,
-    string SettlementBatchId) : IDomainEvent;
+    string SettlementBatchId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSPINVerificationFailedDomainEvent(
     Guid TransactionId,
     Guid CardId,
     Guid CustomerId,
-    string MerchantId) : IDomainEvent;
+    string MerchantId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record POSTransactionMarkedSuspiciousDomainEvent(
     Guid TransactionId,
@@ -78,4 +114,8 @@ public record POSTransactionMarkedSuspiciousDomainEvent(
     Guid AccountId,
     string MerchantId,
     string Reason,
-    string FraudScore) : IDomainEvent;
+    string FraudScore) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

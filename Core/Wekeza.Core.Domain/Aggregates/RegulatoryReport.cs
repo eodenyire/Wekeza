@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Regulatory Report aggregate - Handles all regulatory reporting requirements
 /// Supports CBK, Basel III, IFRS, AML, and other regulatory compliance reports
 /// </summary>
-public class RegulatoryReport : AggregateRoot<Guid>
+public class RegulatoryReport : AggregateRoot
 {
     public string ReportCode { get; private set; }
     public string ReportName { get; private set; }
@@ -330,46 +330,82 @@ public record RegulatoryReportCreatedDomainEvent(
     Guid ReportId,
     string ReportCode,
     RegulatoryAuthority Authority,
-    DateTime DueDate) : IDomainEvent;
+    DateTime DueDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RegulatoryReportGeneratedDomainEvent(
     Guid ReportId,
     string ReportCode,
     int RecordCount,
-    Money? TotalAmount) : IDomainEvent;
+    Money? TotalAmount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RegulatoryReportValidatedDomainEvent(
     Guid ReportId,
-    string ReportCode) : IDomainEvent;
+    string ReportCode) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RegulatoryReportValidationFailedDomainEvent(
     Guid ReportId,
     string ReportCode,
-    string ValidationErrors) : IDomainEvent;
+    string ValidationErrors) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RegulatoryReportApprovedDomainEvent(
     Guid ReportId,
     string ReportCode,
-    string ApprovedBy) : IDomainEvent;
+    string ApprovedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RegulatoryReportSubmittedDomainEvent(
     Guid ReportId,
     string ReportCode,
     string SubmissionReference,
-    DateTime SubmissionDate) : IDomainEvent;
+    DateTime SubmissionDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RegulatoryReportRejectedDomainEvent(
     Guid ReportId,
     string ReportCode,
     string Reason,
-    string RejectedBy) : IDomainEvent;
+    string RejectedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RegulatoryReportOverdueDomainEvent(
     Guid ReportId,
     string ReportCode,
-    DateTime DueDate) : IDomainEvent;
+    DateTime DueDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RegulatoryReportRegeneratedDomainEvent(
     Guid ReportId,
     string ReportCode,
-    string RegeneratedBy) : IDomainEvent;
+    string RegeneratedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

@@ -16,7 +16,11 @@ public record ReportCreatedDomainEvent(
     ReportType ReportType,
     ReportCategory Category,
     string GeneratedBy,
-    bool IsRegulatory) : IDomainEvent;
+    bool IsRegulatory) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Report Generated Domain Event - Triggered when report generation is completed
@@ -26,7 +30,11 @@ public record ReportGeneratedDomainEvent(
     string ReportCode,
     ReportType ReportType,
     ReportFormat Format,
-    long FileSizeBytes) : IDomainEvent;
+    long FileSizeBytes) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Report Submitted Domain Event - Triggered when regulatory report is submitted
@@ -36,7 +44,11 @@ public record ReportSubmittedDomainEvent(
     string ReportCode,
     string RegulatoryReference,
     string SubmittedBy,
-    DateTime SubmittedAt) : IDomainEvent;
+    DateTime SubmittedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Report Archived Domain Event - Triggered when report is archived
@@ -45,7 +57,11 @@ public record ReportArchivedDomainEvent(
     Guid ReportId,
     string ReportCode,
     string ArchiveLocation,
-    DateTime ArchivedAt) : IDomainEvent;
+    DateTime ArchivedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Report Regenerated Domain Event - Triggered when report is regenerated
@@ -54,7 +70,11 @@ public record ReportRegeneratedDomainEvent(
     Guid ReportId,
     string ReportCode,
     string RegeneratedBy,
-    DateTime RegeneratedAt) : IDomainEvent;
+    DateTime RegeneratedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Report Failed Domain Event - Triggered when report generation fails
@@ -64,7 +84,11 @@ public record ReportFailedDomainEvent(
     string ReportCode,
     string ErrorMessage,
     string FailedBy,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Report Approved Domain Event - Triggered when report is approved
@@ -73,7 +97,11 @@ public record ReportApprovedDomainEvent(
     Guid ReportId,
     string ReportCode,
     string ApprovedBy,
-    DateTime ApprovedAt) : IDomainEvent;
+    DateTime ApprovedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Report Rejected Domain Event - Triggered when report is rejected
@@ -83,7 +111,11 @@ public record ReportRejectedDomainEvent(
     string ReportCode,
     string RejectedBy,
     string RejectionReason,
-    DateTime RejectedAt) : IDomainEvent;
+    DateTime RejectedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // DASHBOARD DOMAIN EVENTS
@@ -97,7 +129,11 @@ public record DashboardCreatedDomainEvent(
     string DashboardCode,
     string DashboardName,
     DashboardType Type,
-    string CreatedBy) : IDomainEvent;
+    string CreatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Widget Added Domain Event - Triggered when widget is added to dashboard
@@ -107,7 +143,11 @@ public record DashboardWidgetAddedDomainEvent(
     string DashboardCode,
     Guid WidgetId,
     WidgetType WidgetType,
-    string WidgetTitle) : IDomainEvent;
+    string WidgetTitle) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Widget Removed Domain Event - Triggered when widget is removed from dashboard
@@ -116,7 +156,11 @@ public record DashboardWidgetRemovedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
     Guid WidgetId,
-    string WidgetTitle) : IDomainEvent;
+    string WidgetTitle) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Widget Updated Domain Event - Triggered when widget is updated
@@ -125,7 +169,11 @@ public record DashboardWidgetUpdatedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
     Guid WidgetId,
-    string WidgetTitle) : IDomainEvent;
+    string WidgetTitle) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Layout Updated Domain Event - Triggered when dashboard layout changes
@@ -133,14 +181,22 @@ public record DashboardWidgetUpdatedDomainEvent(
 public record DashboardLayoutUpdatedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
-    DashboardLayout NewLayout) : IDomainEvent;
+    DashboardLayout NewLayout) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Configuration Updated Domain Event - Triggered when dashboard config changes
 /// </summary>
 public record DashboardConfigurationUpdatedDomainEvent(
     Guid DashboardId,
-    string DashboardCode) : IDomainEvent;
+    string DashboardCode) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Refreshed Domain Event - Triggered when dashboard data is refreshed
@@ -149,7 +205,11 @@ public record DashboardRefreshedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
     string RefreshedBy,
-    DateTime RefreshedAt) : IDomainEvent;
+    DateTime RefreshedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Shared With User Domain Event - Triggered when dashboard is shared with user
@@ -157,7 +217,11 @@ public record DashboardRefreshedDomainEvent(
 public record DashboardSharedWithUserDomainEvent(
     Guid DashboardId,
     string DashboardCode,
-    string UserId) : IDomainEvent;
+    string UserId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Shared With Role Domain Event - Triggered when dashboard is shared with role
@@ -165,7 +229,11 @@ public record DashboardSharedWithUserDomainEvent(
 public record DashboardSharedWithRoleDomainEvent(
     Guid DashboardId,
     string DashboardCode,
-    string Role) : IDomainEvent;
+    string Role) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard User Access Removed Domain Event - Triggered when user access is removed
@@ -173,7 +241,11 @@ public record DashboardSharedWithRoleDomainEvent(
 public record DashboardUserAccessRemovedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
-    string UserId) : IDomainEvent;
+    string UserId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Role Access Removed Domain Event - Triggered when role access is removed
@@ -181,7 +253,11 @@ public record DashboardUserAccessRemovedDomainEvent(
 public record DashboardRoleAccessRemovedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
-    string Role) : IDomainEvent;
+    string Role) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Viewed Domain Event - Triggered when dashboard is viewed
@@ -190,7 +266,11 @@ public record DashboardViewedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
     string ViewedBy,
-    DateTime ViewedAt) : IDomainEvent;
+    DateTime ViewedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Auto Refresh Updated Domain Event - Triggered when auto refresh settings change
@@ -199,7 +279,11 @@ public record DashboardAutoRefreshUpdatedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
     bool AutoRefresh,
-    int IntervalMinutes) : IDomainEvent;
+    int IntervalMinutes) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Theme Updated Domain Event - Triggered when dashboard theme changes
@@ -207,21 +291,33 @@ public record DashboardAutoRefreshUpdatedDomainEvent(
 public record DashboardThemeUpdatedDomainEvent(
     Guid DashboardId,
     string DashboardCode,
-    string Theme) : IDomainEvent;
+    string Theme) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Activated Domain Event - Triggered when dashboard is activated
 /// </summary>
 public record DashboardActivatedDomainEvent(
     Guid DashboardId,
-    string DashboardCode) : IDomainEvent;
+    string DashboardCode) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Dashboard Deactivated Domain Event - Triggered when dashboard is deactivated
 /// </summary>
 public record DashboardDeactivatedDomainEvent(
     Guid DashboardId,
-    string DashboardCode) : IDomainEvent;
+    string DashboardCode) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // ANALYTICS DOMAIN EVENTS
@@ -236,7 +332,11 @@ public record AnalyticsCreatedDomainEvent(
     string AnalyticsName,
     AnalyticsType Type,
     AnalyticsCategory Category,
-    string ComputedBy) : IDomainEvent;
+    string ComputedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Analytics Computed Domain Event - Triggered when analytics computation is completed
@@ -246,7 +346,11 @@ public record AnalyticsComputedDomainEvent(
     string AnalyticsCode,
     AnalyticsType Type,
     int MetricCount,
-    DateTime ComputedAt) : IDomainEvent;
+    DateTime ComputedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Analytics Insight Added Domain Event - Triggered when insight is added to analytics
@@ -256,7 +360,11 @@ public record AnalyticsInsightAddedDomainEvent(
     string AnalyticsCode,
     string InsightCode,
     InsightType InsightType,
-    InsightSeverity Severity) : IDomainEvent;
+    InsightSeverity Severity) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Analytics Trend Updated Domain Event - Triggered when trend data is updated
@@ -264,7 +372,11 @@ public record AnalyticsInsightAddedDomainEvent(
 public record AnalyticsTrendUpdatedDomainEvent(
     Guid AnalyticsId,
     string AnalyticsCode,
-    int TrendDataCount) : IDomainEvent;
+    int TrendDataCount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Analytics Forecast Generated Domain Event - Triggered when forecast is generated
@@ -273,7 +385,11 @@ public record AnalyticsForecastGeneratedDomainEvent(
     Guid AnalyticsId,
     string AnalyticsCode,
     int ForecastCount,
-    decimal ConfidenceLevel) : IDomainEvent;
+    decimal ConfidenceLevel) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Analytics KPI Added Domain Event - Triggered when KPI is added to analytics
@@ -283,7 +399,11 @@ public record AnalyticsKPIAddedDomainEvent(
     string AnalyticsCode,
     string KPICode,
     decimal CurrentValue,
-    decimal TargetValue) : IDomainEvent;
+    decimal TargetValue) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Analytics Marked Stale Domain Event - Triggered when analytics is marked as stale
@@ -291,7 +411,11 @@ public record AnalyticsKPIAddedDomainEvent(
 public record AnalyticsMarkedStaleDomainEvent(
     Guid AnalyticsId,
     string AnalyticsCode,
-    DateTime MarkedStaleAt) : IDomainEvent;
+    DateTime MarkedStaleAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Analytics Refreshed Domain Event - Triggered when analytics is refreshed
@@ -300,7 +424,11 @@ public record AnalyticsRefreshedDomainEvent(
     Guid AnalyticsId,
     string AnalyticsCode,
     string RefreshedBy,
-    DateTime RefreshedAt) : IDomainEvent;
+    DateTime RefreshedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Analytics Failed Domain Event - Triggered when analytics computation fails
@@ -309,7 +437,11 @@ public record AnalyticsFailedDomainEvent(
     Guid AnalyticsId,
     string AnalyticsCode,
     string ErrorMessage,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // KPI DOMAIN EVENTS
@@ -324,7 +456,11 @@ public record KPITargetExceededDomainEvent(
     decimal CurrentValue,
     decimal TargetValue,
     decimal ExcessPercentage,
-    DateTime MeasurementDate) : IDomainEvent;
+    DateTime MeasurementDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// KPI Target Missed Domain Event - Triggered when KPI misses target significantly
@@ -335,7 +471,11 @@ public record KPITargetMissedDomainEvent(
     decimal CurrentValue,
     decimal TargetValue,
     decimal MissPercentage,
-    DateTime MeasurementDate) : IDomainEvent;
+    DateTime MeasurementDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// KPI Trend Changed Domain Event - Triggered when KPI trend changes significantly
@@ -346,7 +486,11 @@ public record KPITrendChangedDomainEvent(
     KPITrend OldTrend,
     KPITrend NewTrend,
     decimal CurrentValue,
-    DateTime MeasurementDate) : IDomainEvent;
+    DateTime MeasurementDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// KPI Status Changed Domain Event - Triggered when KPI status changes
@@ -357,7 +501,11 @@ public record KPIStatusChangedDomainEvent(
     KPIStatus OldStatus,
     KPIStatus NewStatus,
     decimal CurrentValue,
-    DateTime MeasurementDate) : IDomainEvent;
+    DateTime MeasurementDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // REGULATORY REPORTING DOMAIN EVENTS
@@ -371,7 +519,11 @@ public record RegulatoryReportDueDomainEvent(
     string ReportCode,
     string RegulatoryAuthority,
     DateTime DueDate,
-    int DaysUntilDue) : IDomainEvent;
+    int DaysUntilDue) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Regulatory Report Overdue Domain Event - Triggered when regulatory report is overdue
@@ -381,7 +533,11 @@ public record RegulatoryReportOverdueDomainEvent(
     string ReportCode,
     string RegulatoryAuthority,
     DateTime DueDate,
-    int DaysOverdue) : IDomainEvent;
+    int DaysOverdue) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Regulatory Submission Acknowledged Domain Event - Triggered when submission is acknowledged
@@ -391,7 +547,11 @@ public record RegulatorySubmissionAcknowledgedDomainEvent(
     string ReportCode,
     string RegulatoryAuthority,
     string AcknowledgmentReference,
-    DateTime AcknowledgedAt) : IDomainEvent;
+    DateTime AcknowledgedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Regulatory Submission Rejected Domain Event - Triggered when submission is rejected by regulator
@@ -401,7 +561,11 @@ public record RegulatorySubmissionRejectedDomainEvent(
     string ReportCode,
     string RegulatoryAuthority,
     string RejectionReason,
-    DateTime RejectedAt) : IDomainEvent;
+    DateTime RejectedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // DATA QUALITY DOMAIN EVENTS
@@ -415,7 +579,11 @@ public record DataQualityIssueDetectedDomainEvent(
     string IssueType,
     string Description,
     string Severity,
-    DateTime DetectedAt) : IDomainEvent;
+    DateTime DetectedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Data Refresh Completed Domain Event - Triggered when data refresh is completed
@@ -424,7 +592,11 @@ public record DataRefreshCompletedDomainEvent(
     string DataSource,
     int RecordsProcessed,
     TimeSpan Duration,
-    DateTime CompletedAt) : IDomainEvent;
+    DateTime CompletedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Data Refresh Failed Domain Event - Triggered when data refresh fails
@@ -432,4 +604,8 @@ public record DataRefreshCompletedDomainEvent(
 public record DataRefreshFailedDomainEvent(
     string DataSource,
     string ErrorMessage,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

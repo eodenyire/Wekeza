@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// SWIFT Message aggregate - Handles international payment messaging
 /// Supports MT103, MT202, MT700 and other SWIFT message types
 /// </summary>
-public class SWIFTMessage : AggregateRoot<Guid>
+public class SWIFTMessage : AggregateRoot
 {
     public string MessageReference { get; private set; }
     public string SWIFTReference { get; private set; }
@@ -389,45 +389,81 @@ public record SWIFTMessageCreatedDomainEvent(
     Guid MessageId,
     string MessageReference,
     SWIFTMessageType MessageType,
-    SWIFTDirection Direction) : IDomainEvent;
+    SWIFTDirection Direction) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SWIFTMessageBuiltDomainEvent(
     Guid MessageId,
     string SWIFTReference,
-    SWIFTMessageType MessageType) : IDomainEvent;
+    SWIFTMessageType MessageType) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SWIFTMessageValidatedDomainEvent(
     Guid MessageId,
-    string SWIFTReference) : IDomainEvent;
+    string SWIFTReference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SWIFTMessageValidationFailedDomainEvent(
     Guid MessageId,
     string SWIFTReference,
-    string ValidationErrors) : IDomainEvent;
+    string ValidationErrors) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SWIFTMessageSentDomainEvent(
     Guid MessageId,
     string SWIFTReference,
-    DateTime SentAt) : IDomainEvent;
+    DateTime SentAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SWIFTMessageAcknowledgedDomainEvent(
     Guid MessageId,
     string SWIFTReference,
-    string AcknowledgmentReference) : IDomainEvent;
+    string AcknowledgmentReference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SWIFTMessageProcessedDomainEvent(
     Guid MessageId,
     string SWIFTReference,
-    string ProcessedBy) : IDomainEvent;
+    string ProcessedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SWIFTMessageRejectedDomainEvent(
     Guid MessageId,
     string SWIFTReference,
     string ErrorCode,
-    string ErrorDescription) : IDomainEvent;
+    string ErrorDescription) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record SWIFTMessageRetryScheduledDomainEvent(
     Guid MessageId,
     string SWIFTReference,
     int RetryCount,
-    DateTime NextRetryAt) : IDomainEvent;
+    DateTime NextRetryAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

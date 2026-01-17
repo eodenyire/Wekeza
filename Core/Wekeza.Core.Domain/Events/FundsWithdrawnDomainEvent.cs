@@ -7,4 +7,8 @@ public record FundsWithdrawnDomainEvent(
     Guid AccountId,
     Money Amount,
     string TransactionReference,
-    string Description) : IDomainEvent;
+    string Description) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

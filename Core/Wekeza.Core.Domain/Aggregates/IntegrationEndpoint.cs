@@ -9,7 +9,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Supports REST, SOAP, GraphQL, gRPC, WebSocket, FTP, and database connections
 /// Industry Standard: Enterprise Service Bus (ESB) and API Gateway patterns
 /// </summary>
-public class IntegrationEndpoint : AggregateRoot<Guid>
+public class IntegrationEndpoint : AggregateRoot
 {
     // Core Properties
     public string EndpointCode { get; private set; }

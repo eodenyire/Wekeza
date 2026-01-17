@@ -9,7 +9,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Supports payment gateways, credit bureaus, KYC providers, and other external services
 /// Industry Standard: Finacle SOA & T24 Integration Framework
 /// </summary>
-public class Integration : AggregateRoot<Guid>
+public class Integration : AggregateRoot
 {
     // Core Properties
     public string IntegrationCode { get; private set; }

@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Branch aggregate - Complete branch operations management
 /// Supports EOD/BOD processing, vault management, and operational controls
 /// </summary>
-public class Branch : AggregateRoot<Guid>
+public class Branch : AggregateRoot
 {
     public string BranchCode { get; private set; }
     public string BranchName { get; private set; }
@@ -549,47 +549,79 @@ public record BranchCreatedDomainEvent(
     Guid BranchId,
     string BranchCode,
     string BranchName,
-    string ManagerId) : IDomainEvent;
+    string ManagerId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record BranchBODCompletedDomainEvent(
     Guid BranchId,
     string BranchCode,
     string ProcessedBy,
-    DateTime ProcessedAt) : IDomainEvent;
+    DateTime ProcessedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record BranchEODCompletedDomainEvent(
     Guid BranchId,
     string BranchCode,
     string ProcessedBy,
-    DateTime ProcessedAt) : IDomainEvent;
+    DateTime ProcessedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record BranchVaultAddedDomainEvent(
     Guid BranchId,
     string BranchCode,
     string VaultCode,
-    Money Capacity) : IDomainEvent;
+    Money Capacity) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record BranchVaultBalanceUpdatedDomainEvent(
     Guid BranchId,
     string BranchCode,
     string VaultCode,
-    Money NewBalance) : IDomainEvent;
+    Money NewBalance) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record BranchLimitUpdatedDomainEvent(
     Guid BranchId,
     string BranchCode,
     string LimitType,
-    Money LimitAmount) : IDomainEvent;
+    Money LimitAmount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record BranchManagerUpdatedDomainEvent(
     Guid BranchId,
     string BranchCode,
     string PreviousManager,
-    string NewManager) : IDomainEvent;
+    string NewManager) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record BranchStatusUpdatedDomainEvent(
     Guid BranchId,
     string BranchCode,
     BranchStatus PreviousStatus,
     BranchStatus NewStatus,
-    string? Reason) : IDomainEvent;
+    string? Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

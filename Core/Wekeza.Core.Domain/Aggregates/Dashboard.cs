@@ -9,7 +9,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Supports executive, operational, risk, and custom dashboards
 /// Industry Standard: Finacle MIS & T24 Business Intelligence
 /// </summary>
-public class Dashboard : AggregateRoot<Guid>
+public class Dashboard : AggregateRoot
 {
     // Core Properties
     public string DashboardCode { get; private set; }

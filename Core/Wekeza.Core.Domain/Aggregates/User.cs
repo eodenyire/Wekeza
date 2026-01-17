@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// User Aggregate - Comprehensive user management with authentication, MFA, and security features
 /// Supports enterprise-grade user lifecycle management, security policies, and audit trails
 /// </summary>
-public class User : AggregateRoot<Guid>
+public class User : AggregateRoot
 {
     // Core Properties
     public string Username { get; private set; }

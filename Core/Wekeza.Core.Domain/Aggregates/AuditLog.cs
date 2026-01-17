@@ -7,7 +7,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// AuditLog Aggregate - Comprehensive audit trail for compliance and forensics
 /// Supports enterprise-grade logging, monitoring, and regulatory compliance
 /// </summary>
-public class AuditLog : AggregateRoot<Guid>
+public class AuditLog : AggregateRoot
 {
     // Core Properties
     public string EventType { get; private set; }

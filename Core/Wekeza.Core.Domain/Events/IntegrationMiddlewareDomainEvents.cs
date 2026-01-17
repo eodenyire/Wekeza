@@ -16,7 +16,11 @@ public record IntegrationEndpointCreatedDomainEvent(
     string EndpointName,
     EndpointType Type,
     EndpointProtocol Protocol,
-    string CreatedBy) : IDomainEvent;
+    string CreatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Configuration Updated Domain Event - Triggered when endpoint config changes
@@ -24,7 +28,11 @@ public record IntegrationEndpointCreatedDomainEvent(
 public record IntegrationEndpointConfigurationUpdatedDomainEvent(
     Guid EndpointId,
     string EndpointCode,
-    string ModifiedBy) : IDomainEvent;
+    string ModifiedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Credentials Updated Domain Event - Triggered when credentials are updated
@@ -32,7 +40,11 @@ public record IntegrationEndpointConfigurationUpdatedDomainEvent(
 public record IntegrationEndpointCredentialsUpdatedDomainEvent(
     Guid EndpointId,
     string EndpointCode,
-    DateTime? ExpiryDate) : IDomainEvent;
+    DateTime? ExpiryDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Call Succeeded Domain Event - Triggered when API call succeeds
@@ -41,7 +53,11 @@ public record IntegrationEndpointCallSucceededDomainEvent(
     Guid EndpointId,
     string EndpointCode,
     TimeSpan ResponseTime,
-    DateTime CalledAt) : IDomainEvent;
+    DateTime CalledAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Call Failed Domain Event - Triggered when API call fails
@@ -50,7 +66,11 @@ public record IntegrationEndpointCallFailedDomainEvent(
     Guid EndpointId,
     string EndpointCode,
     string ErrorMessage,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Health Status Changed Domain Event - Triggered when health status changes
@@ -60,7 +80,11 @@ public record IntegrationEndpointHealthStatusChangedDomainEvent(
     string EndpointCode,
     HealthStatus PreviousStatus,
     HealthStatus NewStatus,
-    string Result) : IDomainEvent;
+    string Result) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Enabled Domain Event - Triggered when endpoint is enabled
@@ -68,7 +92,11 @@ public record IntegrationEndpointHealthStatusChangedDomainEvent(
 public record IntegrationEndpointEnabledDomainEvent(
     Guid EndpointId,
     string EndpointCode,
-    string EnabledBy) : IDomainEvent;
+    string EnabledBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Disabled Domain Event - Triggered when endpoint is disabled
@@ -77,7 +105,11 @@ public record IntegrationEndpointDisabledDomainEvent(
     Guid EndpointId,
     string EndpointCode,
     string DisabledBy,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Circuit Breaker Triggered Domain Event - Triggered when circuit breaker opens
@@ -86,7 +118,11 @@ public record IntegrationEndpointCircuitBreakerTriggeredDomainEvent(
     Guid EndpointId,
     string EndpointCode,
     int FailureThreshold,
-    DateTime TriggeredAt) : IDomainEvent;
+    DateTime TriggeredAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Circuit Breaker Reset Domain Event - Triggered when circuit breaker closes
@@ -94,7 +130,11 @@ public record IntegrationEndpointCircuitBreakerTriggeredDomainEvent(
 public record IntegrationEndpointCircuitBreakerResetDomainEvent(
     Guid EndpointId,
     string EndpointCode,
-    DateTime ResetAt) : IDomainEvent;
+    DateTime ResetAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Endpoint Rate Limit Exceeded Domain Event - Triggered when rate limit is exceeded
@@ -104,7 +144,11 @@ public record IntegrationEndpointRateLimitExceededDomainEvent(
     string EndpointCode,
     int CurrentRate,
     int RateLimit,
-    DateTime ExceededAt) : IDomainEvent;
+    DateTime ExceededAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // MESSAGE QUEUE DOMAIN EVENTS
@@ -117,7 +161,11 @@ public record MessageQueueCreatedDomainEvent(
     Guid QueueId,
     string QueueName,
     QueueType Type,
-    string CreatedBy) : IDomainEvent;
+    string CreatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Enqueued Domain Event - Triggered when a message is added to queue
@@ -128,7 +176,11 @@ public record MessageEnqueuedDomainEvent(
     string MessageId,
     string MessageType,
     MessagePriority Priority,
-    DateTime EnqueuedAt) : IDomainEvent;
+    DateTime EnqueuedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Dequeued Domain Event - Triggered when a message is removed from queue
@@ -139,7 +191,11 @@ public record MessageDequeuedDomainEvent(
     string MessageId,
     string MessageType,
     int DeliveryCount,
-    DateTime DequeuedAt) : IDomainEvent;
+    DateTime DequeuedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Processed Domain Event - Triggered when a message is successfully processed
@@ -149,7 +205,11 @@ public record MessageProcessedDomainEvent(
     string QueueName,
     string MessageId,
     TimeSpan ProcessingTime,
-    DateTime ProcessedAt) : IDomainEvent;
+    DateTime ProcessedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Processing Failed Domain Event - Triggered when message processing fails
@@ -159,7 +219,11 @@ public record MessageProcessingFailedDomainEvent(
     string QueueName,
     string MessageId,
     string ErrorMessage,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Moved To Dead Letter Domain Event - Triggered when message is moved to DLQ
@@ -170,7 +234,11 @@ public record MessageMovedToDeadLetterDomainEvent(
     string DeadLetterQueue,
     string MessageId,
     string Reason,
-    DateTime MovedAt) : IDomainEvent;
+    DateTime MovedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Expired Domain Event - Triggered when a message expires
@@ -180,7 +248,11 @@ public record MessageExpiredDomainEvent(
     string QueueName,
     string MessageId,
     string MessageType,
-    DateTime ExpiredAt) : IDomainEvent;
+    DateTime ExpiredAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Queue Purged Domain Event - Triggered when queue is purged
@@ -190,7 +262,11 @@ public record MessageQueuePurgedDomainEvent(
     string QueueName,
     int MessageCount,
     string PurgedBy,
-    DateTime PurgedAt) : IDomainEvent;
+    DateTime PurgedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Queue Configuration Updated Domain Event - Triggered when queue config changes
@@ -198,7 +274,11 @@ public record MessageQueuePurgedDomainEvent(
 public record MessageQueueConfigurationUpdatedDomainEvent(
     Guid QueueId,
     string QueueName,
-    string ModifiedBy) : IDomainEvent;
+    string ModifiedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Queue Consumer Added Domain Event - Triggered when consumer is added
@@ -208,7 +288,11 @@ public record MessageQueueConsumerAddedDomainEvent(
     string QueueName,
     string ConsumerId,
     string ConsumerName,
-    DateTime AddedAt) : IDomainEvent;
+    DateTime AddedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Queue Consumer Removed Domain Event - Triggered when consumer is removed
@@ -218,7 +302,11 @@ public record MessageQueueConsumerRemovedDomainEvent(
     string QueueName,
     string ConsumerId,
     string ConsumerName,
-    DateTime RemovedAt) : IDomainEvent;
+    DateTime RemovedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Queue Activated Domain Event - Triggered when queue is activated
@@ -226,7 +314,11 @@ public record MessageQueueConsumerRemovedDomainEvent(
 public record MessageQueueActivatedDomainEvent(
     Guid QueueId,
     string QueueName,
-    string ActivatedBy) : IDomainEvent;
+    string ActivatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Queue Deactivated Domain Event - Triggered when queue is deactivated
@@ -235,7 +327,11 @@ public record MessageQueueDeactivatedDomainEvent(
     Guid QueueId,
     string QueueName,
     string DeactivatedBy,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Message Queue Overloaded Domain Event - Triggered when queue reaches capacity
@@ -245,7 +341,11 @@ public record MessageQueueOverloadedDomainEvent(
     string QueueName,
     int CurrentSize,
     int MaxSize,
-    DateTime OverloadedAt) : IDomainEvent;
+    DateTime OverloadedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // WEBHOOK SUBSCRIPTION DOMAIN EVENTS
@@ -260,7 +360,11 @@ public record WebhookSubscriptionCreatedDomainEvent(
     string SubscriptionName,
     string CallbackUrl,
     List<string> EventTypes,
-    string CreatedBy) : IDomainEvent;
+    string CreatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Webhook Subscription Updated Domain Event - Triggered when subscription is updated
@@ -269,7 +373,11 @@ public record WebhookSubscriptionUpdatedDomainEvent(
     Guid SubscriptionId,
     string SubscriptionCode,
     string PropertyName,
-    string NewValue) : IDomainEvent;
+    string NewValue) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Webhook Delivery Succeeded Domain Event - Triggered when webhook delivery succeeds
@@ -280,7 +388,11 @@ public record WebhookDeliverySucceededDomainEvent(
     string CallbackUrl,
     int HttpStatusCode,
     TimeSpan DeliveryTime,
-    DateTime DeliveredAt) : IDomainEvent;
+    DateTime DeliveredAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Webhook Delivery Failed Domain Event - Triggered when webhook delivery fails
@@ -292,7 +404,11 @@ public record WebhookDeliveryFailedDomainEvent(
     string ErrorMessage,
     int? HttpStatusCode,
     int AttemptNumber,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Webhook Subscription Enabled Domain Event - Triggered when subscription is enabled
@@ -300,7 +416,11 @@ public record WebhookDeliveryFailedDomainEvent(
 public record WebhookSubscriptionEnabledDomainEvent(
     Guid SubscriptionId,
     string SubscriptionCode,
-    string EnabledBy) : IDomainEvent;
+    string EnabledBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Webhook Subscription Disabled Domain Event - Triggered when subscription is disabled
@@ -309,7 +429,11 @@ public record WebhookSubscriptionDisabledDomainEvent(
     Guid SubscriptionId,
     string SubscriptionCode,
     string DisabledBy,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Webhook Subscription Suspended Domain Event - Triggered when subscription is suspended
@@ -318,7 +442,11 @@ public record WebhookSubscriptionSuspendedDomainEvent(
     Guid SubscriptionId,
     string SubscriptionCode,
     string SuspendedBy,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Webhook Subscription Health Degraded Domain Event - Triggered when health degrades
@@ -328,7 +456,11 @@ public record WebhookSubscriptionHealthDegradedDomainEvent(
     string SubscriptionCode,
     int ConsecutiveFailures,
     WebhookHealthStatus HealthStatus,
-    DateTime DegradedAt) : IDomainEvent;
+    DateTime DegradedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Webhook Subscription Rate Limited Domain Event - Triggered when rate limit is hit
@@ -338,7 +470,11 @@ public record WebhookSubscriptionRateLimitedDomainEvent(
     string SubscriptionCode,
     int CurrentRate,
     int RateLimit,
-    DateTime LimitedAt) : IDomainEvent;
+    DateTime LimitedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // API GATEWAY DOMAIN EVENTS
@@ -352,7 +488,11 @@ public record ApiRouteCreatedDomainEvent(
     string Path,
     string Method,
     string UpstreamUrl,
-    string CreatedBy) : IDomainEvent;
+    string CreatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// API Route Updated Domain Event - Triggered when API route is updated
@@ -362,7 +502,11 @@ public record ApiRouteUpdatedDomainEvent(
     string Path,
     string Method,
     string PropertyName,
-    string ModifiedBy) : IDomainEvent;
+    string ModifiedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// API Request Routed Domain Event - Triggered when request is routed
@@ -374,7 +518,11 @@ public record ApiRequestRoutedDomainEvent(
     string UpstreamUrl,
     TimeSpan ResponseTime,
     int StatusCode,
-    DateTime RoutedAt) : IDomainEvent;
+    DateTime RoutedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// API Request Failed Domain Event - Triggered when request routing fails
@@ -385,7 +533,11 @@ public record ApiRequestFailedDomainEvent(
     string Method,
     string ErrorMessage,
     int? StatusCode,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// API Rate Limit Exceeded Domain Event - Triggered when rate limit is exceeded
@@ -397,7 +549,11 @@ public record ApiRateLimitExceededDomainEvent(
     string ClientId,
     int CurrentRate,
     int RateLimit,
-    DateTime ExceededAt) : IDomainEvent;
+    DateTime ExceededAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// API Authentication Failed Domain Event - Triggered when authentication fails
@@ -408,7 +564,11 @@ public record ApiAuthenticationFailedDomainEvent(
     string Method,
     string Reason,
     string ClientId,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// API Authorization Failed Domain Event - Triggered when authorization fails
@@ -420,7 +580,11 @@ public record ApiAuthorizationFailedDomainEvent(
     string UserId,
     List<string> RequiredRoles,
     List<string> UserRoles,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // DATA TRANSFORMATION DOMAIN EVENTS
@@ -434,7 +598,11 @@ public record DataTransformationCreatedDomainEvent(
     string TransformationCode,
     string TransformationName,
     TransformationType Type,
-    string CreatedBy) : IDomainEvent;
+    string CreatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Data Transformation Executed Domain Event - Triggered when transformation is executed
@@ -444,7 +612,11 @@ public record DataTransformationExecutedDomainEvent(
     string TransformationCode,
     TimeSpan ExecutionTime,
     bool Success,
-    DateTime ExecutedAt) : IDomainEvent;
+    DateTime ExecutedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Data Transformation Failed Domain Event - Triggered when transformation fails
@@ -453,7 +625,11 @@ public record DataTransformationFailedDomainEvent(
     Guid TransformationId,
     string TransformationCode,
     string ErrorMessage,
-    DateTime FailedAt) : IDomainEvent;
+    DateTime FailedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 // ============================================================================
 // SYSTEM INTEGRATION DOMAIN EVENTS
@@ -467,7 +643,11 @@ public record IntegrationHealthCheckCompletedDomainEvent(
     HealthStatus Status,
     TimeSpan CheckDuration,
     string Details,
-    DateTime CheckedAt) : IDomainEvent;
+    DateTime CheckedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration System Connected Domain Event - Triggered when external system connects
@@ -476,7 +656,11 @@ public record IntegrationSystemConnectedDomainEvent(
     string SystemName,
     string SystemType,
     string ConnectionId,
-    DateTime ConnectedAt) : IDomainEvent;
+    DateTime ConnectedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration System Disconnected Domain Event - Triggered when external system disconnects
@@ -486,7 +670,11 @@ public record IntegrationSystemDisconnectedDomainEvent(
     string SystemType,
     string ConnectionId,
     string Reason,
-    DateTime DisconnectedAt) : IDomainEvent;
+    DateTime DisconnectedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Batch Processing Started Domain Event - Triggered when batch processing starts
@@ -496,7 +684,11 @@ public record IntegrationBatchProcessingStartedDomainEvent(
     string BatchType,
     int RecordCount,
     string ProcessedBy,
-    DateTime StartedAt) : IDomainEvent;
+    DateTime StartedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Batch Processing Completed Domain Event - Triggered when batch processing completes
@@ -508,7 +700,11 @@ public record IntegrationBatchProcessingCompletedDomainEvent(
     int SuccessfulRecords,
     int FailedRecords,
     TimeSpan ProcessingTime,
-    DateTime CompletedAt) : IDomainEvent;
+    DateTime CompletedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Error Threshold Exceeded Domain Event - Triggered when error rate is too high
@@ -518,7 +714,11 @@ public record IntegrationErrorThresholdExceededDomainEvent(
     int ErrorCount,
     int ErrorThreshold,
     TimeSpan TimeWindow,
-    DateTime ExceededAt) : IDomainEvent;
+    DateTime ExceededAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Performance Degraded Domain Event - Triggered when performance degrades
@@ -527,7 +727,11 @@ public record IntegrationPerformanceDegradedDomainEvent(
     string ComponentName,
     TimeSpan CurrentResponseTime,
     TimeSpan ThresholdResponseTime,
-    DateTime DegradedAt) : IDomainEvent;
+    DateTime DegradedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Configuration Changed Domain Event - Triggered when integration config changes
@@ -538,7 +742,11 @@ public record IntegrationConfigurationChangedDomainEvent(
     string OldValue,
     string NewValue,
     string ChangedBy,
-    DateTime ChangedAt) : IDomainEvent;
+    DateTime ChangedAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 /// <summary>
 /// Integration Security Event Domain Event - Triggered for security-related events
@@ -549,4 +757,8 @@ public record IntegrationSecurityEventDomainEvent(
     string Details,
     string SourceIp,
     string UserId,
-    DateTime OccurredAt) : IDomainEvent;
+    DateTime OccurredAt) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

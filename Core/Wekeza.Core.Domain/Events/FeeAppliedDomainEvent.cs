@@ -7,4 +7,8 @@ public record FeeAppliedDomainEvent(
     Guid AccountId,
     Money FeeAmount,
     string FeeType,
-    string Description) : IDomainEvent;
+    string Description) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

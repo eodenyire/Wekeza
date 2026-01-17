@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Term Deposit aggregate - Flexible time deposits with various term options
 /// Supports custom terms, flexible interest rates, and partial withdrawals
 /// </summary>
-public class TermDeposit : AggregateRoot<Guid>
+public class TermDeposit : AggregateRoot
 {
     public Guid AccountId { get; private set; }
     public Guid CustomerId { get; private set; }
@@ -372,29 +372,49 @@ public record TermDepositBookedDomainEvent(
     Guid AccountId,
     Guid CustomerId,
     Money PrincipalAmount,
-    DateTime MaturityDate) : IDomainEvent;
+    DateTime MaturityDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TermDepositPartialWithdrawalDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Money WithdrawalAmount,
-    Money RemainingBalance) : IDomainEvent;
+    Money RemainingBalance) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TermDepositMaturedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Guid CustomerId,
-    Money MaturityAmount) : IDomainEvent;
+    Money MaturityAmount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TermDepositClosedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Guid CustomerId,
     Money ClosureAmount,
-    bool IsPremature) : IDomainEvent;
+    bool IsPremature) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TermDepositRenewedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Money NewPrincipalAmount,
-    DateTime NewMaturityDate) : IDomainEvent;
+    DateTime NewMaturityDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

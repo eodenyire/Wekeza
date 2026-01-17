@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Recurring Deposit aggregate - Represents systematic investment plans with regular deposits
 /// Core banking liability product for customer savings with disciplined investment
 /// </summary>
-public class RecurringDeposit : AggregateRoot<Guid>
+public class RecurringDeposit : AggregateRoot
 {
     public Guid AccountId { get; private set; }
     public Guid CustomerId { get; private set; }
@@ -273,35 +273,59 @@ public record RecurringDepositOpenedDomainEvent(
     Guid AccountId,
     Guid CustomerId,
     Money MonthlyInstallment,
-    int TenureInMonths) : IDomainEvent;
+    int TenureInMonths) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RecurringDepositInstallmentPaidDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Money InstallmentAmount,
     int InstallmentNumber,
-    DateTime PaymentDate) : IDomainEvent;
+    DateTime PaymentDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RecurringDepositInstallmentMissedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     DateTime MissedDate,
-    int TotalMissedInstallments) : IDomainEvent;
+    int TotalMissedInstallments) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RecurringDepositMaturedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Guid CustomerId,
-    Money MaturityAmount) : IDomainEvent;
+    Money MaturityAmount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RecurringDepositClosedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Guid CustomerId,
     Money ClosureAmount,
-    bool IsPremature) : IDomainEvent;
+    bool IsPremature) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record RecurringDepositDiscontinuedDomainEvent(
     Guid DepositId,
     Guid AccountId,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

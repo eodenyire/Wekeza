@@ -10,28 +10,48 @@ public record MoneyMarketDealBookedDomainEvent(
     string DealNumber, 
     Guid CounterpartyId, 
     Money Principal, 
-    MoneyMarketDealType DealType) : IDomainEvent;
+    MoneyMarketDealType DealType) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record MoneyMarketDealSettledDomainEvent(
     Guid DealId, 
     string DealNumber, 
-    Money Principal) : IDomainEvent;
+    Money Principal) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record MoneyMarketDealMaturedDomainEvent(
     Guid DealId, 
     string DealNumber, 
-    Money MaturityAmount) : IDomainEvent;
+    Money MaturityAmount) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record MoneyMarketDealCancelledDomainEvent(
     Guid DealId, 
     string DealNumber, 
-    string CancellationReason) : IDomainEvent;
+    string CancellationReason) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record MoneyMarketDealRolloverDomainEvent(
     Guid DealId, 
     string DealNumber, 
     DateTime NewMaturityDate, 
-    InterestRate NewRate) : IDomainEvent;
+    InterestRate NewRate) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 // FX Deal Events
 public record FXDealExecutedDomainEvent(
@@ -40,31 +60,51 @@ public record FXDealExecutedDomainEvent(
     Guid CounterpartyId, 
     Money BaseAmount, 
     Money QuoteAmount, 
-    ExchangeRate Rate) : IDomainEvent;
+    ExchangeRate Rate) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record FXDealSettledDomainEvent(
     Guid DealId, 
     string DealNumber, 
     Money BaseAmount, 
-    Money QuoteAmount) : IDomainEvent;
+    Money QuoteAmount) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record FXDealMaturedDomainEvent(
     Guid DealId, 
     string DealNumber, 
     Money BaseAmount, 
-    Money QuoteAmount) : IDomainEvent;
+    Money QuoteAmount) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record FXDealCancelledDomainEvent(
     Guid DealId, 
     string DealNumber, 
-    string CancellationReason) : IDomainEvent;
+    string CancellationReason) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record FXRateUpdatedDomainEvent(
     Guid DealId, 
     string DealNumber, 
     ExchangeRate OldRate, 
     ExchangeRate NewRate, 
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 // Security Deal Events
 public record SecurityDealExecutedDomainEvent(
@@ -73,60 +113,96 @@ public record SecurityDealExecutedDomainEvent(
     string SecurityId, 
     TradeType TradeType, 
     decimal Quantity, 
-    Money Price) : IDomainEvent;
+    Money Price) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record SecurityDealSettledDomainEvent(
     Guid DealId, 
     string DealNumber, 
     string SecurityId, 
     decimal Quantity, 
-    Money TotalAmount) : IDomainEvent;
+    Money TotalAmount) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record SecurityDealCancelledDomainEvent(
     Guid DealId, 
     string DealNumber, 
-    string CancellationReason) : IDomainEvent;
+    string CancellationReason) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record SecurityPriceUpdatedDomainEvent(
     Guid DealId, 
     string DealNumber, 
     Money OldPrice, 
     Money NewPrice, 
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record CouponReceivedDomainEvent(
     Guid DealId, 
     string DealNumber, 
     string SecurityId, 
     Money CouponAmount, 
-    DateTime PaymentDate) : IDomainEvent;
+    DateTime PaymentDate) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record DividendReceivedDomainEvent(
     Guid DealId, 
     string DealNumber, 
     string SecurityId, 
     Money DividendAmount, 
-    DateTime PaymentDate) : IDomainEvent;
+    DateTime PaymentDate) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 // Liquidity Events
 public record LiquidityShortfallDomainEvent(
     DateTime PositionDate, 
     string Currency, 
     Money ShortfallAmount, 
-    Money RequiredReserves) : IDomainEvent;
+    Money RequiredReserves) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record LiquidityExcessDomainEvent(
     DateTime PositionDate, 
     string Currency, 
     Money ExcessAmount, 
-    Money AvailableForInvestment) : IDomainEvent;
+    Money AvailableForInvestment) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record LiquidityPositionUpdatedDomainEvent(
     DateTime PositionDate, 
     string Currency, 
     Money OpeningBalance, 
     Money ClosingBalance, 
-    Money NetFlow) : IDomainEvent;
+    Money NetFlow) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 // Risk Events
 public record RiskLimitBreachedDomainEvent(
@@ -134,21 +210,33 @@ public record RiskLimitBreachedDomainEvent(
     string Currency, 
     Money CurrentExposure, 
     Money LimitAmount, 
-    decimal UtilizationPercentage) : IDomainEvent;
+    decimal UtilizationPercentage) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record VaRLimitExceededDomainEvent(
     DateTime CalculationDate, 
     string Portfolio, 
     Money VaRAmount, 
     Money VaRLimit, 
-    decimal ConfidenceLevel) : IDomainEvent;
+    decimal ConfidenceLevel) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record CounterpartyLimitBreachedDomainEvent(
     Guid CounterpartyId, 
     string CounterpartyName, 
     Money CurrentExposure, 
     Money LimitAmount, 
-    string LimitType) : IDomainEvent;
+    string LimitType) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 // Market Data Events
 public record MarketDataUpdatedDomainEvent(
@@ -157,15 +245,27 @@ public record MarketDataUpdatedDomainEvent(
     decimal OldValue, 
     decimal NewValue, 
     DateTime Timestamp, 
-    string Source) : IDomainEvent;
+    string Source) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record YieldCurveUpdatedDomainEvent(
     string Currency, 
     DateTime EffectiveDate, 
     Dictionary<string, decimal> YieldPoints, 
-    string Source) : IDomainEvent;
+    string Source) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}
 
 public record FXRatesFeedUpdatedDomainEvent(
     DateTime Timestamp, 
     Dictionary<string, ExchangeRate> Rates, 
-    string Source) : IDomainEvent;
+    string Source) : IDomainEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+}

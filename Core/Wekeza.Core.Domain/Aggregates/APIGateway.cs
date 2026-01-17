@@ -10,7 +10,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Provides centralized API management with rate limiting and monitoring
 /// Industry Standard: Kong, Ocelot, and enterprise API gateway patterns
 /// </summary>
-public class APIGateway : AggregateRoot<Guid>
+public class APIGateway : AggregateRoot
 {
     // Core Properties
     public string GatewayCode { get; private set; }

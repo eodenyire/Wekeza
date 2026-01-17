@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Approval Workflow aggregate - Comprehensive maker-checker and multi-level approval system
 /// Supports configurable approval matrices, escalation rules, and SLA management
 /// </summary>
-public class ApprovalWorkflow : AggregateRoot<Guid>
+public class ApprovalWorkflow : AggregateRoot
 {
     public string WorkflowCode { get; private set; }
     public string WorkflowName { get; private set; }
@@ -551,58 +551,98 @@ public record ApprovalWorkflowInitiatedDomainEvent(
     string WorkflowCode,
     string EntityType,
     Guid EntityId,
-    string InitiatedBy) : IDomainEvent;
+    string InitiatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ApprovalWorkflowStartedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
-    int CurrentLevel) : IDomainEvent;
+    int CurrentLevel) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ApprovalStepAssignedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     int Level,
-    int StepCount) : IDomainEvent;
+    int StepCount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ApprovalStepApprovedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     int Level,
-    string ApprovedBy) : IDomainEvent;
+    string ApprovedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ApprovalLevelCompletedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
-    int CompletedLevel) : IDomainEvent;
+    int CompletedLevel) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ApprovalWorkflowCompletedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     string EntityType,
     Guid EntityId,
-    string CompletedBy) : IDomainEvent;
+    string CompletedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ApprovalWorkflowRejectedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     int Level,
     string RejectedBy,
-    string RejectionReason) : IDomainEvent;
+    string RejectionReason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ApprovalWorkflowEscalatedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     string EscalationReason,
-    string EscalatedBy) : IDomainEvent;
+    string EscalatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ApprovalWorkflowCancelledDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     string CancellationReason,
-    string CancelledBy) : IDomainEvent;
+    string CancelledBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record WorkflowDocumentAttachedDomainEvent(
     Guid WorkflowId,
     string WorkflowCode,
     string FileName,
-    string UploadedBy) : IDomainEvent;
+    string UploadedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

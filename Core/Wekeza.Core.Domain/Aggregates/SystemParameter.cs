@@ -9,7 +9,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// SystemParameter Aggregate - Centralized system and business parameter management
 /// Supports enterprise-grade configuration management, validation, and change control
 /// </summary>
-public class SystemParameter : AggregateRoot<Guid>
+public class SystemParameter : AggregateRoot
 {
     // Core Properties
     public string ParameterCode { get; private set; }

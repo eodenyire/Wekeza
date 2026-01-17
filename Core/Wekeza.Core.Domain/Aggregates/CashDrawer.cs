@@ -389,33 +389,53 @@ public record CashDrawerCreatedDomainEvent(
     Guid DrawerId,
     string DrawerNumber,
     Guid TellerId,
-    Guid BranchId) : IDomainEvent;
+    Guid BranchId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashDrawerOpenedDomainEvent(
     Guid DrawerId,
     string DrawerNumber,
     string SessionId,
-    Money InitialCash) : IDomainEvent;
+    Money InitialCash) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashDrawerClosedDomainEvent(
     Guid DrawerId,
     string DrawerNumber,
     Money FinalCash,
-    string? Notes) : IDomainEvent;
+    string? Notes) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashAddedToDrawerDomainEvent(
     Guid DrawerId,
     string DrawerNumber,
     Money Amount,
     CashSource Source,
-    string? Reference) : IDomainEvent;
+    string? Reference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashRemovedFromDrawerDomainEvent(
     Guid DrawerId,
     string DrawerNumber,
     Money Amount,
     CashDestination Destination,
-    string? Reference) : IDomainEvent;
+    string? Reference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashTransferredBetweenDrawersDomainEvent(
     Guid SourceDrawerId,
@@ -423,23 +443,39 @@ public record CashTransferredBetweenDrawersDomainEvent(
     Guid TargetDrawerId,
     string TargetDrawerNumber,
     Money Amount,
-    string? Reference) : IDomainEvent;
+    string? Reference) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashReconciliationCompletedDomainEvent(
     Guid DrawerId,
     string DrawerNumber,
     Money TotalDifference,
     Dictionary<string, Money> ActualCashByCurrency,
-    string? Notes) : IDomainEvent;
+    string? Notes) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashDrawerLockedDomainEvent(
     Guid DrawerId,
     string DrawerNumber,
     string Reason,
-    string LockedBy) : IDomainEvent;
+    string LockedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record CashDrawerUnlockedDomainEvent(
     Guid DrawerId,
     string DrawerNumber,
     string UnlockedBy,
-    string? Notes) : IDomainEvent;
+    string? Notes) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

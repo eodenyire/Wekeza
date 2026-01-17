@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Role Aggregate - Comprehensive role-based access control with hierarchical permissions
 /// Supports enterprise-grade authorization, delegation, and security policies
 /// </summary>
-public class Role : AggregateRoot<Guid>
+public class Role : AggregateRoot
 {
     // Core Properties
     public string RoleCode { get; private set; }

@@ -7,7 +7,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// SystemMonitor Aggregate - Real-time system health monitoring and alerting
 /// Supports enterprise-grade monitoring, performance tracking, and automated alerting
 /// </summary>
-public class SystemMonitor : AggregateRoot<Guid>
+public class SystemMonitor : AggregateRoot
 {
     // Core Properties
     public string MonitorCode { get; private set; }

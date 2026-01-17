@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Fixed Deposit aggregate - Represents time deposits with fixed terms and interest rates
 /// Core banking liability product for customer investments
 /// </summary>
-public class FixedDeposit : AggregateRoot<Guid>
+public class FixedDeposit : AggregateRoot
 {
     public Guid AccountId { get; private set; }
     public Guid CustomerId { get; private set; }
@@ -210,23 +210,39 @@ public record FixedDepositBookedDomainEvent(
     Guid AccountId,
     Guid CustomerId,
     Money PrincipalAmount,
-    DateTime MaturityDate) : IDomainEvent;
+    DateTime MaturityDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record FixedDepositMaturedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Guid CustomerId,
-    Money MaturityAmount) : IDomainEvent;
+    Money MaturityAmount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record FixedDepositClosedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Guid CustomerId,
     Money ClosureAmount,
-    bool IsPremature) : IDomainEvent;
+    bool IsPremature) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record FixedDepositRenewedDomainEvent(
     Guid DepositId,
     Guid AccountId,
     Money NewPrincipalAmount,
-    DateTime NewMaturityDate) : IDomainEvent;
+    DateTime NewMaturityDate) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

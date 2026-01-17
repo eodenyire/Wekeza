@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Task Assignment aggregate - Complete task management system
 /// Supports task creation, assignment, tracking, and completion
 /// </summary>
-public class TaskAssignment : AggregateRoot<Guid>
+public class TaskAssignment : AggregateRoot
 {
     public string TaskCode { get; private set; }
     public string Title { get; private set; }
@@ -445,66 +445,110 @@ public record TaskCreatedDomainEvent(
     Guid TaskId,
     string TaskCode,
     string Title,
-    string CreatedBy) : IDomainEvent;
+    string CreatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskAssignedDomainEvent(
     Guid TaskId,
     string TaskCode,
     string AssignedTo,
-    string AssignedBy) : IDomainEvent;
+    string AssignedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskReassignedDomainEvent(
     Guid TaskId,
     string TaskCode,
     string? PreviousAssignee,
     string NewAssignee,
-    string ReassignedBy) : IDomainEvent;
+    string ReassignedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskStartedDomainEvent(
     Guid TaskId,
     string TaskCode,
-    string StartedBy) : IDomainEvent;
+    string StartedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskCompletedDomainEvent(
     Guid TaskId,
     string TaskCode,
     string CompletedBy,
-    int? ActualHours) : IDomainEvent;
+    int? ActualHours) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskCancelledDomainEvent(
     Guid TaskId,
     string TaskCode,
     string CancelledBy,
-    string CancellationReason) : IDomainEvent;
+    string CancellationReason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskPriorityUpdatedDomainEvent(
     Guid TaskId,
     string TaskCode,
     Priority PreviousPriority,
     Priority NewPriority,
-    string UpdatedBy) : IDomainEvent;
+    string UpdatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskDueDateUpdatedDomainEvent(
     Guid TaskId,
     string TaskCode,
     DateTime? PreviousDueDate,
     DateTime? NewDueDate,
-    string UpdatedBy) : IDomainEvent;
+    string UpdatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskEscalatedDomainEvent(
     Guid TaskId,
     string TaskCode,
     string EscalationReason,
-    string EscalatedBy) : IDomainEvent;
+    string EscalatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskFileAttachedDomainEvent(
     Guid TaskId,
     string TaskCode,
     string FileName,
-    string UploadedBy) : IDomainEvent;
+    string UploadedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record TaskDependencyAddedDomainEvent(
     Guid TaskId,
     string TaskCode,
     Guid DependentTaskId,
-    DependencyType DependencyType) : IDomainEvent;
+    DependencyType DependencyType) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

@@ -8,7 +8,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Digital Channel aggregate - Complete digital banking platform
 /// Supports Internet Banking, Mobile Banking, USSD, and API channels
 /// </summary>
-public class DigitalChannel : AggregateRoot<Guid>
+public class DigitalChannel : AggregateRoot
 {
     public string ChannelCode { get; private set; }
     public string ChannelName { get; private set; }
@@ -665,65 +665,109 @@ public record DigitalChannelCreatedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     ChannelType ChannelType,
-    string CreatedBy) : IDomainEvent;
+    string CreatedBy) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelServiceAddedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     string ServiceCode,
-    string ServiceName) : IDomainEvent;
+    string ServiceName) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelServiceEnabledDomainEvent(
     Guid ChannelId,
     string ChannelCode,
-    string ServiceCode) : IDomainEvent;
+    string ServiceCode) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelServiceDisabledDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     string ServiceCode,
-    string? Reason) : IDomainEvent;
+    string? Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelSessionStartedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     string SessionId,
-    string UserId) : IDomainEvent;
+    string UserId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelSessionEndedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     string SessionId,
-    string Reason) : IDomainEvent;
+    string Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelTransactionInitiatedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     string TransactionId,
     string ServiceCode,
-    Money Amount) : IDomainEvent;
+    Money Amount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelTransactionCompletedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     string TransactionId,
-    Money Amount) : IDomainEvent;
+    Money Amount) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelTransactionFailedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     string TransactionId,
-    string FailureReason) : IDomainEvent;
+    string FailureReason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelAlertCreatedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     AlertType AlertType,
-    AlertSeverity Severity) : IDomainEvent;
+    AlertSeverity Severity) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
 public record ChannelStatusUpdatedDomainEvent(
     Guid ChannelId,
     string ChannelCode,
     ChannelStatus PreviousStatus,
     ChannelStatus NewStatus,
-    string? Reason) : IDomainEvent;
+    string? Reason) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}

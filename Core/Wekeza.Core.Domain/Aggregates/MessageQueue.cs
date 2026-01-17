@@ -10,7 +10,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Supports standard, priority, delayed, dead letter, and topic-based queues
 /// Industry Standard: Enterprise Message Broker patterns (RabbitMQ, Apache Kafka)
 /// </summary>
-public class MessageQueue : AggregateRoot<Guid>
+public class MessageQueue : AggregateRoot
 {
     // Core Properties
     public string QueueName { get; private set; }

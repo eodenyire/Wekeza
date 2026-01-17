@@ -10,7 +10,7 @@ namespace Wekeza.Core.Domain.Aggregates;
 /// Supports descriptive, diagnostic, predictive, and prescriptive analytics
 /// Industry Standard: Finacle Analytics & T24 Business Intelligence
 /// </summary>
-public class Analytics : AggregateRoot<Guid>
+public class Analytics : AggregateRoot
 {
     // Core Properties
     public string AnalyticsCode { get; private set; }
