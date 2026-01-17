@@ -1,57 +1,52 @@
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Wekeza.Core.Api.Extensions;
 
-/// <summary>
-/// Extension methods for configuring observability (logging, metrics, tracing)
-/// </summary>
 public static class ObservabilityExtensions
 {
-    public static IServiceCollection AddWekezaObservability(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static WebApplicationBuilder AddWekezaSerilog(this WebApplicationBuilder builder)
     {
-        // Add Application Insights (optional)
-        services.AddApplicationInsightsTelemetry();
+        builder.Host.UseSerilog((context, configuration) =>
+        {
+            configuration
+                .ReadFrom.Configuration(context.Configuration)
+                .WriteTo.Console()
+                .WriteTo.File("logs/wekeza-.txt", rollingInterval: RollingInterval.Day)
+                .Enrich.FromLogContext()
+                .Enrich.WithProperty("Application", "Wekeza.Core.Api");
+        });
 
-        // Add Health Checks
-        services.AddHealthChecks()
-            .AddNpgSql(
-                configuration.GetConnectionString("DefaultConnection")!,
-                name: "database",
-                tags: new[] { "db", "sql", "postgres" })
-            .AddRedis(
-                configuration["Redis:ConnectionString"] ?? "localhost:6379",
-                name: "redis",
-                tags: new[] { "cache", "redis" });
+        return builder;
+    }
+
+    public static IServiceCollection AddWekezaObservability(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Add logging
+        services.AddLogging();
+
+        // Add metrics (if needed)
+        services.AddSingleton<IMetricsLogger, MetricsLogger>();
 
         return services;
     }
+}
 
-    public static WebApplicationBuilder AddWekezaSerilog(this WebApplicationBuilder builder)
+public interface IMetricsLogger
+{
+    void LogMetric(string name, double value, Dictionary<string, string>? tags = null);
+}
+
+public class MetricsLogger : IMetricsLogger
+{
+    private readonly ILogger<MetricsLogger> _logger;
+
+    public MetricsLogger(ILogger<MetricsLogger> logger)
     {
-        builder.Host.UseSerilog((context, services, configuration) => configuration
-            .ReadFrom.Configuration(context.Configuration)
-            .ReadFrom.Services(services)
-            .Enrich.FromLogContext()
-            .Enrich.WithMachineName()
-            .Enrich.WithEnvironmentName()
-            .Enrich.WithProperty("Application", "Wekeza.Bank")
-            .WriteTo.Console(
-                outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}",
-                theme: AnsiConsoleTheme.Code)
-            .WriteTo.File(
-                path: "logs/wekeza-.log",
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 30,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .WriteTo.Seq(
-                serverUrl: context.Configuration["Seq:ServerUrl"] ?? "http://localhost:5341",
-                apiKey: context.Configuration["Seq:ApiKey"])
-        );
+        _logger = logger;
+    }
 
-        return builder;
+    public void LogMetric(string name, double value, Dictionary<string, string>? tags = null)
+    {
+        _logger.LogInformation("Metric: {MetricName} = {Value} {@Tags}", name, value, tags);
     }
 }

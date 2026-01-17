@@ -148,7 +148,7 @@ public class CashDrawer : AggregateRoot
         LastModifiedBy = addedBy;
         LastModifiedDate = DateTime.UtcNow;
 
-        AddDomainEvent(new CashAddedToDr awerDomainEvent(Id, DrawerId, amount, source, reference));
+        AddDomainEvent(new CashAddedToDrawerDomainEvent(Id, DrawerId, amount, source, reference));
     }
 
     public void RemoveCash(Money amount, CashDestination destination, string removedBy, string? reference = null)

@@ -1,9 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 using Wekeza.Core.Infrastructure.Persistence;
 using Wekeza.Core.Infrastructure.Persistence.Repositories;
 using Wekeza.Core.Infrastructure.Services;
+using Wekeza.Core.Infrastructure.Caching;
+using Wekeza.Core.Infrastructure.Monitoring;
+using Wekeza.Core.Infrastructure.Notifications;
+using Wekeza.Core.Infrastructure.ApiGateway;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Services;
 using Wekeza.Core.Application.Common.Interfaces;
@@ -31,17 +36,91 @@ public static class DependencyInjection
         services.AddScoped<IGLAccountRepository, GLAccountRepository>();
         services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
         services.AddScoped<IPaymentOrderRepository, PaymentOrderRepository>();
+        services.AddScoped<ITellerSessionRepository, TellerSessionRepository>();
+        services.AddScoped<ICashDrawerRepository, CashDrawerRepository>();
+        services.AddScoped<ITellerTransactionRepository, TellerTransactionRepository>();
+        
+        // Week 8: Cards & Channels Management Repositories
+        services.AddScoped<IATMTransactionRepository, ATMTransactionRepository>();
+        services.AddScoped<IPOSTransactionRepository, POSTransactionRepository>();
+        services.AddScoped<ICardApplicationRepository, CardApplicationRepository>();
+
+        // Week 9: Trade Finance Repositories
+        services.AddScoped<ILetterOfCreditRepository, LetterOfCreditRepository>();
+        services.AddScoped<IBankGuaranteeRepository, BankGuaranteeRepository>();
+        services.AddScoped<IDocumentaryCollectionRepository, DocumentaryCollectionRepository>();
+
+        // New Repositories for 200% Completion
+        services.AddScoped<IApprovalWorkflowRepository, ApprovalWorkflowRepository>();
+        services.AddScoped<ITaskAssignmentRepository, TaskAssignmentRepository>();
+        services.AddScoped<IBranchRepository, BranchRepository>();
+        services.AddScoped<IDigitalChannelRepository, DigitalChannelRepository>();
 
         // Domain Services
         services.AddScoped<PaymentProcessingService>();
         services.AddScoped<CreditScoringService>();
         services.AddScoped<LoanServicingService>();
+        services.AddScoped<TellerOperationsService>();
+        
+        // Week 8: Cards & Channels Management Services
+        services.AddScoped<CardManagementService>();
+        services.AddScoped<ATMProcessingService>();
+        services.AddScoped<POSProcessingService>();
 
         // Application Services
         services.AddScoped<IAMLScreeningService, AMLScreeningService>();
         services.AddScoped<IDateTime, DateTimeService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IEmailService, EmailService>();
+
+        // Week 14: Advanced Features & Optimization Services
+        AddWeek14Services(services, configuration);
 
         return services;
+    }
+
+    /// <summary>
+    /// Add Week 14 Advanced Features & Optimization services
+    /// </summary>
+    private static void AddWeek14Services(IServiceCollection services, IConfiguration configuration)
+    {
+        // Redis Caching
+        services.Configure<RedisCacheOptions>(configuration.GetSection("Redis"));
+        services.AddSingleton<IConnectionMultiplexer>(provider =>
+        {
+            var connectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
+            return ConnectionMultiplexer.Connect(connectionString);
+        });
+        services.AddScoped<ICacheService, RedisCacheService>();
+
+        // Performance Monitoring
+        services.AddScoped<IPerformanceMonitoringService, PerformanceMonitoringService>();
+
+        // Real-time Notifications
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+            options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+            options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+        });
+
+        // API Gateway
+        services.AddScoped<IApiGatewayService, ApiGatewayService>();
+
+        // Memory Caching (In-Memory Cache for frequently accessed data)
+        services.AddMemoryCache();
+
+        // Health Checks
+        services.AddHealthChecks()
+            .AddDbContext<ApplicationDbContext>()
+            .AddCheck<RedisHealthCheck>("redis")
+            .AddCheck<DatabaseHealthCheck>("database")
+            .AddCheck<ApiGatewayHealthCheck>("api-gateway");
+
+        // Background Services for Week 14
+        services.AddHostedService<PerformanceMonitoringBackgroundService>();
+        services.AddHostedService<CacheWarmupBackgroundService>();
+        services.AddHostedService<HealthCheckBackgroundService>();
     }
 }

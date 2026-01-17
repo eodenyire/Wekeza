@@ -244,4 +244,3 @@ public enum AccountStatus
     Dormant,
     Closed
 }
-}

@@ -1,24 +1,15 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Wekeza.Core.Api.Authentication;
+using System.Text;
 
 namespace Wekeza.Core.Api.Extensions;
 
-/// <summary>
-/// Extension methods for configuring authentication
-/// </summary>
 public static class AuthenticationExtensions
 {
-    public static IServiceCollection AddWekezaAuthentication(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddWekezaAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtSettings = new JwtSettings();
-        configuration.Bind(JwtSettings.SectionName, jwtSettings);
-        services.AddSingleton(Options.Create(jwtSettings));
-
-        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+        var jwtSettings = configuration.GetSection("JwtSettings");
+        var secretKey = jwtSettings["Secret"];
 
         services.AddAuthentication(options =>
         {
@@ -33,27 +24,20 @@ public static class AuthenticationExtensions
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtSettings.Issuer,
-                ValidAudience = jwtSettings.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidAudience = jwtSettings["Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
                 ClockSkew = TimeSpan.Zero
-            };
-
-            options.Events = new JwtBearerEvents
-            {
-                OnAuthenticationFailed = context =>
-                {
-                    if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-                    {
-                        context.Response.Headers.Add("Token-Expired", "true");
-                    }
-                    return Task.CompletedTask;
-                }
             };
         });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireManagerRole", policy => policy.RequireRole("Manager"));
+            options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
+            options.AddPolicy("RequireTellerRole", policy => policy.RequireRole("Teller"));
+            options.AddPolicy("RequireCustomerRole", policy => policy.RequireRole("Customer"));
+        });
 
         return services;
     }
