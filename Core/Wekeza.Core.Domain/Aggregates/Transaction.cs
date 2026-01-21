@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 namespace Wekeza.Core.Domain.Aggregates;
 ///<summary>
@@ -28,4 +28,4 @@ public class Transaction : Entity
     }
 }
 
-public enum TransactionType { Deposit, Withdrawal, Transfer, Fee, Interest }
+

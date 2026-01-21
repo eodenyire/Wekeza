@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -38,7 +38,7 @@ public class RTGSTransaction : AggregateRoot
     // Navigation properties
     public virtual Account DebitAccount { get; private set; } = null!;
 
-    private RTGSTransaction() { } // EF Core
+    private RTGSTransaction() : base(Guid.NewGuid()) { } // EF Core
 
     public RTGSTransaction(
         Guid id,
@@ -56,8 +56,7 @@ public class RTGSTransaction : AggregateRoot
         DateTime valueDate,
         string initiatedBy,
         string branchCode,
-        bool isUrgent = false)
-    {
+        bool isUrgent = false) : base(id) {
         Id = id;
         RTGSReference = rtgsReference;
         CustomerReference = customerReference;
@@ -353,3 +352,4 @@ public record RTGSTransactionReturnedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

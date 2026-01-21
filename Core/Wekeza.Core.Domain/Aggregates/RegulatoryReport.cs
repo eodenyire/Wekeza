@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -36,7 +36,7 @@ public class RegulatoryReport : AggregateRoot
     private readonly List<ReportDataItem> _dataItems = new();
     public IReadOnlyList<ReportDataItem> DataItems => _dataItems.AsReadOnly();
 
-    private RegulatoryReport() { } // EF Core
+    private RegulatoryReport() : base(Guid.NewGuid()) { } // EF Core
 
     public RegulatoryReport(
         Guid id,
@@ -48,8 +48,7 @@ public class RegulatoryReport : AggregateRoot
         DateTime reportingPeriodStart,
         DateTime reportingPeriodEnd,
         DateTime dueDate,
-        string generatedBy)
-    {
+        string generatedBy) : base(id) {
         Id = id;
         ReportCode = reportCode;
         ReportName = reportName;
@@ -266,7 +265,7 @@ public class ReportDataItem
     public Money Amount { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    private ReportDataItem() { } // EF Core
+    private ReportDataItem() { Id = Guid.NewGuid(); } // EF Core
 
     public ReportDataItem(Guid id, Guid reportId, string category, string description, Money amount, DateTime createdAt)
     {
@@ -277,52 +276,6 @@ public class ReportDataItem
         Amount = amount;
         CreatedAt = createdAt;
     }
-}
-
-// Enums
-public enum RegulatoryAuthority
-{
-    CBK = 1,    // Central Bank of Kenya
-    KRA = 2,    // Kenya Revenue Authority
-    CMA = 3,    // Capital Markets Authority
-    IRA = 4,    // Insurance Regulatory Authority
-    SASRA = 5,  // Sacco Societies Regulatory Authority
-    FRC = 6     // Financial Reporting Centre
-}
-
-public enum ReportType
-{
-    PrudentialReturn = 1,
-    StatutoryReturn = 2,
-    ComplianceReport = 3,
-    TaxReturn = 4,
-    AMLReport = 5,
-    RiskReport = 6,
-    FinancialStatement = 7,
-    RegulatoryFiling = 8
-}
-
-public enum ReportFrequency
-{
-    Daily = 1,
-    Weekly = 2,
-    Monthly = 3,
-    Quarterly = 4,
-    HalfYearly = 5,
-    Yearly = 6,
-    AdHoc = 7
-}
-
-public enum ReportStatus
-{
-    Draft = 1,
-    Generated = 2,
-    Validated = 3,
-    ValidationFailed = 4,
-    Approved = 5,
-    Rejected = 6,
-    Submitted = 7,
-    Acknowledged = 8
 }
 
 // Domain Events
@@ -409,3 +362,4 @@ public record RegulatoryReportRegeneratedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

@@ -1,14 +1,15 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
 /// <summary>
 /// Enhanced Loan Aggregate - Complete loan lifecycle management
 /// Inspired by Finacle LMS and T24 AA LOANS
-/// Manages the entire journey: Application → Credit Scoring → Approval → Disbursement → Servicing → Closure
+/// Manages the entire journey: Application â†’ Credit Scoring â†’ Approval â†’ Disbursement â†’ Servicing â†’ Closure
 /// </summary>
 public class Loan : AggregateRoot
 {
@@ -25,6 +26,12 @@ public class Loan : AggregateRoot
     public int TermInMonths { get; private set; }
     public DateTime? FirstPaymentDate { get; private set; }
     public DateTime? MaturityDate { get; private set; }
+    
+    // Computed properties for compatibility
+    public string LoanType => Product?.Type.ToString() ?? "Unknown";
+    public Money PrincipalAmount => Principal;
+    public Money OutstandingBalance => OutstandingPrincipal;
+    public DateTime? NextPaymentDate => _schedule.Where(s => !s.IsPaid).OrderBy(s => s.DueDate).FirstOrDefault()?.DueDate;
     
     // Loan status and lifecycle
     public LoanStatus Status { get; private set; }
@@ -150,7 +157,7 @@ public class Loan : AggregateRoot
     public void UpdateCreditAssessment(decimal creditScore, CreditRiskGrade riskGrade, decimal riskPremium, string assessedBy)
     {
         if (Status != LoanStatus.Applied)
-            throw new DomainException("Credit assessment can only be updated for applied loans");
+            throw new GenericDomainException("Credit assessment can only be updated for applied loans");
 
         CreditScore = creditScore;
         RiskGrade = riskGrade;
@@ -169,10 +176,10 @@ public class Loan : AggregateRoot
     public void Approve(string approvedBy, DateTime? firstPaymentDate = null, List<LoanCondition>? conditions = null)
     {
         if (Status != LoanStatus.Applied)
-            throw new DomainException("Only applied loans can be approved");
+            throw new GenericDomainException("Only applied loans can be approved");
 
         if (!CreditScore.HasValue)
-            throw new DomainException("Loan must have credit assessment before approval");
+            throw new GenericDomainException("Loan must have credit assessment before approval");
 
         Status = LoanStatus.Approved;
         SubStatus = LoanSubStatus.AwaitingDisbursement;
@@ -198,7 +205,7 @@ public class Loan : AggregateRoot
     public void Reject(string rejectedBy, string reason)
     {
         if (Status != LoanStatus.Applied)
-            throw new DomainException("Only applied loans can be rejected");
+            throw new GenericDomainException("Only applied loans can be rejected");
 
         Status = LoanStatus.Rejected;
         SubStatus = LoanSubStatus.Closed;
@@ -212,7 +219,7 @@ public class Loan : AggregateRoot
     public void Disburse(Guid disbursementAccountId, string disbursedBy, DateTime? disbursementDate = null)
     {
         if (Status != LoanStatus.Approved)
-            throw new DomainException("Only approved loans can be disbursed");
+            throw new GenericDomainException("Only approved loans can be disbursed");
 
         DisbursementAccountId = disbursementAccountId;
         Status = LoanStatus.Active;
@@ -222,16 +229,16 @@ public class Loan : AggregateRoot
         LastModifiedBy = disbursedBy;
         LastModifiedDate = DateTime.UtcNow;
 
-        AddDomainEvent(new LoanDisbursedEvent(Id, LoanNumber, Principal, disbursementAccountId, DisbursementDate.Value));
+        AddDomainEvent(new LoanDisbursedEvent(Id, LoanNumber, disbursementAccountId, Principal, DisbursementDate.Value));
     }
 
     public void ProcessRepayment(Money paymentAmount, DateTime paymentDate, string processedBy, string? paymentReference = null)
     {
         if (Status != LoanStatus.Active)
-            throw new DomainException("Can only process payments for active loans");
+            throw new GenericDomainException("Can only process payments for active loans");
 
         if (paymentAmount.IsZero() || paymentAmount.IsNegative())
-            throw new DomainException("Payment amount must be positive");
+            throw new GenericDomainException("Payment amount must be positive");
 
         // Allocate payment: Interest first, then principal
         var interestPayment = Money.Min(paymentAmount, AccruedInterest);
@@ -302,7 +309,7 @@ public class Loan : AggregateRoot
     public void Restructure(LoanRestructureRequest request, string restructuredBy)
     {
         if (Status != LoanStatus.Active)
-            throw new DomainException("Only active loans can be restructured");
+            throw new GenericDomainException("Only active loans can be restructured");
 
         // Apply restructuring changes
         if (request.NewInterestRate.HasValue)
@@ -469,46 +476,6 @@ public class Loan : AggregateRoot
     }
 }
 
-// Enhanced enums and value objects
-public enum LoanStatus
-{
-    Applied,
-    Approved,
-    Active,
-    Rejected,
-    PaidInFull,
-    WrittenOff,
-    Suspended
-}
-
-public enum LoanSubStatus
-{
-    PendingDocuments,
-    CreditAssessed,
-    AwaitingDisbursement,
-    Current,
-    PastDue1to30,
-    PastDue31to60,
-    PastDue61to90,
-    NonPerforming,
-    Restructured,
-    Closed
-}
-
-public enum CreditRiskGrade
-{
-    AAA,    // Excellent
-    AA,     // Very Good
-    A,      // Good
-    BBB,    // Satisfactory
-    BB,     // Marginal
-    B,      // Substandard
-    CCC,    // Doubtful
-    CC,     // Loss
-    C,      // Default
-    D       // Write-off
-}
-
 // Value objects
 public record LoanScheduleItem(
     int ScheduleNumber,
@@ -548,3 +515,6 @@ public record LoanRestructureRequest(
     int? NewTermInMonths,
     int? PrincipalMoratorium,
     string Reason);
+
+
+

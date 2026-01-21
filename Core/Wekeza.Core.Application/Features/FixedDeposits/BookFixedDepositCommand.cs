@@ -1,8 +1,11 @@
-using Wekeza.Core.Application.Common;
+﻿using Wekeza.Core.Application.Common;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.FixedDeposits.Commands.BookFixedDeposit;
 ///
-///📂 Wekeza.Core.Application/Features/FixedDeposits
+///ðŸ“‚ Wekeza.Core.Application/Features/FixedDeposits
 ///1. BookFixedDepositCommand.cs (The Investment Intent)
 ///This command moves money from a "Current Account" into a new "Fixed Deposit" sub-account.
 ///

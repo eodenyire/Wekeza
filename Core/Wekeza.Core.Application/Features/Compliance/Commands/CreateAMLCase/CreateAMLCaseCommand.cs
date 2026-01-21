@@ -6,6 +6,7 @@ namespace Wekeza.Core.Application.Features.Compliance.Commands.CreateAMLCase;
 
 public record CreateAMLCaseCommand : ICommand<CreateAMLCaseResponse>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string CaseNumber { get; init; } = string.Empty;
     public Guid? PartyId { get; init; }
     public Guid? TransactionId { get; init; }

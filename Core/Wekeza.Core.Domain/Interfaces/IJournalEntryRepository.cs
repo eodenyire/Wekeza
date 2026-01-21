@@ -15,6 +15,7 @@ public interface IJournalEntryRepository
     Task<string> GenerateJournalNumberAsync(JournalType type);
     Task<decimal> GetGLAccountBalanceAsync(string glCode, DateTime? asOfDate = null);
     Task<Dictionary<string, decimal>> GetTrialBalanceAsync(DateTime asOfDate);
+    Task AddAsync(JournalEntry journalEntry, CancellationToken cancellationToken = default);
     void Add(JournalEntry journalEntry);
     void Update(JournalEntry journalEntry);
     void Remove(JournalEntry journalEntry);

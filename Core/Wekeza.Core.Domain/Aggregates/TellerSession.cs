@@ -1,7 +1,8 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -268,7 +269,7 @@ public class TellerSession : AggregateRoot
     public void ResumeSession(string resumedBy, string? notes = null)
     {
         if (Status != TellerSessionStatus.Suspended)
-            throw new DomainException("Only suspended sessions can be resumed");
+            throw new GenericDomainException("Only suspended sessions can be resumed");
 
         Status = TellerSessionStatus.Active;
         
@@ -286,24 +287,24 @@ public class TellerSession : AggregateRoot
     private void ValidateSessionActive()
     {
         if (Status != TellerSessionStatus.Active)
-            throw new DomainException($"Session is not active. Current status: {Status}");
+            throw new GenericDomainException($"Session is not active. Current status: {Status}");
     }
 
     private void ValidateTransactionLimits(Money amount)
     {
         if (amount.IsGreaterThan(SingleTransactionLimit))
-            throw new DomainException($"Transaction amount {amount.Amount} exceeds single transaction limit {SingleTransactionLimit.Amount}");
+            throw new GenericDomainException($"Transaction amount {amount.Amount} exceeds single transaction limit {SingleTransactionLimit.Amount}");
 
         var dailyTotal = TotalDeposits + TotalWithdrawals + amount;
         if (dailyTotal.IsGreaterThan(DailyTransactionLimit))
-            throw new DomainException($"Daily transaction limit {DailyTransactionLimit.Amount} would be exceeded");
+            throw new GenericDomainException($"Daily transaction limit {DailyTransactionLimit.Amount} would be exceeded");
     }
 
     private void ValidateCashAvailability(Money amount)
     {
         var currencyBalance = _currencyBalances.GetValueOrDefault(amount.Currency.Code, Money.Zero(amount.Currency));
         if (amount.IsGreaterThan(currencyBalance))
-            throw new DomainException($"Insufficient cash in {amount.Currency.Code}. Available: {currencyBalance.Amount}, Required: {amount.Amount}");
+            throw new GenericDomainException($"Insufficient cash in {amount.Currency.Code}. Available: {currencyBalance.Amount}, Required: {amount.Amount}");
     }
 
     private void UpdateCurrencyBalance(string currencyCode, Money amount)
@@ -486,3 +487,4 @@ public record TellerSessionResumedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

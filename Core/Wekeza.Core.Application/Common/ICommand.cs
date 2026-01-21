@@ -1,9 +1,12 @@
-using MediatR;
+﻿using MediatR;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Common;
 
 /// <summary>
-/// 📂 Wekeza.Core.Application/Common
+/// ðŸ“‚ Wekeza.Core.Application/Common
 /// We will implement these using MediatR. To future-proof for 2026, we ensure every request is traceable by including a CorrelationId.
 /// 1. ICommand.cs (The Write Contract)
 /// A command represents an action that changes the state of the bank. It always returns a result (like a new Account ID or a Success flag).

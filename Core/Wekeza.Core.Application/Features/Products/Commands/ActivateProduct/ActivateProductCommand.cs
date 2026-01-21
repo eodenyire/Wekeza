@@ -8,5 +8,6 @@ namespace Wekeza.Core.Application.Features.Products.Commands.ActivateProduct;
 [Authorize(UserRole.Administrator)]
 public record ActivateProductCommand : ICommand<bool>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string ProductCode { get; init; } = string.Empty;
 }

@@ -1,5 +1,8 @@
-using FluentValidation;
+﻿using FluentValidation;
 using System.Text.RegularExpressions;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.RegisterBusiness;
 /// 2. The Gatekeeper: RegisterBusinessValidator.cs

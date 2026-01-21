@@ -1,9 +1,12 @@
-using Wekeza.Core.Application.Common;
+﻿using Wekeza.Core.Application.Common;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.CloseAccount;
 
 /// <summary>
-/// 📂 Wekeza.Core.Application/Features/Accounts/Commands/CloseAccount
+/// ðŸ“‚ Wekeza.Core.Application/Features/Accounts/Commands/CloseAccount
 /// This feature ensures the bank's ledger remains balanced and no liabilities are left hanging in the air.
 /// 1. The Intent: CloseAccountCommand.cs
 /// We need the account number and a reason (e.g., "Customer Request", "Regulatory Order").

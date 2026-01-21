@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -23,6 +24,11 @@ public class Card : AggregateRoot
     public int PINAttempts { get; private set; }
     public bool IsPINBlocked { get; private set; }
     public DateTime? PINBlockedUntil { get; private set; }
+    
+    // Computed properties for compatibility
+    public string MaskedCardNumber => $"****-****-****-{CardNumber.Substring(CardNumber.Length - 4)}";
+    public bool IsCancelled => Status == CardStatus.Cancelled;
+    public bool CanWithdraw(decimal amount) => CanProcessTransaction(amount, TransactionType.ATMWithdrawal);
     
     // Limits and Controls
     public Money DailyWithdrawalLimit { get; private set; }
@@ -106,10 +112,10 @@ public class Card : AggregateRoot
             POSEnabled = true,
             OnlineEnabled = false, // Requires activation
             InternationalEnabled = false,
-            ContactlessEnabled = true,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = "SYSTEM"
+            ContactlessEnabled = true
         };
+
+        card.SetAuditInfo("SYSTEM");
 
         card.AddDomainEvent(new CardIssuedDomainEvent(card.Id, customerId, accountId, cardType));
         return card;
@@ -118,13 +124,13 @@ public class Card : AggregateRoot
     public void Activate(string activationCode, string activatedBy)
     {
         if (Status != CardStatus.Issued)
-            throw new DomainException($"Card cannot be activated. Current status: {Status}");
+            throw new GenericDomainException($"Card cannot be activated. Current status: {Status}");
 
         if (ActivationCode != activationCode)
-            throw new DomainException("Invalid activation code");
+            throw new GenericDomainException("Invalid activation code");
 
         if (DateTime.UtcNow > ExpiryDate)
-            throw new DomainException("Card has expired and cannot be activated");
+            throw new GenericDomainException("Card has expired and cannot be activated");
 
         Status = CardStatus.Active;
         ActivatedDate = DateTime.UtcNow;
@@ -137,7 +143,7 @@ public class Card : AggregateRoot
     public void SetPIN(string encryptedPIN, string setBy)
     {
         if (Status != CardStatus.Active)
-            throw new DomainException("Card must be active to set PIN");
+            throw new GenericDomainException("Card must be active to set PIN");
 
         EncryptedPIN = encryptedPIN;
         IsPINSet = true;
@@ -151,10 +157,10 @@ public class Card : AggregateRoot
     public bool ValidatePIN(string encryptedPIN)
     {
         if (!IsPINSet)
-            throw new DomainException("PIN is not set for this card");
+            throw new GenericDomainException("PIN is not set for this card");
 
         if (IsPINBlocked && PINBlockedUntil > DateTime.UtcNow)
-            throw new DomainException($"PIN is blocked until {PINBlockedUntil}");
+            throw new GenericDomainException($"PIN is blocked until {PINBlockedUntil}");
 
         if (EncryptedPIN == encryptedPIN)
         {
@@ -178,10 +184,10 @@ public class Card : AggregateRoot
     public void Block(string reason, string blockedBy)
     {
         if (Status == CardStatus.Blocked)
-            throw new DomainException("Card is already blocked");
+            throw new GenericDomainException("Card is already blocked");
 
         if (Status == CardStatus.Cancelled)
-            throw new DomainException("Cannot block a cancelled card");
+            throw new GenericDomainException("Cannot block a cancelled card");
 
         Status = CardStatus.Blocked;
         BlockReason = reason;
@@ -194,7 +200,7 @@ public class Card : AggregateRoot
     public void Unblock(string unblockedBy, string reason)
     {
         if (Status != CardStatus.Blocked)
-            throw new DomainException("Card is not blocked");
+            throw new GenericDomainException("Card is not blocked");
 
         Status = CardStatus.Active;
         BlockReason = null;
@@ -207,7 +213,7 @@ public class Card : AggregateRoot
     public void Cancel(string reason, string cancelledBy)
     {
         if (Status == CardStatus.Cancelled)
-            throw new DomainException("Card is already cancelled");
+            throw new GenericDomainException("Card is already cancelled");
 
         Status = CardStatus.Cancelled;
         CancellationReason = reason;
@@ -220,7 +226,7 @@ public class Card : AggregateRoot
     public Card Replace(string replacementReason, string deliveryAddress)
     {
         if (Status == CardStatus.Cancelled)
-            throw new DomainException("Cannot replace a cancelled card");
+            throw new GenericDomainException("Cannot replace a cancelled card");
 
         // Create new card
         var newCard = IssueCard(
@@ -293,6 +299,12 @@ public class Card : AggregateRoot
                 (MonthlySpent + transactionAmount) <= MonthlyLimit,
             _ => false
         };
+    }
+
+    public void RecordWithdrawal(decimal amount, string transactionReference)
+    {
+        RecordTransaction(amount, TransactionType.ATMWithdrawal, true);
+        AddDomainEvent(new CardTransactionProcessedDomainEvent(Id, CustomerId, AccountId, amount, TransactionType.ATMWithdrawal, transactionReference));
     }
 
     public void RecordTransaction(decimal amount, TransactionType transactionType, bool isSuccessful)
@@ -461,3 +473,6 @@ public enum TransactionType
     BalanceInquiry = 4,
     PINChange = 5
 }
+
+
+

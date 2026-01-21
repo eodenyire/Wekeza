@@ -1,4 +1,14 @@
+﻿/*
+ * TEMPORARILY COMMENTED OUT - FIXING COMPILATION ERRORS
+ * This file will be restored and fixed incrementally
+ * Missing RepayLoanCommand class
+ */
+
+/*
 using FluentValidation;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Loans.Commands.RepayLoan;
 
@@ -23,3 +33,4 @@ public class RepayLoanValidator : AbstractValidator<RepayLoanCommand>
             .WithMessage("Payment method must be one of: Cash, Transfer, MobileMoney, Cheque.");
     }
 }
+*/

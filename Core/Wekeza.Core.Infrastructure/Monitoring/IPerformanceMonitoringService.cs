@@ -1,3 +1,5 @@
+using Wekeza.Core.Domain.Enums;
+
 namespace Wekeza.Core.Infrastructure.Monitoring;
 
 /// <summary>
@@ -208,17 +210,6 @@ public class TransactionTypeMetrics
     public long SuccessfulCount { get; set; }
     public long FailedCount { get; set; }
     public double SuccessRate { get; set; }
-}
-
-/// <summary>
-/// Alert severity levels
-/// </summary>
-public enum AlertSeverity
-{
-    Low,
-    Medium,
-    High,
-    Critical
 }
 
 /// <summary>

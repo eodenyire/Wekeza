@@ -1,4 +1,5 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 
 namespace Wekeza.Core.Domain.Aggregates;
@@ -54,8 +55,7 @@ public class AuditLog : AggregateRoot
     public bool IsArchived { get; private set; }
     public string? ArchiveLocation { get; private set; }
 
-    private AuditLog()
-    {
+    private AuditLog() : base(Guid.NewGuid()) {
         OldValues = new Dictionary<string, object>();
         NewValues = new Dictionary<string, object>();
         RequestData = new Dictionary<string, object>();
@@ -383,10 +383,6 @@ public enum AuditResult
     Unauthorized
 }
 
-public enum RiskLevel
-{
-    Low,
-    Medium,
-    High,
-    Critical
-}
+
+
+

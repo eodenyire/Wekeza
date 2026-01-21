@@ -96,17 +96,6 @@ public enum CircuitBreakerState
 /// <summary>
 /// Load Balancing Strategy - Load balancing algorithms
 /// </summary>
-public enum LoadBalancingStrategy
-{
-    RoundRobin,
-    Random,
-    WeightedRoundRobin,
-    LeastConnections,
-    LeastResponseTime,
-    IPHash,
-    Custom
-}
-
 /// <summary>
 /// Queue Type - Types of message queues
 /// </summary>
@@ -365,85 +354,8 @@ public enum ApiGatewayFeature
     Timeout
 }
 
-/// <summary>
-/// Rate Limit Type - Types of rate limiting
-/// </summary>
-public enum RateLimitType
-{
-    PerSecond,
-    PerMinute,
-    PerHour,
-    PerDay,
-    PerMonth,
-    Concurrent,
-    Burst,
-    Custom
-}
-
-/// <summary>
-/// Cache Strategy - Caching strategies
-/// </summary>
-public enum CacheStrategy
-{
-    None,
-    TimeToLive,
-    LeastRecentlyUsed,
-    LeastFrequentlyUsed,
-    FirstInFirstOut,
-    Custom
-}
-
-/// <summary>
-/// Monitoring Level - Levels of monitoring
-/// </summary>
-public enum MonitoringLevel
-{
-    None,
-    Basic,
-    Standard,
-    Detailed,
-    Debug,
-    Custom
-}
-
-/// <summary>
-/// Log Level - Logging levels
-/// </summary>
-public enum LogLevel
-{
-    Trace,
-    Debug,
-    Information,
-    Warning,
-    Error,
-    Critical,
-    None
-}
-
-/// <summary>
-/// Security Level - Security levels for endpoints
-/// </summary>
-public enum SecurityLevel
-{
-    None,
-    Basic,
-    Standard,
-    High,
-    Maximum,
-    Custom
-}
-
-/// <summary>
-/// Compression Type - Types of compression
-/// </summary>
-public enum CompressionType
-{
-    None,
-    Gzip,
-    Deflate,
-    Brotli,
-    Custom
-}
+// Note: RateLimitType, CacheStrategy, MonitoringLevel, LogLevel, SecurityLevel, and CompressionType 
+// are now defined in CommonEnums.cs to avoid duplicates
 
 /// <summary>
 /// Serialization Format - Serialization formats

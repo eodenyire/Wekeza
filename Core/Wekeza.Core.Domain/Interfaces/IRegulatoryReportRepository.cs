@@ -11,7 +11,7 @@ public interface IRegulatoryReportRepository
     Task<RegulatoryReport?> GetByIdAsync(Guid id);
     Task<RegulatoryReport?> GetByCodeAndPeriodAsync(string reportCode, DateTime periodStart, DateTime periodEnd);
     Task<IEnumerable<RegulatoryReport>> GetByAuthorityAsync(RegulatoryAuthority authority);
-    Task<IEnumerable<RegulatoryReport>> GetByStatusAsync(ReportStatus status);
+    Task<IEnumerable<RegulatoryReport>> GetByStatusAsync(Enums.ReportStatus status);
     Task<IEnumerable<RegulatoryReport>> GetOverdueReportsAsync();
     Task<IEnumerable<RegulatoryReport>> GetReportsByDateRangeAsync(DateTime startDate, DateTime endDate);
     Task<IEnumerable<RegulatoryReport>> GetReportsByFrequencyAsync(ReportFrequency frequency);

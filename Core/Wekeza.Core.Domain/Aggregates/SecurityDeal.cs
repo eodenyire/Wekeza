@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
@@ -25,7 +25,7 @@ public class SecurityDeal : AggregateRoot
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    private SecurityDeal() { }
+    private SecurityDeal() : base(Guid.NewGuid()) { }
 
     public static SecurityDeal Execute(
         string dealNumber,
@@ -149,7 +149,7 @@ public class SecurityDeal : AggregateRoot
         var currentValue = GetMarketValue(currentMarketPrice);
         var bookValue = TotalAmount;
 
-        var pnlAmount = TradeType == TradeType.Buy 
+        var pnlAmount = TradeType == Wekeza.Core.Domain.Enums.TradeType.Buy 
             ? currentValue.Amount - bookValue.Amount
             : bookValue.Amount - currentValue.Amount;
 
@@ -164,7 +164,7 @@ public class SecurityDeal : AggregateRoot
         if (Status != DealStatus.Settled)
             throw new InvalidOperationException("Deal must be settled to receive coupon");
 
-        if (TradeType != TradeType.Buy)
+        if (TradeType != Wekeza.Core.Domain.Enums.TradeType.Buy)
             throw new InvalidOperationException("Only buy positions can receive coupons");
 
         AddDomainEvent(new CouponReceivedDomainEvent(Id, DealNumber, SecurityId, couponAmount, paymentDate));
@@ -178,7 +178,7 @@ public class SecurityDeal : AggregateRoot
         if (Status != DealStatus.Settled)
             throw new InvalidOperationException("Deal must be settled to receive dividend");
 
-        if (TradeType != TradeType.Buy)
+        if (TradeType != Wekeza.Core.Domain.Enums.TradeType.Buy)
             throw new InvalidOperationException("Only buy positions can receive dividends");
 
         AddDomainEvent(new DividendReceivedDomainEvent(Id, DealNumber, SecurityId, dividendAmount, paymentDate));
@@ -235,11 +235,7 @@ public enum SecurityType
     Commodity
 }
 
-public enum TradeType
-{
-    Buy,
-    Sell
-}
+
 
 // Extension method for business day calculation
 public static class DateTimeExtensions
@@ -261,3 +257,5 @@ public static class DateTimeExtensions
         return result;
     }
 }
+
+

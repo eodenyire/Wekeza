@@ -64,11 +64,11 @@ public class ExchangeRate : ValueObject
 
     public Money Convert(Money amount)
     {
-        if (amount.Currency != BaseCurrency)
-            throw new ArgumentException($"Amount currency {amount.Currency} does not match base currency {BaseCurrency}");
+        if (amount.Currency.Code != BaseCurrency)
+            throw new ArgumentException($"Amount currency {amount.Currency.Code} does not match base currency {BaseCurrency}");
 
         var convertedAmount = amount.Amount * Rate;
-        return new Money(convertedAmount, QuoteCurrency);
+        return new Money(convertedAmount, new Currency(QuoteCurrency));
     }
 
     public bool IsStale(TimeSpan maxAge)

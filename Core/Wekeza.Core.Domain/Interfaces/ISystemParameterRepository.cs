@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Aggregates;
+﻿using Wekeza.Core.Domain.Aggregates;
 
 namespace Wekeza.Core.Domain.Interfaces;
 
@@ -17,7 +17,7 @@ public interface ISystemParameterRepository
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
     // Query Operations by Type and Category
-    Task<List<SystemParameter>> GetByTypeAsync(ParameterType type, CancellationToken cancellationToken = default);
+    Task<List<SystemParameter>> GetByTypeAsync(Wekeza.Core.Domain.Enums.ParameterType type, CancellationToken cancellationToken = default);
     Task<List<SystemParameter>> GetByCategoryAsync(ParameterCategory category, CancellationToken cancellationToken = default);
     Task<List<SystemParameter>> GetByDataTypeAsync(ParameterDataType dataType, CancellationToken cancellationToken = default);
     Task<List<SystemParameter>> GetActiveAsync(CancellationToken cancellationToken = default);
@@ -29,7 +29,7 @@ public interface ISystemParameterRepository
     Task<List<SystemParameter>> GetEffectiveByEnvironmentAsync(string environment, DateTime? effectiveDate = null, CancellationToken cancellationToken = default);
 
     // Security and Access Control
-    Task<List<SystemParameter>> GetBySecurityLevelAsync(SecurityLevel securityLevel, CancellationToken cancellationToken = default);
+    Task<List<SystemParameter>> GetBySecurityLevelAsync(Wekeza.Core.Domain.Enums.SecurityLevel securityLevel, CancellationToken cancellationToken = default);
     Task<List<SystemParameter>> GetEncryptedAsync(CancellationToken cancellationToken = default);
     Task<List<SystemParameter>> GetRequiringApprovalAsync(CancellationToken cancellationToken = default);
     Task<List<SystemParameter>> GetAccessibleByRoleAsync(string role, CancellationToken cancellationToken = default);
@@ -55,7 +55,7 @@ public interface ISystemParameterRepository
     Task<(List<SystemParameter> Parameters, int TotalCount)> GetPagedAsync(
         int pageNumber, 
         int pageSize, 
-        ParameterType? type = null,
+        Wekeza.Core.Domain.Enums.ParameterType? type = null,
         ParameterCategory? category = null,
         string? environment = null,
         bool? isActive = null,
@@ -74,10 +74,10 @@ public interface ISystemParameterRepository
     Task<List<SystemParameter>> GetSecurityConfigurationAsync(CancellationToken cancellationToken = default);
 
     // Reporting & Analytics
-    Task<Dictionary<ParameterType, int>> GetCountByTypeAsync(CancellationToken cancellationToken = default);
+    Task<Dictionary<Wekeza.Core.Domain.Enums.ParameterType, int>> GetCountByTypeAsync(CancellationToken cancellationToken = default);
     Task<Dictionary<ParameterCategory, int>> GetCountByCategoryAsync(CancellationToken cancellationToken = default);
     Task<Dictionary<string, int>> GetCountByEnvironmentAsync(CancellationToken cancellationToken = default);
-    Task<Dictionary<SecurityLevel, int>> GetCountBySecurityLevelAsync(CancellationToken cancellationToken = default);
+    Task<Dictionary<Wekeza.Core.Domain.Enums.SecurityLevel, int>> GetCountBySecurityLevelAsync(CancellationToken cancellationToken = default);
     Task<int> GetActiveCountAsync(CancellationToken cancellationToken = default);
     Task<int> GetEncryptedCountAsync(CancellationToken cancellationToken = default);
 
@@ -87,7 +87,7 @@ public interface ISystemParameterRepository
     Task BulkUpdateValuesAsync(Dictionary<string, string> parameterValues, string updatedBy, CancellationToken cancellationToken = default);
     Task BulkActivateAsync(List<string> parameterCodes, string activatedBy, CancellationToken cancellationToken = default);
     Task BulkDeactivateAsync(List<string> parameterCodes, string deactivatedBy, CancellationToken cancellationToken = default);
-    Task BulkUpdateSecurityLevelAsync(List<string> parameterCodes, SecurityLevel securityLevel, string updatedBy, CancellationToken cancellationToken = default);
+    Task BulkUpdateSecurityLevelAsync(List<string> parameterCodes, Wekeza.Core.Domain.Enums.SecurityLevel securityLevel, string updatedBy, CancellationToken cancellationToken = default);
 
     // Existence Checks
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
@@ -109,7 +109,7 @@ public interface ISystemParameterRepository
 
     // Import/Export Operations
     Task<List<SystemParameter>> ExportConfigurationAsync(string environment, CancellationToken cancellationToken = default);
-    Task<List<SystemParameter>> ExportByTypeAsync(ParameterType type, CancellationToken cancellationToken = default);
+    Task<List<SystemParameter>> ExportByTypeAsync(Wekeza.Core.Domain.Enums.ParameterType type, CancellationToken cancellationToken = default);
     Task<List<SystemParameter>> ExportByCategoryAsync(ParameterCategory category, CancellationToken cancellationToken = default);
     Task ImportConfigurationAsync(List<SystemParameter> parameters, string importedBy, bool overwriteExisting = false, CancellationToken cancellationToken = default);
 
@@ -125,3 +125,4 @@ public interface ISystemParameterRepository
     Task InvalidateCacheAsync(string parameterCode, CancellationToken cancellationToken = default);
     Task InvalidateAllCacheAsync(CancellationToken cancellationToken = default);
 }
+

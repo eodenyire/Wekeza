@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -106,10 +107,10 @@ public class POSTransaction : AggregateRoot
             ReferenceNumber = GenerateReferenceNumber(),
             AccountBalanceBefore = accountBalance,
             IsContactless = isContactless,
-            TransactionCurrency = amount.Currency,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = "POS_SYSTEM"
+            TransactionCurrency = amount.Currency
         };
+
+        transaction.SetAuditInfo("POS_SYSTEM");
 
         transaction.AddDomainEvent(new POSTransactionInitiatedDomainEvent(
             transaction.Id, cardId, accountId, merchantId, POSTransactionType.Purchase, totalAmount));
@@ -148,10 +149,10 @@ public class POSTransaction : AggregateRoot
             TransactionDateTime = DateTime.UtcNow,
             ReferenceNumber = GenerateReferenceNumber(),
             AccountBalanceBefore = accountBalance,
-            TransactionCurrency = refundAmount.Currency,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = "POS_SYSTEM"
+            TransactionCurrency = refundAmount.Currency
         };
+
+        transaction.SetAuditInfo("POS_SYSTEM");
 
         transaction.AddDomainEvent(new POSTransactionInitiatedDomainEvent(
             transaction.Id, cardId, accountId, merchantId, POSTransactionType.Refund, refundAmount));
@@ -162,7 +163,7 @@ public class POSTransaction : AggregateRoot
     public void Authorize(string authorizationCode, Money newAccountBalance)
     {
         if (Status != POSTransactionStatus.Initiated)
-            throw new DomainException($"Cannot authorize transaction in {Status} status");
+            throw new GenericDomainException($"Cannot authorize transaction in {Status} status");
 
         Status = POSTransactionStatus.Authorized;
         AuthorizationCode = authorizationCode;
@@ -176,7 +177,7 @@ public class POSTransaction : AggregateRoot
     public void Complete(string receiptNumber, string? batchNumber = null, string? invoiceNumber = null)
     {
         if (Status != POSTransactionStatus.Authorized)
-            throw new DomainException($"Cannot complete transaction in {Status} status");
+            throw new GenericDomainException($"Cannot complete transaction in {Status} status");
 
         Status = POSTransactionStatus.Completed;
         ReceiptNumber = receiptNumber;
@@ -190,7 +191,7 @@ public class POSTransaction : AggregateRoot
     public void Decline(string responseCode, string responseMessage, string? failureReason = null)
     {
         if (Status == POSTransactionStatus.Completed)
-            throw new DomainException("Cannot decline a completed transaction");
+            throw new GenericDomainException("Cannot decline a completed transaction");
 
         Status = POSTransactionStatus.Declined;
         ResponseCode = responseCode;
@@ -204,7 +205,7 @@ public class POSTransaction : AggregateRoot
     public void Fail(string failureReason)
     {
         if (Status == POSTransactionStatus.Completed)
-            throw new DomainException("Cannot fail a completed transaction");
+            throw new GenericDomainException("Cannot fail a completed transaction");
 
         Status = POSTransactionStatus.Failed;
         FailureReason = failureReason;
@@ -217,10 +218,10 @@ public class POSTransaction : AggregateRoot
     public void Reverse(string reversalReason, Guid reversalTransactionId)
     {
         if (Status != POSTransactionStatus.Completed)
-            throw new DomainException("Can only reverse completed transactions");
+            throw new GenericDomainException("Can only reverse completed transactions");
 
         if (IsReversed)
-            throw new DomainException("Transaction is already reversed");
+            throw new GenericDomainException("Transaction is already reversed");
 
         IsReversed = true;
         ReversedDate = DateTime.UtcNow;
@@ -234,13 +235,13 @@ public class POSTransaction : AggregateRoot
     public void ProcessRefund(Money refundAmount, Guid refundTransactionId)
     {
         if (Status != POSTransactionStatus.Completed)
-            throw new DomainException("Can only refund completed transactions");
+            throw new GenericDomainException("Can only refund completed transactions");
 
         if (TransactionType != POSTransactionType.Purchase)
-            throw new DomainException("Can only refund purchase transactions");
+            throw new GenericDomainException("Can only refund purchase transactions");
 
         if (refundAmount > TotalAmount)
-            throw new DomainException("Refund amount cannot exceed original transaction amount");
+            throw new GenericDomainException("Refund amount cannot exceed original transaction amount");
 
         IsRefunded = true;
         RefundedDate = DateTime.UtcNow;
@@ -254,10 +255,10 @@ public class POSTransaction : AggregateRoot
     public void Settle(string settlementBatchId, Money? interchangeFee = null, Money? merchantFee = null, Money? networkFee = null)
     {
         if (Status != POSTransactionStatus.Completed)
-            throw new DomainException("Can only settle completed transactions");
+            throw new GenericDomainException("Can only settle completed transactions");
 
         if (IsSettled)
-            throw new DomainException("Transaction is already settled");
+            throw new GenericDomainException("Transaction is already settled");
 
         IsSettled = true;
         SettledDate = DateTime.UtcNow;
@@ -339,3 +340,5 @@ public enum POSTransactionStatus
     Refunded = 7,
     Settled = 8
 }
+
+

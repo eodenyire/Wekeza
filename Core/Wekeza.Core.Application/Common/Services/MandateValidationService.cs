@@ -1,6 +1,10 @@
+using Wekeza.Core.Domain.Aggregates;
+
 ///2. 📂 Common/Services/MandateValidationService.cs
 ///This service is used by the TransferFundsHandler. Before moving money from a business account, it checks if the "Mandate" (the required number of signatures) has been met.
 ///
+
+namespace Wekeza.Core.Application.Common.Services;
 
 public class MandateValidationService
 {

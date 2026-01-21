@@ -12,6 +12,7 @@ namespace Wekeza.Core.Application.Features.GeneralLedger.Commands.PostJournalEnt
 [Authorize(UserRole.Administrator, UserRole.SystemService)]
 public record PostJournalEntryCommand : ICommand<string>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public DateTime PostingDate { get; init; }
     public DateTime ValueDate { get; init; }
     public JournalType Type { get; init; }

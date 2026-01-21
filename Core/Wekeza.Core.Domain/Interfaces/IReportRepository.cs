@@ -1,4 +1,5 @@
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Domain.Interfaces;
@@ -31,7 +32,7 @@ public interface IReportRepository : IRepository<Report>
     /// <summary>
     /// Get reports by type
     /// </summary>
-    Task<List<Report>> GetByTypeAsync(ReportType type, int pageNumber = 1, int pageSize = 20);
+    Task<List<Report>> GetByTypeAsync(Enums.ReportType type, int pageNumber = 1, int pageSize = 20);
     
     /// <summary>
     /// Get reports by category
@@ -41,12 +42,12 @@ public interface IReportRepository : IRepository<Report>
     /// <summary>
     /// Get reports by type and category
     /// </summary>
-    Task<List<Report>> GetByTypeAndCategoryAsync(ReportType type, ReportCategory category, int pageNumber = 1, int pageSize = 20);
+    Task<List<Report>> GetByTypeAndCategoryAsync(Enums.ReportType type, ReportCategory category, int pageNumber = 1, int pageSize = 20);
     
     /// <summary>
     /// Get reports by status
     /// </summary>
-    Task<List<Report>> GetByStatusAsync(ReportStatus status, int pageNumber = 1, int pageSize = 20);
+    Task<List<Report>> GetByStatusAsync(Enums.ReportStatus status, int pageNumber = 1, int pageSize = 20);
 
     // ============================================================================
     // QUERY BY TIME PERIOD
@@ -123,9 +124,9 @@ public interface IReportRepository : IRepository<Report>
     /// Get reports with advanced filters
     /// </summary>
     Task<List<Report>> GetWithFiltersAsync(
-        ReportType? type = null,
+        Enums.ReportType? type = null,
         ReportCategory? category = null,
-        ReportStatus? status = null,
+        Enums.ReportStatus? status = null,
         bool? isRegulatory = null,
         DateTime? periodStart = null,
         DateTime? periodEnd = null,
@@ -142,7 +143,7 @@ public interface IReportRepository : IRepository<Report>
     /// <summary>
     /// Get report count by type
     /// </summary>
-    Task<Dictionary<ReportType, int>> GetCountByTypeAsync();
+    Task<Dictionary<Enums.ReportType, int>> GetCountByTypeAsync();
     
     /// <summary>
     /// Get report count by category
@@ -152,7 +153,7 @@ public interface IReportRepository : IRepository<Report>
     /// <summary>
     /// Get report count by status
     /// </summary>
-    Task<Dictionary<ReportStatus, int>> GetCountByStatusAsync();
+    Task<Dictionary<Enums.ReportStatus, int>> GetCountByStatusAsync();
     
     /// <summary>
     /// Get report generation statistics for period
@@ -214,7 +215,7 @@ public interface IReportRepository : IRepository<Report>
     /// <summary>
     /// Bulk update report status
     /// </summary>
-    Task BulkUpdateStatusAsync(List<Guid> reportIds, ReportStatus newStatus);
+    Task BulkUpdateStatusAsync(List<Guid> reportIds, Enums.ReportStatus newStatus);
     
     /// <summary>
     /// Bulk archive reports

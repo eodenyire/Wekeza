@@ -240,7 +240,7 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
             _ => 2.0m
         };
 
-        return new InterestRate(rate, InterestRateType.Annual);
+        return new InterestRate(rate);
     }
 
     private int GetDaysSinceLastAccrual(Account account, DateTime processingDate)

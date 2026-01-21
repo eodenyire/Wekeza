@@ -1,8 +1,11 @@
-using FluentValidation;
+﻿using FluentValidation;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.OpenAccount;
 /// <summary> 
-/// 📂 Wekeza.Core.Application/Features/Accounts
+/// ðŸ“‚ Wekeza.Core.Application/Features/Accounts
 /// We are starting with the OpenAccount vertical slice. This is our first end-to-end mission.
 /// 2. The Business Guard: Commands/OpenAccount/OpenAccountValidator.cs
 /// This is where our ValidationBehavior gets its instructions. We use FluentValidation to ensure Wekeza Bank never accepts "junk" data.

@@ -3,6 +3,7 @@ using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Application.Common.Interfaces;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Application.Features.CIF.Commands.CreateIndividualParty;
 
@@ -26,10 +27,10 @@ public class CreateIndividualPartyHandler : IRequestHandler<CreateIndividualPart
     {
         // 1. Validate uniqueness
         if (await _partyRepository.ExistsByEmailAsync(request.PrimaryEmail, ct))
-            throw new DomainException("A party with this email already exists.");
+            throw new GenericDomainException("A party with this email already exists.");
 
         if (await _partyRepository.ExistsByIdentificationAsync(request.PrimaryIdentification.DocumentNumber, ct))
-            throw new DomainException("A party with this identification document already exists.");
+            throw new GenericDomainException("A party with this identification document already exists.");
 
         // 2. Generate Party Number (CIF Number)
         var partyNumber = await GeneratePartyNumberAsync(ct);

@@ -204,18 +204,6 @@ public record LiquidityPositionUpdatedDomainEvent(
     public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
 }
 
-// Risk Events
-public record RiskLimitBreachedDomainEvent(
-    string LimitType, 
-    string Currency, 
-    Money CurrentExposure, 
-    Money LimitAmount, 
-    decimal UtilizationPercentage) : IDomainEvent
-{
-    public Guid EventId { get; init; } = Guid.NewGuid();
-    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
-}
-
 public record VaRLimitExceededDomainEvent(
     DateTime CalculationDate, 
     string Portfolio, 

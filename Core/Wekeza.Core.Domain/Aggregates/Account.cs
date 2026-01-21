@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.Exceptions;
@@ -37,6 +37,14 @@ public class Account : AggregateRoot
     
     // GL Integration
     public string CustomerGLCode { get; private set; } // GL account for this customer account
+    public string GLAccountCode => CustomerGLCode; // Alias for compatibility
+    
+    // Currency property
+    public Currency Currency => Balance.Currency;
+    
+    // Additional properties for compatibility
+    public string AccountType { get; private set; } = "SAVINGS";
+    public bool IsFrozen => Status == AccountStatus.Frozen;
     
     // Navigation properties for EF Core
     public Customer? Customer { get; private set; }
@@ -51,7 +59,8 @@ public class Account : AggregateRoot
         Currency currency,
         string customerGLCode,
         string openedBy,
-        Product product)
+        Product product,
+        string accountType = "SAVINGS")
     {
         var account = new Account
         {
@@ -65,7 +74,8 @@ public class Account : AggregateRoot
             OpenedBy = openedBy,
             CustomerGLCode = customerGLCode,
             LastInterestCalculationDate = DateTime.UtcNow.Date,
-            AccruedInterest = Money.Zero(currency)
+            AccruedInterest = Money.Zero(currency),
+            AccountType = accountType
         };
 
         // Apply product configuration
@@ -106,6 +116,12 @@ public class Account : AggregateRoot
         AddDomainEvent(new FundsDepositedDomainEvent(this.Id, amount, transactionReference, description));
     }
 
+    // Alias method for compatibility
+    public void Deposit(Money amount, string transactionReference, string description = "")
+    {
+        Credit(amount, transactionReference, description);
+    }
+
     public void Debit(Money amount, string transactionReference, string description = "")
     {
         EnsureAccountActive();
@@ -121,7 +137,7 @@ public class Account : AggregateRoot
         var balanceAfterDebit = Balance - amount;
         if (balanceAfterDebit.IsLessThan(MinimumBalance))
         {
-            throw new DomainException($"Transaction would violate minimum balance requirement of {MinimumBalance}");
+            throw new InsufficientFundsException(AccountNumber, amount);
         }
 
         Balance -= amount;
@@ -134,10 +150,16 @@ public class Account : AggregateRoot
         AddDomainEvent(new FundsWithdrawnDomainEvent(this.Id, amount, transactionReference, description));
     }
 
+    // Alias method for compatibility
+    public void Withdraw(Money amount, string transactionReference, string description = "")
+    {
+        Debit(amount, transactionReference, description);
+    }
+
     public void Freeze(string reason, string frozenBy)
     {
         if (Status == AccountStatus.Frozen)
-            throw new DomainException("Account is already frozen.");
+            throw new AccountFrozenException(AccountNumber);
             
         Status = AccountStatus.Frozen;
         AddDomainEvent(new AccountFrozenEvent(this.Id, reason, frozenBy));
@@ -146,7 +168,7 @@ public class Account : AggregateRoot
     public void Unfreeze(string unfrozenBy)
     {
         if (Status != AccountStatus.Frozen)
-            throw new DomainException("Account is not frozen.");
+            throw new AccountFrozenException(AccountNumber);
             
         Status = AccountStatus.Active;
         AddDomainEvent(new AccountUnfrozenDomainEvent(this.Id, unfrozenBy));
@@ -155,10 +177,10 @@ public class Account : AggregateRoot
     public void Close(string reason, string closedBy)
     {
         if (Status == AccountStatus.Closed)
-            throw new DomainException("Account is already closed.");
+            throw new AccountFrozenException(AccountNumber);
             
         if (!Balance.IsZero())
-            throw new DomainException("Cannot close account with non-zero balance.");
+            throw new InsufficientFundsException(AccountNumber, Balance);
         
         Status = AccountStatus.Closed;
         ClosedDate = DateTime.UtcNow;
@@ -185,7 +207,7 @@ public class Account : AggregateRoot
 
         if (interest.Amount > 0)
         {
-            AddDomainEvent(new InterestAccruedDomainEvent(this.Id, interest, calculationDate));
+            AddDomainEvent(new InterestAccruedDomainEvent(this.Id, this.AccountNumber.Value, interest, calculationDate, "SYSTEM"));
         }
     }
 
@@ -198,7 +220,7 @@ public class Account : AggregateRoot
         var postedInterest = AccruedInterest;
         AccruedInterest = Money.Zero(Balance.Currency);
 
-        AddDomainEvent(new InterestPostedDomainEvent(this.Id, postedInterest));
+        AddDomainEvent(new InterestPostedDomainEvent(this.Id, this.AccountNumber.Value, postedInterest, DateTime.UtcNow, "SYSTEM"));
     }
 
     public void ApplyFee(Money feeAmount, string feeType, string description)
@@ -220,27 +242,38 @@ public class Account : AggregateRoot
         AddDomainEvent(new OverdraftLimitUpdatedDomainEvent(this.Id, newLimit, updatedBy));
     }
 
+    public void UpdateTransactionLimit(Money newLimit, string updatedBy)
+    {
+        DailyTransactionLimit = newLimit;
+        AddDomainEvent(new OverdraftLimitUpdatedDomainEvent(this.Id, newLimit, updatedBy));
+    }
+
+    public void Verify(string verifiedBy)
+    {
+        if (Status == AccountStatus.PendingVerification)
+        {
+            Status = AccountStatus.Active;
+            AddDomainEvent(new AccountVerifiedDomainEvent(this.Id, verifiedBy));
+        }
+    }
+
     private void EnsureAccountActive()
     {
         if (Status != AccountStatus.Active)
-            throw new DomainException($"Cannot perform transaction on {Status} account.");
+            throw new AccountFrozenException(AccountNumber);
     }
 
     private void ValidateTransactionAmount(Money amount)
     {
         if (amount.IsZero() || amount.IsNegative())
-            throw new DomainException("Transaction amount must be positive.");
+            throw new InsufficientFundsException(AccountNumber, amount);
 
         if (DailyTransactionLimit != null && amount.IsGreaterThan(DailyTransactionLimit))
-            throw new DomainException($"Transaction amount exceeds daily limit of {DailyTransactionLimit}");
+            throw new InsufficientFundsException(AccountNumber, amount);
     }
 }
 
 // Account Status Enum
-public enum AccountStatus
-{
-    Active,
-    Frozen,
-    Dormant,
-    Closed
-}
+
+
+

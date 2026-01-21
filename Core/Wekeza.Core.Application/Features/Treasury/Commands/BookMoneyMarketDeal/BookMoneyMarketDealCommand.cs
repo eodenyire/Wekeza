@@ -6,6 +6,7 @@ namespace Wekeza.Core.Application.Features.Treasury.Commands.BookMoneyMarketDeal
 
 public record BookMoneyMarketDealCommand : ICommand<BookMoneyMarketDealResponse>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string DealNumber { get; init; } = string.Empty;
     public Guid CounterpartyId { get; init; }
     public MoneyMarketDealType DealType { get; init; }

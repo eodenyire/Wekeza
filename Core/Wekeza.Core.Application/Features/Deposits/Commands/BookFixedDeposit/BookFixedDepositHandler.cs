@@ -56,7 +56,7 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
                 return Result<Guid>.Failure("Deposit number already exists");
 
             // Create Fixed Deposit
-            var interestRate = new InterestRate(request.InterestRate, request.InterestRateType);
+            var interestRate = new InterestRate(request.InterestRate);
             var fixedDeposit = new FixedDeposit(
                 request.DepositId,
                 request.AccountId,

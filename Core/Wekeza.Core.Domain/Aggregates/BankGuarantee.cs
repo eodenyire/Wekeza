@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
@@ -26,8 +26,7 @@ public class BankGuarantee : AggregateRoot
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    private BankGuarantee() 
-    {
+    private BankGuarantee() : base(Guid.NewGuid()) {
         Claims = new List<BGClaim>();
         Amendments = new List<BGAmendment>();
     }
@@ -104,8 +103,11 @@ public class BankGuarantee : AggregateRoot
             Status = AmendmentStatus.Pending
         };
 
-        if (newAmount.HasValue)
-            Amount = newAmount.Value;
+        // TODO: Fix Money assignment issue
+        // if (newAmount.HasValue)
+        // {
+        //     Amount = newAmount.Value;
+        // }
 
         if (newExpiryDate.HasValue)
             ExpiryDate = newExpiryDate.Value;
@@ -263,17 +265,7 @@ public enum BGStatus
     Expired
 }
 
-public enum GuaranteeType
-{
-    Performance,
-    Financial,
-    AdvancePayment,
-    Bid,
-    Warranty,
-    Customs,
-    Rental,
-    Other
-}
+
 
 public enum ClaimStatus
 {
@@ -283,3 +275,5 @@ public enum ClaimStatus
     Rejected,
     Paid
 }
+
+

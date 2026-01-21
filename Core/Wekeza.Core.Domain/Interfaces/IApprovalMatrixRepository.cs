@@ -6,8 +6,8 @@ namespace Wekeza.Core.Domain.Interfaces;
 public interface IApprovalMatrixRepository
 {
     Task<ApprovalMatrix?> GetByIdAsync(Guid id);
-    Task<IEnumerable<ApprovalMatrix>> GetByWorkflowTypeAsync(WorkflowType workflowType);
-    Task<ApprovalMatrix?> GetApplicableMatrixAsync(WorkflowType workflowType, decimal amount, string currency);
+    Task<IEnumerable<ApprovalMatrix>> GetByWorkflowTypeAsync(Enums.WorkflowType workflowType);
+    Task<ApprovalMatrix?> GetApplicableMatrixAsync(Enums.WorkflowType workflowType, decimal amount, string currency);
     Task<IEnumerable<ApprovalMatrix>> GetAllActiveAsync();
     void Add(ApprovalMatrix approvalMatrix);
     void Update(ApprovalMatrix approvalMatrix);

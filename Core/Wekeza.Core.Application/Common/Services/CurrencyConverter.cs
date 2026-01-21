@@ -1,3 +1,5 @@
+using Wekeza.Core.Domain.ValueObjects;
+
 ///📂 Phase 6: Treasury & FX (Foreign Exchange)
 /// Since Wekeza Bank will handle different currencies, we need the Cross-Rate Engine.
 /// 1. 📂 Common/Services/CurrencyConverter.cs
@@ -5,6 +7,8 @@
 ///
 ///
 ///
+
+namespace Wekeza.Core.Application.Common.Services;
 
 public class CurrencyConverter
 {

@@ -6,6 +6,7 @@ namespace Wekeza.Core.Application.Features.TradeFinance.Commands.IssueBGCommand;
 
 public record IssueBGCommand : ICommand<IssueBGResponse>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string BGNumber { get; init; } = string.Empty;
     public Guid PrincipalId { get; init; }
     public Guid BeneficiaryId { get; init; }

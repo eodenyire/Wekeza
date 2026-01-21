@@ -1,4 +1,4 @@
-namespace Wekeza.Core.Domain.Enums;
+﻿namespace Wekeza.Core.Domain.Enums;
 
 /// <summary>
 /// Report Type - Categorizes different types of reports
@@ -14,7 +14,15 @@ public enum ReportType
     Management,
     Audit,
     Statistical,
-    Analytical
+    Analytical,
+    PrudentialReturn,
+    StatutoryReturn,
+    ComplianceReport,
+    TaxReturn,
+    AMLReport,
+    RiskReport,
+    FinancialStatement,
+    RegulatoryFiling
 }
 
 /// <summary>
@@ -72,23 +80,6 @@ public enum ReportCategory
     LiquidityRisk,
     ConcentrationRisk,
     StressTesting
-}
-
-/// <summary>
-/// Report Status - Lifecycle status of reports
-/// </summary>
-public enum ReportStatus
-{
-    Pending,
-    Generating,
-    Generated,
-    Reviewed,
-    Approved,
-    Submitted,
-    Rejected,
-    Archived,
-    Failed,
-    Cancelled
 }
 
 /// <summary>

@@ -1,7 +1,7 @@
-namespace Wekeza.Core.Application.Common.Exceptions;
+﻿namespace Wekeza.Core.Application.Common.Exceptions;
 
 /// <summary>
-/// 📂 Wekeza.Core.Application/Common/Exceptions/
+/// ðŸ“‚ Wekeza.Core.Application/Common/Exceptions/
 /// 2. NotFoundException.cs (The Existence Guard)
 /// When a user tries to fetch an account or a customer that isn't in our database, we throw this. It identifies exactly what was missing and which ID was used.
 /// Thrown when a requested resource (Account, Customer, etc.) cannot be found.

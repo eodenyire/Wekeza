@@ -5,7 +5,10 @@ namespace Wekeza.Core.Domain.Events;
 
 public record InterestPostedDomainEvent(
     Guid AccountId,
-    Money InterestAmount) : IDomainEvent
+    string AccountNumber,
+    Money InterestAmount,
+    DateTime PostingDate,
+    string PostingReference) : IDomainEvent
 {
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;

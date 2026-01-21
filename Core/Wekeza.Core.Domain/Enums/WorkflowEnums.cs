@@ -13,29 +13,6 @@ public enum WorkflowType
 }
 
 /// <summary>
-/// Workflow instance status
-/// </summary>
-public enum WorkflowStatus
-{
-    Pending,            // Awaiting approval
-    Approved,           // Fully approved
-    Rejected,           // Rejected by approver
-    Cancelled,          // Cancelled by maker
-    Expired             // SLA exceeded
-}
-
-/// <summary>
-/// Approval step status
-/// </summary>
-public enum ApprovalStepStatus
-{
-    Pending,            // Awaiting approval
-    Approved,           // Approved
-    Rejected,           // Rejected
-    Skipped             // Skipped (conditional)
-}
-
-/// <summary>
 /// Approval matrix status
 /// </summary>
 public enum MatrixStatus
@@ -54,18 +31,6 @@ public enum TaskPriority
     Normal,
     High,
     Critical
-}
-
-/// <summary>
-/// General priority classification
-/// </summary>
-public enum Priority
-{
-    Low = 1,
-    Normal = 2,
-    High = 3,
-    Urgent = 4,
-    Critical = 5
 }
 
 /// <summary>

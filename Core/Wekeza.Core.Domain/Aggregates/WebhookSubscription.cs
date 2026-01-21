@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 
@@ -76,8 +76,7 @@ public class WebhookSubscription : AggregateRoot
     public string LastModifiedBy { get; private set; }
 
     // Private constructor for EF Core
-    private WebhookSubscription() 
-    {
+    private WebhookSubscription() : base(Guid.NewGuid()) {
         EventTypes = new List<string>();
         EventFilters = new Dictionary<string, object>();
         Headers = new Dictionary<string, string>();
@@ -625,3 +624,4 @@ public class WebhookDelivery
     public int AttemptNumber { get; set; }
     public Dictionary<string, object> Metadata { get; set; } = new();
 }
+

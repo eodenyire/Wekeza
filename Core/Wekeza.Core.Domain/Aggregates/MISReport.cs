@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -36,7 +36,7 @@ public class MISReport : AggregateRoot
     private readonly List<MISReportChart> _charts = new();
     public IReadOnlyList<MISReportChart> Charts => _charts.AsReadOnly();
 
-    private MISReport() { } // EF Core
+    private MISReport() : base(Guid.NewGuid()) { } // EF Core
 
     public MISReport(
         Guid id,
@@ -49,8 +49,7 @@ public class MISReport : AggregateRoot
         DateTime reportingPeriodEnd,
         bool isExecutiveReport,
         int priority,
-        string generatedBy)
-    {
+        string generatedBy) : base(id) {
         Id = id;
         ReportCode = reportCode;
         ReportName = reportName;
@@ -265,7 +264,7 @@ public class MISReportMetric
     public string? Target { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    private MISReportMetric() { } // EF Core
+    private MISReportMetric() { Id = Guid.NewGuid(); } // EF Core
 
     public MISReportMetric(Guid id, Guid reportId, string metricName, string category, 
         decimal value, string unit, string? target, DateTime createdAt)
@@ -318,7 +317,7 @@ public class MISReportChart
     public string Configuration { get; private set; } // JSON configuration
     public DateTime CreatedAt { get; private set; }
 
-    private MISReportChart() { } // EF Core
+    private MISReportChart() { Id = Guid.NewGuid(); } // EF Core
 
     public MISReportChart(Guid id, Guid reportId, string chartName, string chartType, 
         string dataSource, string configuration, DateTime createdAt)
@@ -423,3 +422,4 @@ public record MISReportRegeneratedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -42,7 +42,7 @@ public class ApprovalWorkflow : AggregateRoot
     private readonly List<WorkflowDocument> _documents = new();
     public IReadOnlyList<WorkflowDocument> Documents => _documents.AsReadOnly();
 
-    private ApprovalWorkflow() { } // EF Core
+    private ApprovalWorkflow() : base(Guid.NewGuid()) { } // EF Core
 
     public ApprovalWorkflow(
         Guid id,
@@ -56,9 +56,8 @@ public class ApprovalWorkflow : AggregateRoot
         string initiatedBy,
         string branchCode,
         string department,
-        bool requiresMakerChecker = true)
+        bool requiresMakerChecker = true) : base(id)
     {
-        Id = id;
         WorkflowCode = workflowCode;
         WorkflowName = workflowName;
         WorkflowType = workflowType;
@@ -515,36 +514,6 @@ public enum WorkflowType
     AuditReview = 10
 }
 
-public enum WorkflowStatus
-{
-    Initiated = 1,
-    InProgress = 2,
-    Approved = 3,
-    Rejected = 4,
-    Cancelled = 5,
-    Escalated = 6,
-    OnHold = 7
-}
-
-public enum ApprovalStepStatus
-{
-    Pending = 1,
-    Assigned = 2,
-    Approved = 3,
-    Rejected = 4,
-    Skipped = 5
-}
-
-public enum WorkflowCommentType
-{
-    General = 1,
-    Approval = 2,
-    Rejection = 3,
-    Escalation = 4,
-    Cancellation = 5,
-    Information = 6
-}
-
 // Domain Events
 public record ApprovalWorkflowInitiatedDomainEvent(
     Guid WorkflowId,
@@ -646,3 +615,4 @@ public record WorkflowDocumentAttachedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

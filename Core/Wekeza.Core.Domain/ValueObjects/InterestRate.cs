@@ -8,6 +8,9 @@ public record InterestRate
 {
     public decimal Percentage { get; init; }
     public decimal DecimalValue => Percentage / 100;
+    public decimal Rate => Percentage; // Alias for compatibility
+    public bool HasValue => true; // InterestRate always has a value
+    public decimal Value => Percentage; // For compatibility with nullable patterns
 
     public InterestRate(decimal percentage)
     {

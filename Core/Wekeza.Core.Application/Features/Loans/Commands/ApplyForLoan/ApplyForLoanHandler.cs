@@ -3,6 +3,7 @@ using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Services;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Application.Common.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Loans.Commands.ApplyForLoan;

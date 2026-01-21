@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -46,7 +46,7 @@ public class TaskAssignment : AggregateRoot
     private readonly List<TaskDependency> _dependencies = new();
     public IReadOnlyList<TaskDependency> Dependencies => _dependencies.AsReadOnly();
 
-    private TaskAssignment() { } // EF Core
+    private TaskAssignment() : base(Guid.NewGuid()) { } // EF Core
 
     public TaskAssignment(
         Guid id,
@@ -61,7 +61,7 @@ public class TaskAssignment : AggregateRoot
         DateTime? dueDate = null,
         string? relatedEntityType = null,
         Guid? relatedEntityId = null,
-        int estimatedHours = 1)
+        int estimatedHours = 1) : base(id)
     {
         Id = id;
         TaskCode = taskCode;
@@ -552,3 +552,4 @@ public record TaskDependencyAddedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

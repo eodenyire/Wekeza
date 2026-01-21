@@ -69,7 +69,7 @@ public class OpenRecurringDepositHandler : IRequestHandler<OpenRecurringDepositC
 
             // Create Recurring Deposit
             var monthlyInstallmentAmount = new Money(request.MonthlyInstallment, new Currency(request.Currency));
-            var interestRate = new InterestRate(request.InterestRate, request.InterestRateType);
+            var interestRate = new InterestRate(request.InterestRate);
             
             var recurringDeposit = new RecurringDeposit(
                 request.DepositId,

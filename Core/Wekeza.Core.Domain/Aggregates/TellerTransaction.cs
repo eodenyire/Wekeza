@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -179,7 +180,7 @@ public class TellerTransaction : AggregateRoot
     public void RequestSupervisorApproval(string reason, string requestedBy)
     {
         if (Status != TellerTransactionStatus.Pending)
-            throw new DomainException("Only pending transactions can request supervisor approval");
+            throw new GenericDomainException("Only pending transactions can request supervisor approval");
 
         RequiredSupervisorApproval = true;
         Status = TellerTransactionStatus.PendingApproval;
@@ -195,7 +196,7 @@ public class TellerTransaction : AggregateRoot
     public void ApproveBySupervisor(string supervisorId, string? comments, string approvedBy)
     {
         if (Status != TellerTransactionStatus.PendingApproval)
-            throw new DomainException("Transaction is not pending supervisor approval");
+            throw new GenericDomainException("Transaction is not pending supervisor approval");
 
         SupervisorId = supervisorId;
         ApprovalDate = DateTime.UtcNow;
@@ -212,7 +213,7 @@ public class TellerTransaction : AggregateRoot
     public void RejectBySupervisor(string supervisorId, string rejectionReason, string rejectedBy)
     {
         if (Status != TellerTransactionStatus.PendingApproval)
-            throw new DomainException("Transaction is not pending supervisor approval");
+            throw new GenericDomainException("Transaction is not pending supervisor approval");
 
         SupervisorId = supervisorId;
         ApprovalComments = rejectionReason;
@@ -228,7 +229,7 @@ public class TellerTransaction : AggregateRoot
     public void Complete(string completedBy)
     {
         if (Status != TellerTransactionStatus.Pending && Status != TellerTransactionStatus.Approved)
-            throw new DomainException("Only pending or approved transactions can be completed");
+            throw new GenericDomainException("Only pending or approved transactions can be completed");
 
         Status = TellerTransactionStatus.Completed;
         LastModifiedBy = completedBy;
@@ -241,7 +242,7 @@ public class TellerTransaction : AggregateRoot
     public void Reverse(string reversalReason, string reversedBy)
     {
         if (Status != TellerTransactionStatus.Completed)
-            throw new DomainException("Only completed transactions can be reversed");
+            throw new GenericDomainException("Only completed transactions can be reversed");
 
         Status = TellerTransactionStatus.Reversed;
         ReversalReason = reversalReason;
@@ -258,7 +259,7 @@ public class TellerTransaction : AggregateRoot
     public void Fail(string failureReason, string failedBy)
     {
         if (Status == TellerTransactionStatus.Completed || Status == TellerTransactionStatus.Reversed)
-            throw new DomainException("Cannot fail completed or reversed transactions");
+            throw new GenericDomainException("Cannot fail completed or reversed transactions");
 
         Status = TellerTransactionStatus.Failed;
         InternalNotes = $"Transaction failed: {failureReason}";
@@ -409,3 +410,4 @@ public record TellerTransactionFailedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

@@ -7,6 +7,7 @@ namespace Wekeza.Core.Application.Features.TradeFinance.Commands.IssueLCCommand;
 
 public record IssueLCCommand : ICommand<IssueLCResponse>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string LCNumber { get; init; } = string.Empty;
     public Guid ApplicantId { get; init; }
     public Guid BeneficiaryId { get; init; }

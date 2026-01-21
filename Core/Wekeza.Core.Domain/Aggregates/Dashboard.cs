@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 
@@ -45,8 +45,7 @@ public class Dashboard : AggregateRoot
     public string LastViewedBy { get; private set; }
 
     // Private constructor for EF Core
-    private Dashboard() 
-    {
+    private Dashboard() : base(Guid.NewGuid()) {
         Widgets = new List<DashboardWidget>();
         Configuration = new Dictionary<string, object>();
         AllowedRoles = new List<string>();
@@ -489,8 +488,8 @@ public class DashboardWidget
     public DateTime CreatedAt { get; private set; }
     public DateTime? LastUpdatedAt { get; private set; }
 
-    private DashboardWidget() 
-    {
+    private DashboardWidget() {
+        Id = Guid.NewGuid();
         Configuration = new Dictionary<string, object>();
     }
 
@@ -546,3 +545,4 @@ public class WidgetPosition
     public int RowSpan { get; set; } = 1;
     public int ColumnSpan { get; set; } = 1;
 }
+

@@ -28,11 +28,11 @@ public class ApproveWorkflowHandler : IRequestHandler<ApproveWorkflowCommand, bo
         
         if (workflow == null)
         {
-            throw new NotFoundException($"Workflow with ID {request.WorkflowId} not found.");
+            throw new NotFoundException($"Workflow with ID {request.WorkflowId} not found.", request.WorkflowId);
         }
 
-        var approverId = _currentUserService.UserId ?? "System";
-        var approverRole = _currentUserService.UserRole ?? UserRole.Administrator;
+        var approverId = _currentUserService.UserId?.ToString() ?? "System";
+        var approverRole = _currentUserService.Roles.FirstOrDefault();
 
         // Approve the workflow
         workflow.Approve(approverId, request.Comments, approverRole);

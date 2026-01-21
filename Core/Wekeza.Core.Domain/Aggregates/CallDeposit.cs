@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Events;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -42,7 +43,7 @@ public class CallDeposit : AggregateRoot
     private readonly List<WithdrawalNotice> _withdrawalNotices = new();
     public IReadOnlyList<WithdrawalNotice> WithdrawalNotices => _withdrawalNotices.AsReadOnly();
 
-    private CallDeposit() { } // EF Core
+    private CallDeposit() : base(Guid.NewGuid()) { } // EF Core
 
     public CallDeposit(
         Guid id,
@@ -57,8 +58,7 @@ public class CallDeposit : AggregateRoot
         InterestPaymentFrequency interestFrequency,
         bool instantAccess,
         string branchCode,
-        string createdBy)
-    {
+        string createdBy) : base(id) {
         Id = id;
         AccountId = accountId;
         CustomerId = customerId;
@@ -223,7 +223,7 @@ public class CallDeposit : AggregateRoot
 
         _transactions.Add(transaction);
 
-        AddDomainEvent(new InterestAccruedDomainEvent(Id, AccountId, interestAmount, accrualDate));
+        AddDomainEvent(new InterestAccruedDomainEvent(AccountId, DepositNumber, interestAmount, accrualDate, "Daily"));
     }
 
     public void PostInterest(string postedBy)
@@ -252,7 +252,7 @@ public class CallDeposit : AggregateRoot
 
         _transactions.Add(transaction);
 
-        AddDomainEvent(new InterestPostedDomainEvent(Id, AccountId, postedInterest));
+        AddDomainEvent(new InterestPostedDomainEvent(AccountId, DepositNumber, postedInterest, DateTime.UtcNow, "Interest Posting"));
     }
 
     public void UpdateInterestRate(InterestRate newRate, string updatedBy)
@@ -534,3 +534,4 @@ public record CallDepositClosedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

@@ -2,6 +2,8 @@ using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Common;
+using Wekeza.Core.Domain.Exceptions;
+using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Domain.Services;
 
@@ -246,17 +248,24 @@ public class ATMProcessingService
         var atmCashGL = await _glAccountRepository.GetByCodeAsync("1050"); // ATM Cash account
         
         if (customerAccountGL == null || atmCashGL == null)
-            throw new DomainException("Required GL accounts not found for ATM withdrawal posting");
+            throw new GenericDomainException("Required GL accounts not found for ATM withdrawal posting");
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"ATM Withdrawal - ATM: {atmId} - Account: {account.AccountNumber}",
+            $"ATM-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "ATM_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "ATM_WITHDRAWAL",
+            Guid.NewGuid(),
+            $"ATM Withdrawal - ATM: {atmId} - Account: {account.AccountNumber}",
+            amount.Currency.Code,
+            "ATM_SYSTEM",
+            $"ATM Withdrawal - ATM: {atmId} - Account: {account.AccountNumber}");
 
         // Dr. ATM Cash, Cr. Customer Account (money flows from customer account to ATM cash)
-        journalEntry.AddDebitEntry(atmCashGL.Id, amount, $"ATM withdrawal - {atmId}");
-        journalEntry.AddCreditEntry(customerAccountGL.Id, amount, $"ATM withdrawal - Account: {account.AccountNumber}");
+        journalEntry.AddDebitEntry(atmCashGL.GLCode, amount.Amount, $"ATM withdrawal - {atmId}");
+        journalEntry.AddCreditEntry(customerAccountGL.GLCode, amount.Amount, $"ATM withdrawal - Account: {account.AccountNumber}");
 
         await _journalEntryRepository.AddAsync(journalEntry);
 
@@ -283,13 +292,20 @@ public class ATMProcessingService
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"ATM Balance Inquiry Fee - ATM: {atmId} - Account: {account.AccountNumber}",
+            $"ATM-BAL-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "ATM_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "ATM_BALANCE_INQUIRY",
+            Guid.NewGuid(),
+            $"ATM Balance Inquiry Fee - ATM: {atmId} - Account: {account.AccountNumber}",
+            inquiryFee.Currency.Code,
+            "ATM_SYSTEM",
+            $"ATM Balance Inquiry Fee - ATM: {atmId} - Account: {account.AccountNumber}");
 
         // Dr. Customer Account, Cr. Fee Income
-        journalEntry.AddDebitEntry(customerAccountGL.Id, inquiryFee, $"Balance inquiry fee - {atmId}");
-        journalEntry.AddCreditEntry(feeIncomeGL.Id, inquiryFee, "Balance inquiry fee income");
+        journalEntry.AddDebitEntry(customerAccountGL.GLCode, inquiryFee.Amount, $"Balance inquiry fee - {atmId}");
+        journalEntry.AddCreditEntry(feeIncomeGL.GLCode, inquiryFee.Amount, "Balance inquiry fee income");
 
         await _journalEntryRepository.AddAsync(journalEntry);
     }
@@ -308,13 +324,20 @@ public class ATMProcessingService
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"Interchange Fee - {transactionType} - Account: {account.AccountNumber}",
+            $"ATM-INT-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "ATM_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "INTERCHANGE_FEE",
+            Guid.NewGuid(),
+            $"Interchange Fee - {transactionType} - Account: {account.AccountNumber}",
+            interchangeFee.Currency.Code,
+            "ATM_SYSTEM",
+            $"Interchange Fee - {transactionType} - Account: {account.AccountNumber}");
 
         // Dr. Interchange Expense, Cr. Customer Account
-        journalEntry.AddDebitEntry(interchangeExpenseGL.Id, interchangeFee, $"Interchange fee - {transactionType}");
-        journalEntry.AddCreditEntry(customerAccountGL.Id, interchangeFee, "Interchange fee recovery");
+        journalEntry.AddDebitEntry(interchangeExpenseGL.GLCode, interchangeFee.Amount, $"Interchange fee - {transactionType}");
+        journalEntry.AddCreditEntry(customerAccountGL.GLCode, interchangeFee.Amount, "Interchange fee recovery");
 
         await _journalEntryRepository.AddAsync(journalEntry);
     }

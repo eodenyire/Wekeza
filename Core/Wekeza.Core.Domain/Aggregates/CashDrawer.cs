@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -94,7 +95,7 @@ public class CashDrawer : AggregateRoot
     public void Open(string sessionId, Money initialCash, string openedBy)
     {
         if (Status == CashDrawerStatus.Open)
-            throw new DomainException("Cash drawer is already open");
+            throw new GenericDomainException("Cash drawer is already open");
 
         Status = CashDrawerStatus.Open;
         CurrentSessionId = sessionId;
@@ -118,7 +119,7 @@ public class CashDrawer : AggregateRoot
     public void Close(string closedBy, string? notes = null)
     {
         if (Status != CashDrawerStatus.Open)
-            throw new DomainException("Cash drawer is not open");
+            throw new GenericDomainException("Cash drawer is not open");
 
         Status = CashDrawerStatus.Closed;
         CurrentSessionId = null;
@@ -180,7 +181,7 @@ public class CashDrawer : AggregateRoot
         ValidateCashAvailability(amount);
 
         if (targetDrawer.Status != CashDrawerStatus.Open)
-            throw new DomainException("Target cash drawer is not open");
+            throw new GenericDomainException("Target cash drawer is not open");
 
         // Remove from this drawer
         RemoveCash(amount, CashDestination.AnotherTeller, transferredBy, reference);
@@ -241,9 +242,11 @@ public class CashDrawer : AggregateRoot
     {
         // Return total in base currency (assuming first currency is base)
         var baseCurrency = TotalCashIn.Currency;
-        return _cashPositions.Values
-            .Where(p => p.CurrentBalance.Currency.Code == baseCurrency.Code)
-            .Sum(p => p.CurrentBalance.Amount, baseCurrency);
+        return new Money(
+            _cashPositions.Values
+                .Where(p => p.CurrentBalance.Currency.Code == baseCurrency.Code)
+                .Sum(p => p.CurrentBalance.Amount),
+            baseCurrency);
     }
 
     public bool HasSufficientCash(Money amount)
@@ -264,7 +267,7 @@ public class CashDrawer : AggregateRoot
     public void Unlock(string unlockedBy, string? notes = null)
     {
         if (Status != CashDrawerStatus.Locked)
-            throw new DomainException("Cash drawer is not locked");
+            throw new GenericDomainException("Cash drawer is not locked");
 
         Status = CashDrawerStatus.Closed;
         LastModifiedBy = unlockedBy;
@@ -276,7 +279,7 @@ public class CashDrawer : AggregateRoot
     private void ValidateDrawerOpen()
     {
         if (Status != CashDrawerStatus.Open)
-            throw new DomainException($"Cash drawer is not open. Current status: {Status}");
+            throw new GenericDomainException($"Cash drawer is not open. Current status: {Status}");
     }
 
     private void ValidateCashAvailability(Money amount)
@@ -284,7 +287,7 @@ public class CashDrawer : AggregateRoot
         if (!HasSufficientCash(amount))
         {
             var available = GetCashBalance(amount.Currency.Code);
-            throw new DomainException($"Insufficient cash in {amount.Currency.Code}. Available: {available.Amount}, Required: {amount.Amount}");
+            throw new GenericDomainException($"Insufficient cash in {amount.Currency.Code}. Available: {available.Amount}, Required: {amount.Amount}");
         }
     }
 
@@ -294,13 +297,13 @@ public class CashDrawer : AggregateRoot
         {
             var totalAfterAddition = GetTotalCashBalance() + amount;
             if (totalAfterAddition.IsGreaterThan(MaxCashLimit))
-                throw new DomainException($"Adding {amount.Amount} would exceed maximum cash limit of {MaxCashLimit.Amount}");
+                throw new GenericDomainException($"Adding {amount.Amount} would exceed maximum cash limit of {MaxCashLimit.Amount}");
         }
         else
         {
             var totalAfterRemoval = GetTotalCashBalance() - amount;
             if (totalAfterRemoval.IsLessThan(MinCashLimit))
-                throw new DomainException($"Removing {amount.Amount} would go below minimum cash limit of {MinCashLimit.Amount}");
+                throw new GenericDomainException($"Removing {amount.Amount} would go below minimum cash limit of {MinCashLimit.Amount}");
         }
     }
 
@@ -317,7 +320,7 @@ public class CashDrawer : AggregateRoot
     private CashPosition GetCashPosition(string currencyCode)
     {
         if (!_cashPositions.TryGetValue(currencyCode, out var position))
-            throw new DomainException($"No cash position found for currency {currencyCode}");
+            throw new GenericDomainException($"No cash position found for currency {currencyCode}");
         return position;
     }
 
@@ -479,3 +482,5 @@ public record CashDrawerUnlockedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+
+

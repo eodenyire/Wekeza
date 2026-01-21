@@ -12,6 +12,7 @@ namespace Wekeza.Core.Application.Features.CIF.Commands.CreateIndividualParty;
 [Authorize(UserRole.Teller, UserRole.RiskOfficer, UserRole.Administrator)]
 public record CreateIndividualPartyCommand : ICommand<string>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     // Personal Information
     public string FirstName { get; init; } = string.Empty;
     public string? MiddleName { get; init; }

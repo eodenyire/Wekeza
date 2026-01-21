@@ -6,6 +6,7 @@ namespace Wekeza.Core.Domain.Interfaces;
 public interface IGLAccountRepository
 {
     Task<GLAccount?> GetByGLCodeAsync(string glCode);
+    Task<GLAccount?> GetByCodeAsync(string code); // Alias for compatibility
     Task<GLAccount?> GetByIdAsync(Guid id);
     Task<IEnumerable<GLAccount>> GetAllAsync();
     Task<IEnumerable<GLAccount>> GetByTypeAsync(GLAccountType accountType);

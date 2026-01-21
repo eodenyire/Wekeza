@@ -17,7 +17,7 @@ public interface IWorkflowRepository
     
     // Query by status
     Task<IEnumerable<WorkflowInstance>> GetPendingWorkflowsAsync(CancellationToken cancellationToken = default);
-    Task<IEnumerable<WorkflowInstance>> GetByStatusAsync(WorkflowStatus status, CancellationToken cancellationToken = default);
+    Task<IEnumerable<WorkflowInstance>> GetByStatusAsync(Enums.WorkflowStatus status, CancellationToken cancellationToken = default);
     
     // Query by user
     Task<IEnumerable<WorkflowInstance>> GetPendingForApproverAsync(string approverId, CancellationToken cancellationToken = default);
@@ -32,20 +32,6 @@ public interface IWorkflowRepository
     
     // Analytics
     Task<int> GetPendingCountAsync(CancellationToken cancellationToken = default);
-    Task<Dictionary<WorkflowStatus, int>> GetCountByStatusAsync(CancellationToken cancellationToken = default);
+    Task<Dictionary<Enums.WorkflowStatus, int>> GetCountByStatusAsync(CancellationToken cancellationToken = default);
     Task<Dictionary<string, int>> GetCountByEntityTypeAsync(CancellationToken cancellationToken = default);
-}
-
-/// <summary>
-/// Repository for Approval Matrix management
-/// </summary>
-public interface IApprovalMatrixRepository
-{
-    Task<ApprovalMatrix?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<ApprovalMatrix?> GetByMatrixCodeAsync(string matrixCode, CancellationToken cancellationToken = default);
-    Task<ApprovalMatrix?> GetByEntityTypeAsync(string entityType, CancellationToken cancellationToken = default);
-    Task AddAsync(ApprovalMatrix matrix, CancellationToken cancellationToken = default);
-    void Update(ApprovalMatrix matrix);
-    Task<IEnumerable<ApprovalMatrix>> GetActiveMatricesAsync(CancellationToken cancellationToken = default);
-    Task<bool> ExistsByMatrixCodeAsync(string matrixCode, CancellationToken cancellationToken = default);
 }

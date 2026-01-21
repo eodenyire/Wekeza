@@ -11,7 +11,7 @@ public interface IMISReportRepository
     Task<MISReport?> GetByIdAsync(Guid id);
     Task<MISReport?> GetByCodeAndPeriodAsync(string reportCode, DateTime periodStart, DateTime periodEnd);
     Task<IEnumerable<MISReport>> GetByReportTypeAsync(MISReportType reportType);
-    Task<IEnumerable<MISReport>> GetByStatusAsync(ReportStatus status);
+    Task<IEnumerable<MISReport>> GetByStatusAsync(Enums.ReportStatus status);
     Task<IEnumerable<MISReport>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
     Task<IEnumerable<MISReport>> GetByDepartmentAsync(string department);
     Task<IEnumerable<MISReport>> GetExecutiveReportsAsync();

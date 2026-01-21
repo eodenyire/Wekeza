@@ -2,6 +2,7 @@ using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Exceptions;
 ///
 /// 3. The Executioner: CloseAccountHandler.cs
 /// This is where we implement the Financial Integrity Check. We check the balance and we query the "Lending" domain to ensure no active loans are linked to this account.
@@ -30,7 +31,7 @@ public class CloseAccountHandler : IRequestHandler<CloseAccountCommand, bool>
         // 2. Financial Integrity Check: Balance must be EXACTLY zero
         if (account.Balance.Amount != 0)
         {
-            throw new DomainException(
+            throw new GenericDomainException(
                 $"Account {request.AccountNumber} cannot be closed. Current balance is {account.Balance.Amount}. Please withdraw funds first.", 
                 "ACCOUNT_NOT_EMPTY");
         }
@@ -40,7 +41,7 @@ public class CloseAccountHandler : IRequestHandler<CloseAccountCommand, bool>
         bool hasActiveLoans = false; // Logic to be implemented in the Loans feature
         if (hasActiveLoans)
         {
-            throw new DomainException(
+            throw new GenericDomainException(
                 $"Account {request.AccountNumber} has outstanding loan obligations. Closure denied.", 
                 "OUTSTANDING_LIABILITIES");
         }

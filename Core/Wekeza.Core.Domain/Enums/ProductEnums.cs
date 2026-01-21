@@ -33,6 +33,7 @@ public enum ProductType
     BusinessLoan,
     Overdraft,
     CreditLine,
+    MortgageLoan,
     
     // Card Products
     DebitCard,
@@ -77,14 +78,6 @@ public enum InterestType
 /// <summary>
 /// Interest calculation methods
 /// </summary>
-public enum InterestCalculationMethod
-{
-    Simple,             // Simple interest
-    Compound,           // Compound interest
-    ReducingBalance,    // For loans
-    FlatRate            // Flat rate for loans
-}
-
 /// <summary>
 /// Interest posting frequency
 /// </summary>
@@ -124,19 +117,6 @@ public enum AccountType
 }
 
 /// <summary>
-/// Account status (enhanced from existing)
-/// </summary>
-public enum AccountStatus
-{
-    Active,
-    Inactive,
-    Frozen,
-    Dormant,
-    Closed,
-    Blocked
-}
-
-/// <summary>
 /// Loan types (enhanced from existing)
 /// </summary>
 public enum LoanType
@@ -151,3 +131,4 @@ public enum LoanType
     Corporate,
     Overdraft
 }
+

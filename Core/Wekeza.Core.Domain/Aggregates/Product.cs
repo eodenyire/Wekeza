@@ -1,5 +1,6 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -15,6 +16,11 @@ public class Product : AggregateRoot
     public ProductCategory Category { get; private set; }
     public ProductType Type { get; private set; }
     public ProductStatus Status { get; private set; }
+    
+    // Computed properties for compatibility
+    public string Name => ProductName;
+    public bool IsActive => Status == ProductStatus.Active;
+    public LimitConfiguration? LimitConfig => Limits;
     
     // Lifecycle
     public DateTime EffectiveDate { get; private set; }
@@ -158,7 +164,7 @@ public class Product : AggregateRoot
     public void Activate(string activatedBy)
     {
         if (Status != ProductStatus.Draft && Status != ProductStatus.Inactive)
-            throw new DomainException("Only draft or inactive products can be activated.");
+            throw new GenericDomainException("Only draft or inactive products can be activated.");
 
         Status = ProductStatus.Active;
         LastModifiedBy = activatedBy;
@@ -321,3 +327,5 @@ public record AccountingConfiguration(
     string ExpenseGLCode,
     string InterestPayableGLCode,
     string InterestReceivableGLCode);
+
+

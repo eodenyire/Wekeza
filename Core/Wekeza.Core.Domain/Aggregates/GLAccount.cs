@@ -1,5 +1,6 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -83,10 +84,10 @@ public class GLAccount : AggregateRoot
     public void PostDebit(decimal amount)
     {
         if (!IsLeaf)
-            throw new DomainException("Cannot post to non-leaf GL account.");
+            throw new GenericDomainException("Cannot post to non-leaf GL account.");
 
         if (Status != GLAccountStatus.Active)
-            throw new DomainException($"Cannot post to {Status} GL account.");
+            throw new GenericDomainException($"Cannot post to {Status} GL account.");
 
         DebitBalance += amount;
         LastPostingDate = DateTime.UtcNow;
@@ -95,10 +96,10 @@ public class GLAccount : AggregateRoot
     public void PostCredit(decimal amount)
     {
         if (!IsLeaf)
-            throw new DomainException("Cannot post to non-leaf GL account.");
+            throw new GenericDomainException("Cannot post to non-leaf GL account.");
 
         if (Status != GLAccountStatus.Active)
-            throw new DomainException($"Cannot post to {Status} GL account.");
+            throw new GenericDomainException($"Cannot post to {Status} GL account.");
 
         CreditBalance += amount;
         LastPostingDate = DateTime.UtcNow;
@@ -121,7 +122,7 @@ public class GLAccount : AggregateRoot
     public void Close(string closedBy)
     {
         if (NetBalance != 0)
-            throw new DomainException("Cannot close GL account with non-zero balance.");
+            throw new GenericDomainException("Cannot close GL account with non-zero balance.");
 
         Status = GLAccountStatus.Closed;
         LastModifiedBy = closedBy;
@@ -141,3 +142,5 @@ public class GLAccount : AggregateRoot
         LastModifiedDate = DateTime.UtcNow;
     }
 }
+
+

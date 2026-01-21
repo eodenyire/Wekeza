@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
@@ -29,8 +29,7 @@ public class DocumentaryCollection : AggregateRoot
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    private DocumentaryCollection() 
-    {
+    private DocumentaryCollection() : base(Guid.NewGuid()) {
         Documents = new List<TradeDocument>();
         Events = new List<CollectionEvent>();
     }
@@ -278,3 +277,4 @@ public enum CollectionStatus
     Settled,
     Cancelled
 }
+

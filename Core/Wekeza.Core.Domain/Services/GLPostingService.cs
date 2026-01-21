@@ -264,7 +264,7 @@ public class GLPostingService
         string journalNumber,
         string createdBy)
     {
-        var amount = new Money(loan.Principal, disbursementAccount.Balance.Currency);
+        var amount = loan.Principal;
         
         var journalEntry = JournalEntry.Create(
             journalNumber,

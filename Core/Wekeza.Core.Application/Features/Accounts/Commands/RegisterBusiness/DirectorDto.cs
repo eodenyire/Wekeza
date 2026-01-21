@@ -1,4 +1,4 @@
-///📂 Wekeza.Core.Application/Features/Accounts/Commands/RegisterBusiness/DirectorDto.cs
+﻿///ðŸ“‚ Wekeza.Core.Application/Features/Accounts/Commands/RegisterBusiness/DirectorDto.cs
 ///This Data Transfer Object (DTO) is designed to be lean but exhaustive. It captures everything needed for a Tier-1 KYC (Know Your Customer) check.
 ///
 ///

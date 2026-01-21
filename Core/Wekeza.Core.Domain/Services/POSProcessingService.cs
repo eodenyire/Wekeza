@@ -2,6 +2,8 @@ using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Common;
+using Wekeza.Core.Domain.Exceptions;
+using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Domain.Services;
 
@@ -281,17 +283,24 @@ public class POSProcessingService
         var merchantSettlementGL = await _glAccountRepository.GetByCodeAsync("2100"); // Merchant Settlement Payable
         
         if (customerAccountGL == null || merchantSettlementGL == null)
-            throw new DomainException("Required GL accounts not found for POS purchase posting");
+            throw new GenericDomainException("Required GL accounts not found for POS purchase posting");
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"POS Purchase - Merchant: {merchantName} - Account: {account.AccountNumber}",
+            $"POS-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "POS_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "POS_PURCHASE",
+            Guid.NewGuid(),
+            $"POS Purchase - Merchant: {merchantName} - Account: {account.AccountNumber}",
+            account.Currency.Code,
+            "POS_SYSTEM",
+            $"POS Purchase - Merchant: {merchantName} - Account: {account.AccountNumber}");
 
         // Dr. Merchant Settlement Payable, Cr. Customer Account
-        journalEntry.AddDebitEntry(merchantSettlementGL.Id, amount, $"POS purchase - {merchantName}");
-        journalEntry.AddCreditEntry(customerAccountGL.Id, amount, $"POS purchase - Account: {account.AccountNumber}");
+        journalEntry.AddDebitEntry(merchantSettlementGL.GLCode, amount.Amount, $"POS purchase - {merchantName}");
+        journalEntry.AddCreditEntry(customerAccountGL.GLCode, amount.Amount, $"POS purchase - Account: {account.AccountNumber}");
 
         await _journalEntryRepository.AddAsync(journalEntry);
 
@@ -306,17 +315,24 @@ public class POSProcessingService
         var merchantSettlementGL = await _glAccountRepository.GetByCodeAsync("2100"); // Merchant Settlement Payable
         
         if (customerAccountGL == null || merchantSettlementGL == null)
-            throw new DomainException("Required GL accounts not found for POS refund posting");
+            throw new GenericDomainException("Required GL accounts not found for POS refund posting");
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"POS Refund - Merchant: {merchantName} - Account: {account.AccountNumber}",
+            $"POS-REF-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "POS_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "POS_REFUND",
+            Guid.NewGuid(),
+            $"POS Refund - Merchant: {merchantName} - Account: {account.AccountNumber}",
+            account.Currency.Code,
+            "POS_SYSTEM",
+            $"POS Refund - Merchant: {merchantName} - Account: {account.AccountNumber}");
 
         // Dr. Customer Account, Cr. Merchant Settlement Payable (reverse of purchase)
-        journalEntry.AddDebitEntry(customerAccountGL.Id, amount, $"POS refund - Account: {account.AccountNumber}");
-        journalEntry.AddCreditEntry(merchantSettlementGL.Id, amount, $"POS refund - {merchantName}");
+        journalEntry.AddDebitEntry(customerAccountGL.GLCode, amount.Amount, $"POS refund - Account: {account.AccountNumber}");
+        journalEntry.AddCreditEntry(merchantSettlementGL.GLCode, amount.Amount, $"POS refund - {merchantName}");
 
         await _journalEntryRepository.AddAsync(journalEntry);
     }
@@ -335,13 +351,20 @@ public class POSProcessingService
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"Interchange Income - Category: {merchantCategory} - Account: {account.AccountNumber}",
+            $"POS-INT-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "POS_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "INTERCHANGE_INCOME",
+            Guid.NewGuid(),
+            $"Interchange Income - Category: {merchantCategory} - Account: {account.AccountNumber}",
+            interchangeIncome.Currency.Code,
+            "POS_SYSTEM",
+            $"Interchange Income - Category: {merchantCategory} - Account: {account.AccountNumber}");
 
         // Dr. Merchant Settlement Payable, Cr. Interchange Income
-        journalEntry.AddDebitEntry(merchantSettlementGL.Id, interchangeIncome, $"Interchange income - {merchantCategory}");
-        journalEntry.AddCreditEntry(interchangeIncomeGL.Id, interchangeIncome, "Interchange income");
+        journalEntry.AddDebitEntry(merchantSettlementGL.GLCode, interchangeIncome.Amount, $"Interchange income - {merchantCategory}");
+        journalEntry.AddCreditEntry(interchangeIncomeGL.GLCode, interchangeIncome.Amount, "Interchange income");
 
         await _journalEntryRepository.AddAsync(journalEntry);
     }

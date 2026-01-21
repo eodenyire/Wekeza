@@ -1,5 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Exceptions;
+using UserRole = Wekeza.Core.Domain.Enums.UserRole;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -49,7 +51,7 @@ public class ApprovalMatrix : AggregateRoot
     {
         // Validate no duplicate levels
         if (_rules.Any(r => r.Level == rule.Level))
-            throw new DomainException($"Rule for level {rule.Level} already exists.");
+            throw new GenericDomainException($"Rule for level {rule.Level} already exists.");
 
         _rules.Add(rule);
         LastModifiedDate = DateTime.UtcNow;
@@ -68,7 +70,7 @@ public class ApprovalMatrix : AggregateRoot
     public void Activate(string activatedBy)
     {
         if (!_rules.Any())
-            throw new DomainException("Cannot activate matrix without approval rules.");
+            throw new GenericDomainException("Cannot activate matrix without approval rules.");
 
         Status = MatrixStatus.Active;
         LastModifiedBy = activatedBy;
@@ -92,10 +94,10 @@ public class ApprovalMatrix : AggregateRoot
         return applicableRules.Any() ? applicableRules.Max(r => r.Level) : 1;
     }
 
-    public List<UserRole> GetApproversForLevel(int level, decimal amount, string operation)
+    public List<Wekeza.Core.Domain.Enums.UserRole> GetApproversForLevel(int level, decimal amount, string operation)
     {
         var rule = _rules.FirstOrDefault(r => r.Level == level && r.IsApplicable(amount, operation));
-        return rule?.ApproverRoles ?? new List<UserRole>();
+        return rule?.ApproverRoles ?? new List<Wekeza.Core.Domain.Enums.UserRole>();
     }
 }
 
@@ -103,7 +105,7 @@ public class ApprovalMatrix : AggregateRoot
 
 public record ApprovalRule(
     int Level,
-    List<UserRole> ApproverRoles,
+    List<Wekeza.Core.Domain.Enums.UserRole> ApproverRoles,
     decimal? MinAmount,
     decimal? MaxAmount,
     string? Operation, // Create, Update, Delete, Approve, etc.
@@ -119,3 +121,5 @@ public record ApprovalRule(
         return amountMatch && operationMatch;
     }
 }
+
+

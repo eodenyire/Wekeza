@@ -1,4 +1,5 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 
@@ -56,8 +57,7 @@ public class User : AggregateRoot
     public string? LastModifiedBy { get; private set; }
     public Dictionary<string, object> Metadata { get; private set; }
 
-    private User() 
-    {
+    private User() : base(Guid.NewGuid()) {
         BackupCodes = new List<string>();
         Preferences = new Dictionary<string, object>();
         Roles = new List<UserRole>();
@@ -73,7 +73,7 @@ public class User : AggregateRoot
         string lastName,
         string employeeId,
         string createdBy,
-        SecurityClearanceLevel securityClearance = SecurityClearanceLevel.Internal,
+        SecurityClearanceLevel securityClearance = SecurityClearanceLevel.Basic,
         string timeZone = "UTC",
         string language = "en-US") : this()
     {
@@ -412,34 +412,9 @@ public class UserProfile
 }
 
 // Enumerations
-public enum UserStatus
-{
-    Active,
-    Inactive,
-    Locked,
-    Suspended,
-    PendingActivation,
-    Expired,
-    Disabled
-}
 
-public enum MfaMethod
-{
-    None,
-    SMS,
-    Email,
-    TOTP,
-    Hardware,
-    Biometric,
-    Push
-}
 
-public enum SecurityClearanceLevel
-{
-    Public,
-    Internal,
-    Confidential,
-    Restricted,
-    Secret,
-    TopSecret
-}
+
+
+
+

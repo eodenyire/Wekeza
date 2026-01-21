@@ -1,9 +1,12 @@
-using Wekeza.Core.Application.Common;
+﻿using Wekeza.Core.Application.Common;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.VerifyCustomer;
 
 /// <summary>
-/// 📂 Wekeza.Core.Application/Features/Accounts/Commands/VerifyCustomer
+/// ðŸ“‚ Wekeza.Core.Application/Features/Accounts/Commands/VerifyCustomer
 /// 1. The Intent: VerifyCustomerCommand.cs
 /// We capture the VerifierId (the staff member or AI bot) and the VerificationSource (e.g., "IPRS", "Manual Document Review").
 /// Transition a customer to 'Verified' status. 

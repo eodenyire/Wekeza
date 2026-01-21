@@ -10,7 +10,7 @@ namespace Wekeza.Core.Application.Common.Behaviors;
 /// MediatR pipeline behavior that enforces authorization rules
 /// </summary>
 public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : IRequest<TResponse>
 {
     private readonly ICurrentUserService _currentUserService;
 

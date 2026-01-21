@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Events;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -26,14 +27,13 @@ public class InterestAccrualEngine : AggregateRoot
     private readonly List<AccrualEntry> _accrualEntries = new();
     public IReadOnlyList<AccrualEntry> AccrualEntries => _accrualEntries.AsReadOnly();
 
-    private InterestAccrualEngine() { } // EF Core
+    private InterestAccrualEngine() : base(Guid.NewGuid()) { } // EF Core
 
     public InterestAccrualEngine(
         Guid id,
         string engineName,
         DateTime processingDate,
-        string processedBy)
-    {
+        string processedBy) : base(id) {
         Id = id;
         EngineName = engineName;
         ProcessingDate = processingDate;
@@ -98,7 +98,7 @@ public class InterestAccrualEngine : AggregateRoot
                 TotalInterestAccrued.Amount + interestAmount.Amount,
                 TotalInterestAccrued.Currency);
 
-            AddDomainEvent(new InterestAccruedDomainEvent(accountId, interestAmount, ProcessingDate));
+            AddDomainEvent(new InterestAccruedDomainEvent(accountId, "ACCRUAL-" + accountId.ToString()[..8], interestAmount, ProcessingDate, "Daily"));
         }
         catch (Exception ex)
         {
@@ -344,3 +344,4 @@ public record InterestAccrualFailedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

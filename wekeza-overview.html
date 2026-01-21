@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏦 Wekeza Banking System - Overview</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .header h1 { 
+            color: #2c3e50; 
+            margin-bottom: 15px;
+            font-size: 3em;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+        .owner-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            color: #495057;
+            font-weight: 500;
+        }
+        .apis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .api-card {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .api-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .port-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .features {
+            margin-bottom: 20px;
+        }
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+        .features li {
+            padding: 5px 0;
+            color: #555;
+        }
+        .features li:before {
+            content: "✅ ";
+            margin-right: 8px;
+        }
+        .links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            min-width: 120px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 2px solid #dee2e6;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .status-section {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .status-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .status-item h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .status-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .status-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 Wekeza Banking System</h1>
+            <div class="subtitle">Complete Banking Platform - 4 API Versions</div>
+            <div class="owner-info">
+                <strong>Owner:</strong> Emmanuel Odenyire (ID: 28839872)<br>
+                <strong>Contact:</strong> 0716478835 | <strong>DOB:</strong> 17/March/1992
+            </div>
+        </div>
+
+        <div class="apis-grid">
+            <!-- Minimal API -->
+            <div class="api-card">
+                <h3>🚀 Minimal API</h3>
+                <div class="port-badge">PORT 5000</div>
+                <div class="description">
+                    Simple prototype with core banking operations. Perfect for testing and demos.
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>Customer Management</li>
+                        <li>Account Operations</li>
+                        <li>Deposit/Withdrawal</li>
+                        <li>Balance Inquiry</li>
+                        <li>Mock Data Responses</li>
+                    </ul>
+                </div>
+                <div class="links">
+                    <a href="http://localhost:5000" class="btn btn-primary" target="_blank">Open App</a>
+                    <a href="http://localhost:5000/swagger" class="btn btn-secondary" target="_blank">API Docs</a>
+                </div>
+            </div>
+
+            <!-- Database API -->
+            <div class="api-card">
+                <h3>🗄️ Database API</h3>
+                <div class="port-badge">PORT 5001</div>
+                <div class="description">
+                    Full database integration with PostgreSQL. Real data persistence and comprehensive features.
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>PostgreSQL Integration</li>
+                        <li>Entity Framework</li>
+                        <li>Complete Banking Modules</li>
+                        <li>Real Data Persistence</li>
+                        <li>Multi-tab Interface</li>
+                    </ul>
+                </div>
+                <div class="links">
+                    <a href="http://localhost:5001" class="btn btn-primary" target="_blank">Open App</a>
+                    <a href="http://localhost:5001/swagger" class="btn btn-secondary" target="_blank">API Docs</a>
+                </div>
+            </div>
+
+            <!-- Enhanced API -->
+            <div class="api-card">
+                <h3>🏗️ Enhanced API</h3>
+                <div class="port-badge">PORT 5002</div>
+                <div class="description">
+                    Clean Architecture with CQRS pattern. Domain-Driven Design implementation.
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>CQRS with MediatR</li>
+                        <li>Domain-Driven Design</li>
+                        <li>Value Objects</li>
+                        <li>Repository Pattern</li>
+                        <li>Business Rule Enforcement</li>
+                    </ul>
+                </div>
+                <div class="links">
+                    <a href="http://localhost:5002" class="btn btn-primary" target="_blank">Open App</a>
+                    <a href="http://localhost:5002/swagger" class="btn btn-secondary" target="_blank">API Docs</a>
+                </div>
+            </div>
+
+            <!-- Comprehensive API -->
+            <div class="api-card">
+                <h3>🏛️ Comprehensive API</h3>
+                <div class="port-badge">PORT 5003</div>
+                <div class="description">
+                    Full enterprise banking platform with 85+ endpoints across 18 modules.
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>18 Banking Modules</li>
+                        <li>85+ API Endpoints</li>
+                        <li>Complete Feature Set</li>
+                        <li>Enterprise-Grade</li>
+                        <li>Comprehensive Dashboard</li>
+                    </ul>
+                </div>
+                <div class="links">
+                    <a href="http://localhost:5003" class="btn btn-primary" target="_blank">Open App</a>
+                    <a href="http://localhost:5003/swagger" class="btn btn-secondary" target="_blank">API Docs</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-section">
+            <h3>⚡ System Status & Monitoring</h3>
+            <div class="status-grid">
+                <div class="status-item">
+                    <h4>Minimal API</h4>
+                    <a href="http://localhost:5000/api/status" class="status-link" target="_blank">Check Status</a>
+                </div>
+                <div class="status-item">
+                    <h4>Database API</h4>
+                    <a href="http://localhost:5001/api/status" class="status-link" target="_blank">Check Status</a>
+                </div>
+                <div class="status-item">
+                    <h4>Enhanced API</h4>
+                    <a href="http://localhost:5002/api/status" class="status-link" target="_blank">Check Status</a>
+                </div>
+                <div class="status-item">
+                    <h4>Comprehensive API</h4>
+                    <a href="http://localhost:5003/api/status" class="status-link" target="_blank">Check Status</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh status indicators every 30 seconds
+        setInterval(async () => {
+            const ports = [5000, 5001, 5002, 5003];
+            
+            ports.forEach(async (port) => {
+                try {
+                    const response = await fetch(`http://localhost:${port}/api/status`);
+                    const statusElement = document.querySelector(`a[href="http://localhost:${port}/api/status"]`);
+                    if (response.ok) {
+                        statusElement.style.color = '#27ae60';
+                        statusElement.textContent = '🟢 Online';
+                    } else {
+                        statusElement.style.color = '#e74c3c';
+                        statusElement.textContent = '🔴 Error';
+                    }
+                } catch (error) {
+                    const statusElement = document.querySelector(`a[href="http://localhost:${port}/api/status"]`);
+                    statusElement.style.color = '#f39c12';
+                    statusElement.textContent = '🟡 Offline';
+                }
+            });
+        }, 30000);
+    </script>
+</body>
+</html>

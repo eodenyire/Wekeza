@@ -1,4 +1,7 @@
-using MediatR;
+﻿using MediatR;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Transactions.Commands.ProcessMobileMoneyCallback;
 

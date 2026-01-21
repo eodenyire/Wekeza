@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Events;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -38,7 +39,7 @@ public class FixedDeposit : AggregateRoot
     public virtual Account Account { get; private set; } = null!;
     public virtual Customer Customer { get; private set; } = null!;
 
-    private FixedDeposit() { } // EF Core
+    private FixedDeposit() : base(Guid.NewGuid()) { } // EF Core
 
     public FixedDeposit(
         Guid id,
@@ -51,8 +52,7 @@ public class FixedDeposit : AggregateRoot
         InterestPaymentFrequency interestFrequency,
         bool autoRenewal,
         string branchCode,
-        string createdBy)
-    {
+        string createdBy) : base(id) {
         Id = id;
         AccountId = accountId;
         CustomerId = customerId;
@@ -94,7 +94,7 @@ public class FixedDeposit : AggregateRoot
         LastInterestPostingDate = accrualDate;
         ModifiedAt = DateTime.UtcNow;
 
-        AddDomainEvent(new InterestAccruedDomainEvent(Id, AccountId, interestAmount, accrualDate));
+        AddDomainEvent(new InterestAccruedDomainEvent(AccountId, DepositNumber, interestAmount, accrualDate, "Daily"));
     }
 
     public void ProcessMaturity(string processedBy)
@@ -246,3 +246,4 @@ public record FixedDepositRenewedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

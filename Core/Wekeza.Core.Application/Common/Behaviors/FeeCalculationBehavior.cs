@@ -1,7 +1,15 @@
+﻿using MediatR;
+using Wekeza.Core.Application.Features.Transactions.Commands.TransferFunds;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
+
+namespace Wekeza.Core.Application.Common.Behaviors;
+
 ///
-/// 📂 Phase 3: The Automated "Tax & Fee" Gate
+/// ðŸ“‚ Phase 3: The Automated "Tax & Fee" Gate
 ///To ensure the bank is profitable, we are adding a Global Fee Interceptor. This ensures that every transfer automatically deducts the bank's fee and the Excise Duty (Tax).
-/// 1. 📂 Common/Behaviors/FeeCalculationBehavior.cs
+/// 1. ðŸ“‚ Common/Behaviors/FeeCalculationBehavior.cs
 /// This behavior intercepts every TransferFundsCommand and calculates the required deductions before the handler even starts.
 ///
 public class FeeCalculationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>

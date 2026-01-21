@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 /// 2. The Gatekeeper: CloseAccountValidator.cs
 /// Basic structure check. The real heavy lifting happens in the Handler's business logic.
 ///

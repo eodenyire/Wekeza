@@ -30,19 +30,6 @@ public enum PartyStatus
 }
 
 /// <summary>
-/// KYC completion status
-/// </summary>
-public enum KYCStatus
-{
-    Pending,
-    InProgress,
-    Completed,
-    Expired,
-    Rejected,
-    UnderReview
-}
-
-/// <summary>
 /// Risk rating for AML/CFT
 /// </summary>
 public enum RiskRating

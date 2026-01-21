@@ -12,6 +12,12 @@ public abstract class AggregateRoot : Entity
 
     protected AggregateRoot(Guid id) : base(id) { }
 
+    // Audit properties
+    public DateTime CreatedAt { get; protected set; }
+    public string CreatedBy { get; protected set; } = string.Empty;
+    public DateTime? UpdatedAt { get; protected set; }
+    public string? UpdatedBy { get; protected set; }
+
     /// <summary>
     /// A read-only collection of events that happened to this Aggregate.
     /// These will be dispatched to other systems (like Fraud or Big Data) after saving.
@@ -26,5 +32,17 @@ public abstract class AggregateRoot : Entity
     public void ClearDomainEvents()
     {
         _domainEvents.Clear();
+    }
+
+    protected void SetAuditInfo(string createdBy, DateTime? createdAt = null)
+    {
+        CreatedAt = createdAt ?? DateTime.UtcNow;
+        CreatedBy = createdBy;
+    }
+
+    protected void UpdateAuditInfo(string updatedBy, DateTime? updatedAt = null)
+    {
+        UpdatedAt = updatedAt ?? DateTime.UtcNow;
+        UpdatedBy = updatedBy;
     }
 }

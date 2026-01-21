@@ -1,4 +1,5 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 
@@ -23,14 +24,14 @@ public class Role : AggregateRoot
     public bool InheritsPermissions { get; private set; }
     
     // Permissions & Access
-    public List<Permission> Permissions { get; private set; }
+    public List<ValueObjects.Permission> Permissions { get; private set; }
     public List<string> AllowedModules { get; private set; }
     public List<string> RestrictedModules { get; private set; }
     public Dictionary<string, AccessLevel> ModuleAccess { get; private set; }
     
     // Constraints & Limits
     public List<string> IpRestrictions { get; private set; }
-    public List<TimeWindow> TimeRestrictions { get; private set; }
+    public List<AccessTimeWindow> TimeRestrictions { get; private set; }
     public decimal? TransactionLimit { get; private set; }
     public decimal? DailyLimit { get; private set; }
     public bool RequiresMfa { get; private set; }
@@ -49,15 +50,14 @@ public class Role : AggregateRoot
     public string? LastModifiedBy { get; private set; }
     public Dictionary<string, object> Metadata { get; private set; }
 
-    private Role()
-    {
+    private Role() : base(Guid.NewGuid()) {
         ChildRoleIds = new List<Guid>();
-        Permissions = new List<Permission>();
+        Permissions = new List<ValueObjects.Permission>();
         AllowedModules = new List<string>();
         RestrictedModules = new List<string>();
         ModuleAccess = new Dictionary<string, AccessLevel>();
         IpRestrictions = new List<string>();
-        TimeRestrictions = new List<TimeWindow>();
+        TimeRestrictions = new List<AccessTimeWindow>();
         ApprovalWorkflow = new List<string>();
         Metadata = new Dictionary<string, object>();
     }
@@ -68,7 +68,7 @@ public class Role : AggregateRoot
         string description,
         RoleType type,
         string createdBy,
-        SecurityClearanceLevel requiredClearance = SecurityClearanceLevel.Internal) : this()
+        SecurityClearanceLevel requiredClearance = SecurityClearanceLevel.Standard) : this()
     {
         if (string.IsNullOrWhiteSpace(roleCode))
             throw new ArgumentException("Role code cannot be empty", nameof(roleCode));
@@ -170,7 +170,7 @@ public class Role : AggregateRoot
         }
     }
 
-    public void AddTimeRestriction(TimeWindow window, string addedBy)
+    public void AddTimeRestriction(AccessTimeWindow window, string addedBy)
     {
         if (window == null)
             throw new ArgumentNullException(nameof(window));
@@ -179,7 +179,7 @@ public class Role : AggregateRoot
         LastModifiedAt = DateTime.UtcNow;
         LastModifiedBy = addedBy;
 
-        AddDomainEvent(new RoleTimeRestrictionAddedDomainEvent(Id, RoleCode, window, addedBy));
+        AddDomainEvent(new RoleTimeRestrictionAddedDomainEvent(Id, RoleCode, TimeWindow.Day, addedBy));
     }
 
     public void UpdateTransactionLimits(decimal? transactionLimit, decimal? dailyLimit, string updatedBy)
@@ -327,7 +327,7 @@ public class Role : AggregateRoot
 }
 
 // Supporting classes
-public class TimeWindow
+public class AccessTimeWindow
 {
     public DayOfWeek StartDay { get; set; }
     public DayOfWeek EndDay { get; set; }
@@ -335,7 +335,7 @@ public class TimeWindow
     public TimeSpan EndTime { get; set; }
     public string Description { get; set; }
 
-    public TimeWindow(DayOfWeek startDay, DayOfWeek endDay, TimeSpan startTime, TimeSpan endTime, string description = "")
+    public AccessTimeWindow(DayOfWeek startDay, DayOfWeek endDay, TimeSpan startTime, TimeSpan endTime, string description = "")
     {
         StartDay = startDay;
         EndDay = endDay;
@@ -361,30 +361,4 @@ public class TimeWindow
     }
 }
 
-// Enumerations
-public enum RoleType
-{
-    System,
-    Functional,
-    Departmental,
-    Custom,
-    Temporary
-}
 
-public enum RoleStatus
-{
-    Active,
-    Inactive,
-    Suspended,
-    Deprecated
-}
-
-public enum AccessLevel
-{
-    None = 0,
-    Read = 1,
-    Write = 2,
-    Execute = 4,
-    Delete = 8,
-    Admin = 15 // All permissions
-}

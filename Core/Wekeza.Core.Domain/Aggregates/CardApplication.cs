@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -95,10 +96,10 @@ public class CardApplication : AggregateRoot
             RequestPOSEnabled = true,
             RequestOnlineEnabled = true,
             RequestInternationalEnabled = false,
-            RequestContactlessEnabled = true,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = "CUSTOMER"
+            RequestContactlessEnabled = true
         };
+
+        application.SetAuditInfo("CUSTOMER");
 
         application.AddDomainEvent(new CardApplicationSubmittedDomainEvent(
             application.Id, customerId, accountId, requestedCardType));
@@ -109,7 +110,7 @@ public class CardApplication : AggregateRoot
     public void StartReview(string reviewedBy)
     {
         if (Status != CardApplicationStatus.Submitted)
-            throw new DomainException($"Cannot start review for application in {Status} status");
+            throw new GenericDomainException($"Cannot start review for application in {Status} status");
 
         Status = CardApplicationStatus.UnderReview;
         ProcessedBy = reviewedBy;
@@ -121,7 +122,7 @@ public class CardApplication : AggregateRoot
     public void RequestDocuments(string documentRemarks)
     {
         if (Status != CardApplicationStatus.UnderReview)
-            throw new DomainException($"Cannot request documents for application in {Status} status");
+            throw new GenericDomainException($"Cannot request documents for application in {Status} status");
 
         Status = CardApplicationStatus.DocumentsRequired;
         DocumentRemarks = documentRemarks;
@@ -135,7 +136,7 @@ public class CardApplication : AggregateRoot
         bool addressProofProvided)
     {
         if (Status != CardApplicationStatus.DocumentsRequired)
-            throw new DomainException($"Cannot submit documents for application in {Status} status");
+            throw new GenericDomainException($"Cannot submit documents for application in {Status} status");
 
         IdentityDocumentProvided = identityDocumentProvided;
         IncomeProofProvided = incomeProofProvided;
@@ -167,7 +168,7 @@ public class CardApplication : AggregateRoot
     public void SendToWorkflow(Guid workflowInstanceId)
     {
         if (Status != CardApplicationStatus.UnderReview)
-            throw new DomainException($"Cannot send to workflow for application in {Status} status");
+            throw new GenericDomainException($"Cannot send to workflow for application in {Status} status");
 
         Status = CardApplicationStatus.PendingApproval;
         WorkflowInstanceId = workflowInstanceId;
@@ -178,7 +179,7 @@ public class CardApplication : AggregateRoot
     public void Approve(string approvedBy, string? approvalComments = null)
     {
         if (Status != CardApplicationStatus.PendingApproval && Status != CardApplicationStatus.UnderReview)
-            throw new DomainException($"Cannot approve application in {Status} status");
+            throw new GenericDomainException($"Cannot approve application in {Status} status");
 
         Status = CardApplicationStatus.Approved;
         ProcessedBy = approvedBy;
@@ -191,7 +192,7 @@ public class CardApplication : AggregateRoot
     public void Reject(string rejectedBy, string rejectionReason)
     {
         if (Status == CardApplicationStatus.Approved || Status == CardApplicationStatus.CardIssued)
-            throw new DomainException($"Cannot reject application in {Status} status");
+            throw new GenericDomainException($"Cannot reject application in {Status} status");
 
         Status = CardApplicationStatus.Rejected;
         ProcessedBy = rejectedBy;
@@ -204,7 +205,7 @@ public class CardApplication : AggregateRoot
     public void MarkCardIssued(Guid cardId, string issuedBy)
     {
         if (Status != CardApplicationStatus.Approved)
-            throw new DomainException($"Cannot issue card for application in {Status} status");
+            throw new GenericDomainException($"Cannot issue card for application in {Status} status");
 
         Status = CardApplicationStatus.CardIssued;
         IssuedCardId = cardId;
@@ -258,3 +259,5 @@ public enum CardApplicationStatus
     CardIssued = 7,
     Cancelled = 8
 }
+
+

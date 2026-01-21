@@ -2,6 +2,7 @@ using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Exceptions;
 using Wekeza.Core.Domain.Events;
+using Wekeza.Core.Domain.Common;
 
 namespace Wekeza.Core.Domain.Services;
 
@@ -21,7 +22,7 @@ public class TransferService
         // Rule 1: Prevent self-transfer (Common fraud/error vector)
         if (source.Id == destination.Id)
         {
-            throw new DomainException("Source and destination accounts cannot be the same.", "SAME_ACCOUNT_TRANSFER");
+            throw new InsufficientFundsException(source.AccountNumber, amount);
         }
 
         // Rule 2: Currency Integrity
@@ -32,8 +33,9 @@ public class TransferService
 
         // Rule 3: Atomic execution of Debit/Credit
         // Note: The Debit() method inside Account.cs already checks for Insufficient Funds and Frozen status.
-        source.Debit(amount);
-        destination.Credit(amount);
+        var transactionReference = Guid.NewGuid().ToString();
+        source.Debit(amount, transactionReference, "Transfer out");
+        destination.Credit(amount, transactionReference, "Transfer in");
 
         // Rule 4: Raise the Domain Event for the rest of the 100 systems (Fraud, Reporting, etc.)
         // We use a CorrelationId to link these two movements in the ledger.

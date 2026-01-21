@@ -10,6 +10,7 @@ namespace Wekeza.Core.Application.Features.Payments.Commands.ProcessPayment;
 /// </summary>
 public record ProcessPaymentCommand : ICommand<ProcessPaymentResult>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     // Payment type and channel
     public PaymentType Type { get; init; }
     public PaymentChannel Channel { get; init; } = PaymentChannel.Internal;

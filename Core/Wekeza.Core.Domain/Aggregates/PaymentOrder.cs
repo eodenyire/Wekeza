@@ -1,7 +1,8 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -151,10 +152,10 @@ public class PaymentOrder : AggregateRoot
     public void Authorize(string approvedBy)
     {
         if (Status != PaymentStatus.Pending)
-            throw new DomainException($"Cannot authorize payment in {Status} status");
+            throw new GenericDomainException($"Cannot authorize payment in {Status} status");
 
         if (!RequiresApproval)
-            throw new DomainException("Payment does not require approval");
+            throw new GenericDomainException("Payment does not require approval");
 
         Status = PaymentStatus.Authorized;
         ApprovedBy = approvedBy;
@@ -168,10 +169,10 @@ public class PaymentOrder : AggregateRoot
     public void Process(string processedBy)
     {
         if (RequiresApproval && Status != PaymentStatus.Authorized)
-            throw new DomainException("Payment must be authorized before processing");
+            throw new GenericDomainException("Payment must be authorized before processing");
 
         if (Status != PaymentStatus.Pending && Status != PaymentStatus.Authorized)
-            throw new DomainException($"Cannot process payment in {Status} status");
+            throw new GenericDomainException($"Cannot process payment in {Status} status");
 
         Status = PaymentStatus.Processing;
         ProcessedDate = DateTime.UtcNow;
@@ -184,7 +185,7 @@ public class PaymentOrder : AggregateRoot
     public void Complete(string completedBy, string? externalReference = null)
     {
         if (Status != PaymentStatus.Processing)
-            throw new DomainException($"Cannot complete payment in {Status} status");
+            throw new GenericDomainException($"Cannot complete payment in {Status} status");
 
         Status = PaymentStatus.Completed;
         SettledDate = DateTime.UtcNow;
@@ -198,7 +199,7 @@ public class PaymentOrder : AggregateRoot
     public void Fail(string reason, string failedBy)
     {
         if (Status == PaymentStatus.Completed || Status == PaymentStatus.Cancelled)
-            throw new DomainException($"Cannot fail payment in {Status} status");
+            throw new GenericDomainException($"Cannot fail payment in {Status} status");
 
         Status = PaymentStatus.Failed;
         FailureReason = reason;
@@ -211,7 +212,7 @@ public class PaymentOrder : AggregateRoot
     public void Cancel(string reason, string cancelledBy)
     {
         if (Status == PaymentStatus.Processing || Status == PaymentStatus.Completed)
-            throw new DomainException($"Cannot cancel payment in {Status} status");
+            throw new GenericDomainException($"Cannot cancel payment in {Status} status");
 
         Status = PaymentStatus.Cancelled;
         FailureReason = reason;
@@ -224,10 +225,10 @@ public class PaymentOrder : AggregateRoot
     public void Retry(string retriedBy)
     {
         if (Status != PaymentStatus.Failed)
-            throw new DomainException("Can only retry failed payments");
+            throw new GenericDomainException("Can only retry failed payments");
 
         if (RetryCount >= 3)
-            throw new DomainException("Maximum retry attempts exceeded");
+            throw new GenericDomainException("Maximum retry attempts exceeded");
 
         Status = PaymentStatus.Pending;
         RetryCount++;
@@ -318,3 +319,4 @@ public class PaymentOrder : AggregateRoot
         };
     }
 }
+

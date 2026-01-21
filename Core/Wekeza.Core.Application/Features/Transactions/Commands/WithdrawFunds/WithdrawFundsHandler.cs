@@ -2,6 +2,7 @@ using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Exceptions;
 ///
 /// 3. The Executioner: WithdrawFundsHandler.cs
 /// This is where we implement the Principal-Grade Withdrawal Logic. It checks the Balance (via the Domain Entity) and would realistically check a Daily Limit Service.
@@ -28,7 +29,7 @@ public class WithdrawFundsHandler : IRequestHandler<WithdrawFundsCommand, Guid>
         // For now, let's assume a hard limit of 100,000 KES for ATMs
         if (request.Channel == "ATM" && request.Amount > 100000)
         {
-            throw new DomainException("Withdrawal exceeds daily ATM limit.", "LIMIT_EXCEEDED");
+            throw new GenericDomainException("Withdrawal exceeds daily ATM limit.", "LIMIT_EXCEEDED");
         }
 
         // 3. Domain Logic: Debit

@@ -1,6 +1,6 @@
-///📂 Wekeza.Core.Application/Common/Exceptions/
+﻿///ðŸ“‚ Wekeza.Core.Application/Common/Exceptions/
 ///1. DomainException.cs (The Rule Breaker)
-///This exception is thrown when a Business Rule is violated. It’s not about code crashing; it’s about the "Soul" of the bank saying, "No, you cannot do this." For example: "Account is Frozen" or "Insufficient Funds."
+///This exception is thrown when a Business Rule is violated. Itâ€™s not about code crashing; itâ€™s about the "Soul" of the bank saying, "No, you cannot do this." For example: "Account is Frozen" or "Insufficient Funds."
 ///
 ///
 namespace Wekeza.Core.Application.Common.Exceptions;

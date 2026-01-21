@@ -12,6 +12,7 @@ namespace Wekeza.Core.Application.Features.Products.Commands.CreateProduct;
 [Authorize(UserRole.Administrator)]
 public record CreateProductCommand : ICommand<string>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string ProductCode { get; init; } = string.Empty;
     public string ProductName { get; init; } = string.Empty;
     public ProductCategory Category { get; init; }

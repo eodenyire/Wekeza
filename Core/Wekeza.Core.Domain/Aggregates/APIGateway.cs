@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
@@ -52,7 +52,7 @@ public class APIGateway : AggregateRoot
     public bool EnableCircuitBreaker { get; private set; }
     public int FailureThreshold { get; private set; }
     public TimeSpan CircuitBreakerTimeout { get; private set; }
-    public Dictionary<string, CircuitBreakerState> CircuitBreakerStates { get; private set; }
+    public Dictionary<string, ValueObjects.CircuitBreakerState> CircuitBreakerStates { get; private set; }
     
     // Maintenance
     public DateTime CreatedAt { get; private set; }
@@ -62,8 +62,7 @@ public class APIGateway : AggregateRoot
     public Dictionary<string, object> Metadata { get; private set; }
 
     // Private constructor for EF Core
-    private APIGateway() 
-    {
+    private APIGateway() : base(Guid.NewGuid()) {
         Routes = new List<APIRoute>();
         RateLimits = new Dictionary<string, RateLimitConfig>();
         AuthConfigs = new Dictionary<string, AuthenticationConfig>();
@@ -72,7 +71,7 @@ public class APIGateway : AggregateRoot
         AllowedOrigins = new List<string>();
         SecurityHeaders = new Dictionary<string, string>();
         RecentLogs = new List<APILog>();
-        CircuitBreakerStates = new Dictionary<string, CircuitBreakerState>();
+        CircuitBreakerStates = new Dictionary<string, ValueObjects.CircuitBreakerState>();
         Metadata = new Dictionary<string, object>();
     }
 
@@ -133,7 +132,7 @@ public class APIGateway : AggregateRoot
             EnableCircuitBreaker = true,
             FailureThreshold = 5,
             CircuitBreakerTimeout = TimeSpan.FromMinutes(1),
-            CircuitBreakerStates = new Dictionary<string, CircuitBreakerState>(),
+            CircuitBreakerStates = new Dictionary<string, ValueObjects.CircuitBreakerState>(),
             CreatedAt = DateTime.UtcNow,
             CreatedBy = createdBy,
             Metadata = new Dictionary<string, object>()
@@ -300,15 +299,7 @@ public class APIGateway : AggregateRoot
         // Add to recent logs if logging is enabled
         if (EnableLogging && RecentLogs.Count < 1000) // Keep last 1000 logs
         {
-            var log = new APILog
-            {
-                Timestamp = DateTime.UtcNow,
-                Endpoint = endpoint,
-                Method = method,
-                StatusCode = statusCode,
-                ResponseTime = responseTime,
-                ClientIP = clientIP
-            };
+            var log = new APILog(method, endpoint, statusCode, responseTime.TotalMilliseconds, DateTime.UtcNow);
             
             RecentLogs.Add(log);
             
@@ -478,7 +469,7 @@ public class APIGateway : AggregateRoot
     {
         if (!CircuitBreakerStates.ContainsKey(endpoint))
         {
-            CircuitBreakerStates[endpoint] = new CircuitBreakerState();
+            CircuitBreakerStates[endpoint] = new ValueObjects.CircuitBreakerState();
         }
 
         var state = CircuitBreakerStates[endpoint];
@@ -551,3 +542,4 @@ public enum GatewayHealthStatus
     NoUpstreams,
     Inactive
 }
+

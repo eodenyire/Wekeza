@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
@@ -54,7 +54,7 @@ public class Analytics : AggregateRoot
     public bool IsStale { get; private set; }
 
     // Private constructor for EF Core
-    private Analytics() 
+    private Analytics() : base(Guid.NewGuid())
     {
         DataFilters = new Dictionary<string, object>();
         Metrics = new Dictionary<string, decimal>();
@@ -505,3 +505,4 @@ public class ForecastData
         Parameters = new Dictionary<string, object>();
     }
 }
+

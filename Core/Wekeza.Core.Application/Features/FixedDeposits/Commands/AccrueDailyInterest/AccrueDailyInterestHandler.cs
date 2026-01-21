@@ -1,3 +1,9 @@
+using MediatR;
+using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Application.Common.Interfaces;
+
+namespace Wekeza.Core.Application.Features.FixedDeposits.Commands.AccrueDailyInterest;
+
 ///📂 Phase 8: The Interest Accrual & Payout Engine
 /// For our Fixed Deposits and Savings Accounts, the bank must calculate interest daily. We are building the Application logic that the Background Job will call.
 /// 1. 📂 Features/FixedDeposits/Commands/AccrueDailyInterest/

@@ -1,4 +1,4 @@
-///📂 Wekeza.Core.Application/Features/Transactions/Queries/GetStatement/
+﻿///ðŸ“‚ Wekeza.Core.Application/Features/Transactions/Queries/GetStatement/
 ///1. PagedStatementDto.cs (The Data Contract)
 ///We don't just return a list. We return a "Beast-grade" package that includes metadata like total records and current page so the frontend (Mobile or Web) can build a smooth scrolling experience.
 ///

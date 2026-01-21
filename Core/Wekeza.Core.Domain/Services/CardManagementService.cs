@@ -2,6 +2,8 @@ using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Common;
+using Wekeza.Core.Domain.Exceptions;
+using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Domain.Services;
 
@@ -45,22 +47,22 @@ public class CardManagementService
         // Validate customer exists and is active
         var customer = await _customerRepository.GetByIdAsync(customerId);
         if (customer == null)
-            throw new DomainException("Customer not found");
+            throw new GenericDomainException("Customer not found");
 
         // Validate account exists and belongs to customer
         var account = await _accountRepository.GetByIdAsync(accountId);
         if (account == null)
-            throw new DomainException("Account not found");
+            throw new GenericDomainException("Account not found");
 
         if (account.CustomerId != customerId)
-            throw new DomainException("Account does not belong to the specified customer");
+            throw new GenericDomainException("Account does not belong to the specified customer");
 
         // Check if customer already has active cards of this type for this account
         var existingCards = await _cardRepository.GetActiveCardsByAccountIdAsync(accountId);
         var existingCardOfType = existingCards.FirstOrDefault(c => c.CardType == cardType);
         
         if (existingCardOfType != null)
-            throw new DomainException($"Customer already has an active {cardType} card for this account");
+            throw new GenericDomainException($"Customer already has an active {cardType} card for this account");
 
         // Issue the card
         var card = Card.IssueCard(
@@ -121,7 +123,7 @@ public class CardManagementService
     {
         var card = await _cardRepository.GetByIdAsync(cardId);
         if (card == null)
-            throw new DomainException("Card not found");
+            throw new GenericDomainException("Card not found");
 
         // Record transaction on card
         card.RecordTransaction(amount, transactionType, isSuccessful);
@@ -143,7 +145,7 @@ public class CardManagementService
     {
         var existingCard = await _cardRepository.GetByIdAsync(cardId);
         if (existingCard == null)
-            throw new DomainException("Card not found");
+            throw new GenericDomainException("Card not found");
 
         // Create replacement card
         var newCard = existingCard.Replace(replacementReason, deliveryAddress);
@@ -163,7 +165,7 @@ public class CardManagementService
     {
         var card = await _cardRepository.GetByIdAsync(cardId);
         if (card == null)
-            throw new DomainException("Card not found");
+            throw new GenericDomainException("Card not found");
 
         card.Block(reason, blockedBy);
         await _cardRepository.UpdateAsync(card);
@@ -173,7 +175,7 @@ public class CardManagementService
     {
         var card = await _cardRepository.GetByIdAsync(cardId);
         if (card == null)
-            throw new DomainException("Card not found");
+            throw new GenericDomainException("Card not found");
 
         card.Unblock(unblockedBy, reason);
         await _cardRepository.UpdateAsync(card);
@@ -183,7 +185,7 @@ public class CardManagementService
     {
         var card = await _cardRepository.GetByIdAsync(cardId);
         if (card == null)
-            throw new DomainException("Card not found");
+            throw new GenericDomainException("Card not found");
 
         card.Cancel(reason, cancelledBy);
         await _cardRepository.UpdateAsync(card);
@@ -198,7 +200,7 @@ public class CardManagementService
     {
         var card = await _cardRepository.GetByIdAsync(cardId);
         if (card == null)
-            throw new DomainException("Card not found");
+            throw new GenericDomainException("Card not found");
 
         card.UpdateLimits(dailyWithdrawalLimit, dailyPurchaseLimit, monthlyLimit);
         await _cardRepository.UpdateAsync(card);
@@ -215,7 +217,7 @@ public class CardManagementService
     {
         var card = await _cardRepository.GetByIdAsync(cardId);
         if (card == null)
-            throw new DomainException("Card not found");
+            throw new GenericDomainException("Card not found");
 
         card.UpdateChannelControls(atmEnabled, posEnabled, onlineEnabled, internationalEnabled, contactlessEnabled);
         await _cardRepository.UpdateAsync(card);
@@ -266,17 +268,24 @@ public class CardManagementService
         var cardFeeIncomeGL = await _glAccountRepository.GetByCodeAsync("4200"); // Card Fee Income
 
         if (customerAccountGL == null || cardFeeIncomeGL == null)
-            throw new DomainException("Required GL accounts not found for card issuance fee posting");
+            throw new GenericDomainException("Required GL accounts not found for card issuance fee posting");
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"Card issuance fee - Card: {card.CardNumber[^4..]}",
+            $"CARD-ISS-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "CARD_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "CARD_ISSUANCE",
+            card.Id,
+            $"Card issuance fee - Card: {card.CardNumber[^4..]}",
+            cardIssuanceFee.Currency.Code,
+            "CARD_SYSTEM",
+            $"Card issuance fee - Card: {card.CardNumber[^4..]}");
 
         // Dr. Customer Account, Cr. Card Fee Income
-        journalEntry.AddDebitEntry(customerAccountGL.Id, cardIssuanceFee, $"Card issuance fee - {card.CardType}");
-        journalEntry.AddCreditEntry(cardFeeIncomeGL.Id, cardIssuanceFee, $"Card issuance fee income - {card.CardType}");
+        journalEntry.AddDebitEntry(customerAccountGL.GLCode, cardIssuanceFee.Amount, $"Card issuance fee - {card.CardType}");
+        journalEntry.AddCreditEntry(cardFeeIncomeGL.GLCode, cardIssuanceFee.Amount, $"Card issuance fee income - {card.CardType}");
 
         await _journalEntryRepository.AddAsync(journalEntry);
     }
@@ -293,17 +302,24 @@ public class CardManagementService
         var cardFeeIncomeGL = await _glAccountRepository.GetByCodeAsync("4200"); // Card Fee Income
 
         if (customerAccountGL == null || cardFeeIncomeGL == null)
-            throw new DomainException("Required GL accounts not found for card replacement fee posting");
+            throw new GenericDomainException("Required GL accounts not found for card replacement fee posting");
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"Card replacement fee - Card: {card.CardNumber[^4..]}",
+            $"CARD-REP-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "CARD_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "CARD_REPLACEMENT",
+            card.Id,
+            $"Card replacement fee - Card: {card.CardNumber[^4..]}",
+            cardReplacementFee.Currency.Code,
+            "CARD_SYSTEM",
+            $"Card replacement fee - Card: {card.CardNumber[^4..]}");
 
         // Dr. Customer Account, Cr. Card Fee Income
-        journalEntry.AddDebitEntry(customerAccountGL.Id, cardReplacementFee, $"Card replacement fee - {card.CardType}");
-        journalEntry.AddCreditEntry(cardFeeIncomeGL.Id, cardReplacementFee, $"Card replacement fee income - {card.CardType}");
+        journalEntry.AddDebitEntry(customerAccountGL.GLCode, cardReplacementFee.Amount, $"Card replacement fee - {card.CardType}");
+        journalEntry.AddCreditEntry(cardFeeIncomeGL.GLCode, cardReplacementFee.Amount, $"Card replacement fee income - {card.CardType}");
 
         await _journalEntryRepository.AddAsync(journalEntry);
     }
@@ -328,13 +344,20 @@ public class CardManagementService
 
         // Create journal entry
         var journalEntry = JournalEntry.Create(
-            $"Card transaction fee - {transactionType} - Card: {card.CardNumber[^4..]}",
+            $"CARD-TXN-{DateTime.UtcNow:yyyyMMddHHmmss}",
             DateTime.UtcNow,
-            "CARD_SYSTEM");
+            DateTime.UtcNow,
+            JournalType.Standard,
+            "CARD_TRANSACTION_FEE",
+            card.Id,
+            $"Card transaction fee - {transactionType} - Card: {card.CardNumber[^4..]}",
+            transactionFee.Currency.Code,
+            "CARD_SYSTEM",
+            $"Card transaction fee - {transactionType} - Card: {card.CardNumber[^4..]}");
 
         // Dr. Customer Account, Cr. Transaction Fee Income
-        journalEntry.AddDebitEntry(customerAccountGL.Id, transactionFee, $"{transactionType} fee");
-        journalEntry.AddCreditEntry(transactionFeeIncomeGL.Id, transactionFee, $"{transactionType} fee income");
+        journalEntry.AddDebitEntry(customerAccountGL.GLCode, transactionFee.Amount, $"{transactionType} fee");
+        journalEntry.AddCreditEntry(transactionFeeIncomeGL.GLCode, transactionFee.Amount, $"{transactionType} fee income");
 
         await _journalEntryRepository.AddAsync(journalEntry);
     }

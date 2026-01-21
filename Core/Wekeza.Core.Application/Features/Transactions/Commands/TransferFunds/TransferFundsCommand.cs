@@ -1,9 +1,12 @@
-using Wekeza.Core.Application.Common;
+﻿using Wekeza.Core.Application.Common;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Transactions.Commands.TransferFunds;
 
 /// <summary>
-/// 📂 Wekeza.Core.Application/Features/Transactions/Commands/TransferFunds
+/// ðŸ“‚ Wekeza.Core.Application/Features/Transactions/Commands/TransferFunds
 /// This vertical slice handles the core movement of value within the bank.
 /// 1. The Intent: TransferFundsCommand.cs
 /// We include the CorrelationId and Description. Future-proofing: We include a ScheduledFor property (optional) for standing orders, making the system ready for 2026's advanced banking features.

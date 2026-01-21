@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -40,7 +40,7 @@ public class SWIFTMessage : AggregateRoot
     private readonly List<SWIFTMessageField> _fields = new();
     public IReadOnlyList<SWIFTMessageField> Fields => _fields.AsReadOnly();
 
-    private SWIFTMessage() { } // EF Core
+    private SWIFTMessage() : base(Guid.NewGuid()) { } // EF Core
 
     public SWIFTMessage(
         Guid id,
@@ -50,8 +50,7 @@ public class SWIFTMessage : AggregateRoot
         string senderBIC,
         string receiverBIC,
         DateTime valueDate,
-        string createdBy)
-    {
+        string createdBy) : base(id) {
         Id = id;
         MessageReference = messageReference;
         MessageType = messageType;
@@ -327,7 +326,7 @@ public class SWIFTMessageField
     public bool IsMandatory { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    private SWIFTMessageField() { } // EF Core
+    private SWIFTMessageField() { Id = Guid.NewGuid(); } // EF Core
 
     public SWIFTMessageField(
         Guid id,
@@ -467,3 +466,4 @@ public record SWIFTMessageRetryScheduledDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

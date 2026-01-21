@@ -11,6 +11,7 @@ namespace Wekeza.Core.Application.Features.GeneralLedger.Commands.CreateGLAccoun
 [Authorize(UserRole.Administrator)]
 public record CreateGLAccountCommand : ICommand<string>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string GLCode { get; init; } = string.Empty;
     public string GLName { get; init; } = string.Empty;
     public GLAccountType AccountType { get; init; }

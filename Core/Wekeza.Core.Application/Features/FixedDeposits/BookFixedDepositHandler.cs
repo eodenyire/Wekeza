@@ -1,7 +1,21 @@
+using MediatR;
+using Wekeza.Core.Application.Common.Exceptions;
+using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.ValueObjects;
+
+namespace Wekeza.Core.Application.Features.FixedDeposits;
+
 ///
 ///3. BookFixedDepositHandler.cs (The Financial Engineer)
 ///This handler performs the "Sweep." It debits the source account and creates the Fixed Deposit entity with a maturity date.
 ///
+
+public record BookFixedDepositCommand(
+    string SourceAccountNumber,
+    decimal PrincipalAmount,
+    int TermInDays,
+    decimal InterestRate
+) : IRequest<Guid>;
 
 public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, Guid>
 {

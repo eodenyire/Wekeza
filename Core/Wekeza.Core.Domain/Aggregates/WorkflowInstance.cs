@@ -1,5 +1,6 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -83,11 +84,15 @@ public class WorkflowInstance : AggregateRoot
 
         // Create initial approval step
         workflow._approvalSteps.Add(new ApprovalStep(
-            Level: 1,
-            AssignedTo: null, // Will be assigned by approval matrix
-            AssignedDate: DateTime.UtcNow,
-            Status: ApprovalStepStatus.Pending,
-            DueDate: workflow.DueDate));
+            Guid.NewGuid(),
+            workflow.Id,
+            1,
+            "APPROVER", // Default role
+            null, // No specific approver
+            true, // Required
+            null, // No minimum amount
+            null, // No maximum amount
+            DateTime.UtcNow));
 
         return workflow;
     }
@@ -95,28 +100,18 @@ public class WorkflowInstance : AggregateRoot
     public void Approve(string approvedBy, string comments, UserRole approverRole)
     {
         if (Status != WorkflowStatus.Pending)
-            throw new DomainException($"Cannot approve workflow in {Status} status.");
+            throw new WorkflowException($"Cannot approve workflow in {Status} status.");
 
         var currentStep = _approvalSteps.FirstOrDefault(s => s.Level == CurrentLevel + 1);
         if (currentStep == null)
-            throw new DomainException("No pending approval step found.");
+            throw new WorkflowException("No pending approval step found.");
 
         // Check if approver is the maker (prevent self-approval)
         if (approvedBy == InitiatedBy)
-            throw new DomainException("Maker cannot approve their own request (Maker-Checker violation).");
+            throw new WorkflowException("Maker cannot approve their own request (Maker-Checker violation).");
 
         // Update current step
-        var updatedStep = currentStep with
-        {
-            Status = ApprovalStepStatus.Approved,
-            ApprovedBy = approvedBy,
-            ApprovedDate = DateTime.UtcNow,
-            Comments = comments,
-            ApproverRole = approverRole.ToString()
-        };
-
-        _approvalSteps.Remove(currentStep);
-        _approvalSteps.Add(updatedStep);
+        currentStep.Approve(approvedBy, comments);
 
         // Add comment
         AddComment(approvedBy, $"Approved at Level {CurrentLevel + 1}: {comments}");
@@ -134,32 +129,27 @@ public class WorkflowInstance : AggregateRoot
         {
             // Create next approval step
             _approvalSteps.Add(new ApprovalStep(
-                Level: CurrentLevel + 1,
-                AssignedTo: null,
-                AssignedDate: DateTime.UtcNow,
-                Status: ApprovalStepStatus.Pending,
-                DueDate: DueDate));
+                Guid.NewGuid(),
+                Id,
+                CurrentLevel + 1,
+                "APPROVER", // Default role
+                null, // No specific approver
+                true, // Required
+                null, // No minimum amount
+                null, // No maximum amount
+                DateTime.UtcNow));
         }
     }
 
     public void Reject(string rejectedBy, string reason)
     {
         if (Status != WorkflowStatus.Pending)
-            throw new DomainException($"Cannot reject workflow in {Status} status.");
+            throw new WorkflowException($"Cannot reject workflow in {Status} status.");
 
         var currentStep = _approvalSteps.FirstOrDefault(s => s.Level == CurrentLevel + 1);
         if (currentStep != null)
         {
-            var updatedStep = currentStep with
-            {
-                Status = ApprovalStepStatus.Rejected,
-                ApprovedBy = rejectedBy,
-                ApprovedDate = DateTime.UtcNow,
-                Comments = reason
-            };
-
-            _approvalSteps.Remove(currentStep);
-            _approvalSteps.Add(updatedStep);
+            currentStep.Reject(rejectedBy, reason);
         }
 
         Status = WorkflowStatus.Rejected;
@@ -172,7 +162,7 @@ public class WorkflowInstance : AggregateRoot
     public void Cancel(string cancelledBy, string reason)
     {
         if (Status != WorkflowStatus.Pending)
-            throw new DomainException($"Cannot cancel workflow in {Status} status.");
+            throw new WorkflowException($"Cannot cancel workflow in {Status} status.");
 
         Status = WorkflowStatus.Cancelled;
         CompletedDate = DateTime.UtcNow;
@@ -184,7 +174,7 @@ public class WorkflowInstance : AggregateRoot
     public void Escalate(string escalatedTo, string reason)
     {
         if (Status != WorkflowStatus.Pending)
-            throw new DomainException($"Cannot escalate workflow in {Status} status.");
+            throw new WorkflowException($"Cannot escalate workflow in {Status} status.");
 
         IsEscalated = true;
         EscalatedDate = DateTime.UtcNow;
@@ -197,19 +187,20 @@ public class WorkflowInstance : AggregateRoot
     {
         var step = _approvalSteps.FirstOrDefault(s => s.Level == level);
         if (step == null)
-            throw new DomainException($"Approval step at level {level} not found.");
+            throw new WorkflowException($"Approval step at level {level} not found.");
 
-        var updatedStep = step with { AssignedTo = approverId };
-        _approvalSteps.Remove(step);
-        _approvalSteps.Add(updatedStep);
+        step.Assign();
     }
 
     public void AddComment(string commentBy, string comment)
     {
         _comments.Add(new WorkflowComment(
-            CommentBy: commentBy,
-            Comment: comment,
-            CommentDate: DateTime.UtcNow));
+            Guid.NewGuid(),
+            Id,
+            commentBy,
+            comment,
+            WorkflowCommentType.General,
+            DateTime.UtcNow));
     }
 
     public void ExtendDueDate(int additionalHours, string reason)
@@ -222,20 +213,4 @@ public class WorkflowInstance : AggregateRoot
     }
 }
 
-// Value Objects
 
-public record ApprovalStep(
-    int Level,
-    string? AssignedTo,
-    DateTime AssignedDate,
-    ApprovalStepStatus Status,
-    DateTime? DueDate,
-    string? ApprovedBy = null,
-    DateTime? ApprovedDate = null,
-    string? Comments = null,
-    string? ApproverRole = null);
-
-public record WorkflowComment(
-    string CommentBy,
-    string Comment,
-    DateTime CommentDate);

@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
@@ -20,8 +20,7 @@ public class SanctionsScreening : AggregateRoot
     public List<string> ScreenedWatchlists { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    private SanctionsScreening() 
-    {
+    private SanctionsScreening() : base(Guid.NewGuid()) {
         Matches = new List<WatchlistMatch>();
         ScreenedWatchlists = new List<string>();
     }
@@ -226,28 +225,10 @@ public class WatchlistMatch
     public DateTime MatchedAt { get; set; }
 }
 
-public enum EntityType
-{
-    Party,
-    Transaction,
-    Account
-}
 
-public enum ScreeningStatus
-{
-    InProgress,
-    Clear,
-    Alert,
-    UnderReview,
-    Blocked,
-    Escalated,
-    Whitelisted
-}
 
-public enum ScreeningDecision
-{
-    FalsePositive,
-    TruePositive,
-    RequiresEscalation,
-    PendingInvestigation
-}
+
+
+
+
+

@@ -1,3 +1,5 @@
+﻿namespace Wekeza.Core.Application.Features.Accounts.Queries.GetBusinessProfile;
+
 ///📂 Phase 9: Detailed Business Onboarding DTOs
 /// We mentioned we "jumped" the specific Business DTOs. Here they are, designed for UBO (Ultimate Beneficial Ownership) visibility.
 /// 1. 📂 Features/Accounts/Queries/GetBusinessProfile/

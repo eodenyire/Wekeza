@@ -122,10 +122,7 @@ public class MessageEnvelope : ValueObject
             ReplyTo,
             RoutingKey,
             IsPersistent,
-            Properties)
-        {
-            DeliveryCount = DeliveryCount + 1
-        };
+            Properties);
     }
 
     /// <summary>
@@ -153,10 +150,7 @@ public class MessageEnvelope : ValueObject
             ReplyTo,
             RoutingKey,
             IsPersistent,
-            Properties)
-        {
-            ExpiresAt = expiresAt
-        };
+            Properties);
     }
 
     /// <summary>

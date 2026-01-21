@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
@@ -24,7 +24,7 @@ public class MoneyMarketDeal : AggregateRoot
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    private MoneyMarketDeal() { }
+    private MoneyMarketDeal() : base(Guid.NewGuid()) { }
 
     public static MoneyMarketDeal Book(
         string dealNumber,
@@ -133,7 +133,7 @@ public class MoneyMarketDeal : AggregateRoot
 
         MaturityDate = newMaturityDate;
         if (newRate.HasValue)
-            Rate = newRate.Value;
+            Rate = new InterestRate(newRate.Value);
 
         Status = DealStatus.Settled; // Reset to settled for new period
         UpdatedAt = DateTime.UtcNow;
@@ -181,15 +181,7 @@ public class MoneyMarketDeal : AggregateRoot
         : Principal;
 }
 
-public enum MoneyMarketDealType
-{
-    CallMoney,      // Overnight lending/borrowing
-    TermDeposit,    // Fixed term deposits
-    Repo,           // Repurchase agreement
-    ReverseRepo,    // Reverse repurchase agreement
-    CommercialPaper, // CP investments
-    CertificateOfDeposit // CD issuance
-}
+
 
 public enum DealStatus
 {
@@ -199,3 +191,5 @@ public enum DealStatus
     Cancelled,
     Defaulted
 }
+
+

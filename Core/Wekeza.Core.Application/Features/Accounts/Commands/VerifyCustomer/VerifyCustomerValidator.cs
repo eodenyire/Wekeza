@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 ///
 /// 2. The Gatekeeper: VerifyCustomerValidator.cs
 /// We ensure that no verification is processed without a clear trail of who did it and why.

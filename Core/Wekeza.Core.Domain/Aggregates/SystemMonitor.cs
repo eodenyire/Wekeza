@@ -1,4 +1,5 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 
 namespace Wekeza.Core.Domain.Aggregates;
@@ -49,8 +50,7 @@ public class SystemMonitor : AggregateRoot
     public string? LastModifiedBy { get; private set; }
     public Dictionary<string, object> Metadata { get; private set; }
 
-    private SystemMonitor()
-    {
+    private SystemMonitor() : base(Guid.NewGuid()) {
         MonitoringRules = new Dictionary<string, object>();
         Thresholds = new Dictionary<string, decimal>();
         AlertRules = new List<AlertRule>();
@@ -466,49 +466,5 @@ public class MonitorAlert
     }
 }
 
-// Enumerations
-public enum MonitorType
-{
-    System,
-    Application,
-    Database,
-    Network,
-    Security,
-    Performance,
-    Business
-}
 
-public enum MonitorStatus
-{
-    Active,
-    Disabled,
-    Paused,
-    Error,
-    Maintenance
-}
 
-public enum MonitorHealth
-{
-    Healthy,
-    Degraded,
-    Unhealthy,
-    Unknown,
-    Maintenance
-}
-
-public enum AlertSeverity
-{
-    Low,
-    Medium,
-    High,
-    Critical,
-    Emergency
-}
-
-public enum AlertStatus
-{
-    Active,
-    Acknowledged,
-    Resolved,
-    Suppressed
-}

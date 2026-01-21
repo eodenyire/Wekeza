@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -46,7 +46,7 @@ public class Branch : AggregateRoot
     private readonly List<BranchPerformance> _performanceMetrics = new();
     public IReadOnlyList<BranchPerformance> PerformanceMetrics => _performanceMetrics.AsReadOnly();
 
-    private Branch() { } // EF Core
+    private Branch() : base(Guid.NewGuid()) { } // EF Core
 
     public Branch(
         Guid id,
@@ -65,8 +65,7 @@ public class Branch : AggregateRoot
         string managerId,
         Money cashLimit,
         Money transactionLimit,
-        string createdBy)
-    {
+        string createdBy) : base(id) {
         Id = id;
         BranchCode = branchCode;
         BranchName = branchName;
@@ -370,7 +369,7 @@ public class BranchVault
     public string? ModifiedBy { get; private set; }
     public DateTime? ModifiedAt { get; private set; }
 
-    private BranchVault() { } // EF Core
+    private BranchVault() { Id = Guid.NewGuid(); } // EF Core
 
     public BranchVault(Guid id, Guid branchId, string vaultCode, string vaultName, VaultType vaultType, Money capacity, Money currentBalance, bool isActive, string createdBy, DateTime createdAt)
     {
@@ -462,7 +461,7 @@ public class BranchLimit
     public string? ModifiedBy { get; private set; }
     public DateTime? ModifiedAt { get; private set; }
 
-    private BranchLimit() { } // EF Core
+    private BranchLimit() { Id = Guid.NewGuid(); } // EF Core
 
     public BranchLimit(Guid id, Guid branchId, string limitType, Money limitAmount, string createdBy, DateTime createdAt)
     {
@@ -497,7 +496,7 @@ public class BranchPerformance
     public string CalculatedBy { get; private set; }
     public DateTime CalculatedAt { get; private set; }
 
-    private BranchPerformance() { } // EF Core
+    private BranchPerformance() { Id = Guid.NewGuid(); } // EF Core
 
     public BranchPerformance(Guid id, Guid branchId, DateTime performanceDate, int transactionCount, Money transactionVolume, int newCustomers, int newAccounts, string calculatedBy, DateTime calculatedAt)
     {
@@ -625,3 +624,4 @@ public record BranchStatusUpdatedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

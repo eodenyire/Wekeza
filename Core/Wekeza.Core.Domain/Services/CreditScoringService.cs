@@ -119,9 +119,9 @@ public class CreditScoringService
         // AML risk rating
         score += customer.AMLRiskRating switch
         {
-            AMLRiskRating.Low => 50,
-            AMLRiskRating.Medium => 0,
-            AMLRiskRating.High => -100,
+            RiskRating.Low => 50,
+            RiskRating.Medium => 0,
+            RiskRating.High => -100,
             _ => 0
         };
 
@@ -247,40 +247,40 @@ public class CreditScoringService
     /// <summary>
     /// Determine risk grade based on credit score
     /// </summary>
-    public CreditRiskGrade DetermineRiskGrade(decimal creditScore)
+    public Enums.CreditRiskGrade DetermineRiskGrade(decimal creditScore)
     {
         return creditScore switch
         {
-            >= 900 => CreditRiskGrade.AAA,
-            >= 850 => CreditRiskGrade.AA,
-            >= 800 => CreditRiskGrade.A,
-            >= 750 => CreditRiskGrade.BBB,
-            >= 700 => CreditRiskGrade.BB,
-            >= 650 => CreditRiskGrade.B,
-            >= 600 => CreditRiskGrade.CCC,
-            >= 550 => CreditRiskGrade.CC,
-            >= 500 => CreditRiskGrade.C,
-            _ => CreditRiskGrade.D
+            >= 900 => Enums.CreditRiskGrade.AAA,
+            >= 850 => Enums.CreditRiskGrade.AA,
+            >= 800 => Enums.CreditRiskGrade.A,
+            >= 750 => Enums.CreditRiskGrade.BBB,
+            >= 700 => Enums.CreditRiskGrade.BB,
+            >= 650 => Enums.CreditRiskGrade.B,
+            >= 600 => Enums.CreditRiskGrade.CCC,
+            >= 550 => Enums.CreditRiskGrade.CC,
+            >= 500 => Enums.CreditRiskGrade.C,
+            _ => Enums.CreditRiskGrade.D
         };
     }
 
     /// <summary>
     /// Calculate risk premium based on risk grade
     /// </summary>
-    public decimal CalculateRiskPremium(CreditRiskGrade riskGrade)
+    public decimal CalculateRiskPremium(Enums.CreditRiskGrade riskGrade)
     {
         return riskGrade switch
         {
-            CreditRiskGrade.AAA => 0.0m,    // No premium
-            CreditRiskGrade.AA => 0.5m,     // 0.5% premium
-            CreditRiskGrade.A => 1.0m,      // 1.0% premium
-            CreditRiskGrade.BBB => 1.5m,    // 1.5% premium
-            CreditRiskGrade.BB => 2.5m,     // 2.5% premium
-            CreditRiskGrade.B => 4.0m,      // 4.0% premium
-            CreditRiskGrade.CCC => 6.0m,    // 6.0% premium
-            CreditRiskGrade.CC => 8.0m,     // 8.0% premium
-            CreditRiskGrade.C => 12.0m,     // 12.0% premium
-            CreditRiskGrade.D => 20.0m,     // 20.0% premium (likely declined)
+            Enums.CreditRiskGrade.AAA => 0.0m,    // No premium
+            Enums.CreditRiskGrade.AA => 0.5m,     // 0.5% premium
+            Enums.CreditRiskGrade.A => 1.0m,      // 1.0% premium
+            Enums.CreditRiskGrade.BBB => 1.5m,    // 1.5% premium
+            Enums.CreditRiskGrade.BB => 2.5m,     // 2.5% premium
+            Enums.CreditRiskGrade.B => 4.0m,      // 4.0% premium
+            Enums.CreditRiskGrade.CCC => 6.0m,    // 6.0% premium
+            Enums.CreditRiskGrade.CC => 8.0m,     // 8.0% premium
+            Enums.CreditRiskGrade.C => 12.0m,     // 12.0% premium
+            Enums.CreditRiskGrade.D => 20.0m,     // 20.0% premium (likely declined)
             _ => 10.0m
         };
     }
@@ -307,7 +307,7 @@ public class CreditScoringService
     /// <summary>
     /// Calculate recommended interest rate
     /// </summary>
-    private decimal CalculateRecommendedRate(CreditRiskGrade riskGrade, decimal baseRate)
+    private decimal CalculateRecommendedRate(Enums.CreditRiskGrade riskGrade, decimal baseRate)
     {
         var riskPremium = CalculateRiskPremium(riskGrade);
         return baseRate + riskPremium;
@@ -321,7 +321,7 @@ public class CreditScoreResult
 {
     public Guid CustomerId { get; set; }
     public decimal CreditScore { get; set; }
-    public CreditRiskGrade RiskGrade { get; set; }
+    public Enums.CreditRiskGrade RiskGrade { get; set; }
     public decimal RiskPremium { get; set; }
     public List<CreditScoreFactor> ScoreFactors { get; set; } = new();
     public DateTime CalculationDate { get; set; }

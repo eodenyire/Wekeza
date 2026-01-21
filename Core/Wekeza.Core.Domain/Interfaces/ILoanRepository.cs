@@ -28,7 +28,7 @@ public interface ILoanRepository
     Task<IEnumerable<Loan>> GetPendingApprovalsAsync(CancellationToken ct = default);
 
     // Risk and performance queries
-    Task<IEnumerable<Loan>> GetByRiskGradeAsync(CreditRiskGrade riskGrade, CancellationToken ct = default);
+    Task<IEnumerable<Loan>> GetByRiskGradeAsync(Enums.CreditRiskGrade riskGrade, CancellationToken ct = default);
     Task<IEnumerable<Loan>> GetPastDueLoansAsync(int daysPastDue = 1, CancellationToken ct = default);
     Task<IEnumerable<Loan>> GetNonPerformingLoansAsync(CancellationToken ct = default);
     Task<IEnumerable<Loan>> GetLoansForProvisioningAsync(DateTime asOfDate, CancellationToken ct = default);
@@ -56,7 +56,7 @@ public interface ILoanRepository
     Task<IEnumerable<Loan>> SearchLoansAsync(
         string? searchTerm = null,
         LoanStatus? status = null,
-        CreditRiskGrade? riskGrade = null,
+        Enums.CreditRiskGrade? riskGrade = null,
         DateTime? fromDate = null,
         DateTime? toDate = null,
         int pageSize = 50,

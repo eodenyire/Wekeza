@@ -18,6 +18,11 @@ public record Currency
         DecimalPlaces = decimalPlaces;
     }
 
+    // Public constructor for deserialization and other use cases
+    public Currency(string code) : this(code, GetSymbolForCode(code), GetDecimalPlacesForCode(code))
+    {
+    }
+
     public static readonly Currency KES = new("KES", "KSh", 2);
     public static readonly Currency USD = new("USD", "$", 2);
     public static readonly Currency EUR = new("EUR", "€", 2);
@@ -32,4 +37,47 @@ public record Currency
             "GBP" => GBP,
             _ => throw new ArgumentException($"Currency {code} is not supported by Wekeza Bank.")
         };
+
+    private static string GetSymbolForCode(string code) =>
+        code.ToUpper() switch
+        {
+            "KES" => "KSh",
+            "USD" => "$",
+            "EUR" => "€",
+            "GBP" => "£",
+            _ => code
+        };
+
+    private static int GetDecimalPlacesForCode(string code) =>
+        code.ToUpper() switch
+        {
+            "KES" => 2,
+            "USD" => 2,
+            "EUR" => 2,
+            "GBP" => 2,
+            _ => 2
+        };
+
+    // String comparison operators for compatibility
+    public static bool operator ==(Currency currency, string code)
+    {
+        return currency?.Code == code;
+    }
+
+    public static bool operator !=(Currency currency, string code)
+    {
+        return currency?.Code != code;
+    }
+
+    public static bool operator ==(string code, Currency currency)
+    {
+        return currency?.Code == code;
+    }
+
+    public static bool operator !=(string code, Currency currency)
+    {
+        return currency?.Code != code;
+    }
+
+    public override string ToString() => Code;
 }

@@ -6,6 +6,7 @@ namespace Wekeza.Core.Application.Features.Compliance.Commands.ScreenTransaction
 
 public record ScreenTransactionCommand : ICommand<ScreenTransactionResponse>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public Guid TransactionId { get; init; }
     public List<string> MonitoringRules { get; init; } = new();
     public List<string> WatchlistsToScreen { get; init; } = new();

@@ -1,19 +1,6 @@
 namespace Wekeza.Core.Domain.Enums;
 
 /// <summary>
-/// Status of deposit products (Fixed Deposit, Recurring Deposit, etc.)
-/// </summary>
-public enum DepositStatus
-{
-    Active = 1,
-    Matured = 2,
-    PrematurelyClosed = 3,
-    Discontinued = 4,
-    Suspended = 5,
-    Renewed = 6
-}
-
-/// <summary>
 /// Frequency of interest payment for deposits
 /// </summary>
 public enum InterestPaymentFrequency
@@ -66,18 +53,6 @@ public enum ClosureReason
 }
 
 /// <summary>
-/// Interest calculation methods for deposits
-/// </summary>
-public enum InterestCalculationMethod
-{
-    SimpleInterest = 1,
-    CompoundInterest = 2,
-    CompoundQuarterly = 3,
-    CompoundMonthly = 4,
-    CompoundDaily = 5
-}
-
-/// <summary>
 /// Deposit nomination types
 /// </summary>
 public enum NominationType
@@ -97,4 +72,19 @@ public enum MaturityInstruction
     AutoRenewal = 3,
     PartialWithdrawal = 4,
     TransferToAnother = 5
+}
+
+/// <summary>
+/// Interest rate types for deposits
+/// </summary>
+public enum InterestRateType
+{
+    Fixed = 1,
+    Variable = 2,
+    Floating = 3,
+    Annual = 4,
+    Monthly = 5,
+    Daily = 6,
+    Compound = 7,
+    Simple = 8
 }

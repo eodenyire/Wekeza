@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -42,7 +42,7 @@ public class RecurringDeposit : AggregateRoot
     public virtual Customer Customer { get; private set; } = null!;
     public virtual Account? AutoDebitAccount { get; private set; }
 
-    private FixedDeposit() { } // EF Core
+    private RecurringDeposit() : base(Guid.NewGuid()) { } // EF Core
 
     public RecurringDeposit(
         Guid id,
@@ -55,7 +55,7 @@ public class RecurringDeposit : AggregateRoot
         bool autoDebit,
         Guid? autoDebitAccountId,
         string branchCode,
-        string createdBy)
+        string createdBy) : base(id)
     {
         Id = id;
         AccountId = accountId;
@@ -329,3 +329,4 @@ public record RecurringDepositDiscontinuedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

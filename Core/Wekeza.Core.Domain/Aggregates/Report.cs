@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 
@@ -46,8 +46,7 @@ public class Report : AggregateRoot
     public bool IsArchived { get; private set; }
 
     // Private constructor for EF Core
-    private Report() 
-    {
+    private Report() : base(Guid.NewGuid()) {
         Parameters = new Dictionary<string, object>();
         Metadata = new Dictionary<string, object>();
     }
@@ -300,3 +299,5 @@ public class Report : AggregateRoot
         return GetAgeInDays(currentDate) > maxAgeInDays;
     }
 }
+
+

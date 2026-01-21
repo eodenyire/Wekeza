@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -40,7 +40,7 @@ public class WorkflowDefinition : AggregateRoot
     private readonly List<WorkflowApprovalLevel> _approvalLevels = new();
     public IReadOnlyList<WorkflowApprovalLevel> ApprovalLevels => _approvalLevels.AsReadOnly();
 
-    private WorkflowDefinition() { } // EF Core
+    private WorkflowDefinition() : base(Guid.NewGuid()) { } // EF Core
 
     public WorkflowDefinition(
         Guid id,
@@ -51,7 +51,7 @@ public class WorkflowDefinition : AggregateRoot
         WorkflowType workflowType,
         string triggerEvent,
         bool requiresMakerChecker,
-        string createdBy)
+        string createdBy) : base(id)
     {
         Id = id;
         WorkflowCode = workflowCode;
@@ -438,27 +438,6 @@ public enum WorkflowCategory
     SystemAdministration = 9
 }
 
-public enum WorkflowType
-{
-    Sequential = 1,
-    Parallel = 2,
-    Conditional = 3,
-    MakerChecker = 4,
-    Approval = 5,
-    Review = 6,
-    Notification = 7
-}
-
-public enum WorkflowStatus
-{
-    Draft = 1,
-    Validated = 2,
-    ValidationFailed = 3,
-    Active = 4,
-    Inactive = 5,
-    Archived = 6
-}
-
 // Domain Events
 public record WorkflowDefinitionCreatedDomainEvent(
     Guid WorkflowId,
@@ -524,3 +503,4 @@ public record WorkflowDefinitionArchivedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

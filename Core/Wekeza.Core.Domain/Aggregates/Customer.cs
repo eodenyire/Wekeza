@@ -1,9 +1,9 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 ///<summary>
-/// 📂 Wekeza.Core.Domain/Aggregates
+/// ðŸ“‚ Wekeza.Core.Domain/Aggregates
 /// 1. Customer.cs (The Identity & Risk Aggregate)
-/// A bank is nothing without its customers. This aggregate handles the legal identity and the Risk Profile—essential for the Model Risk Management we are passionate about.
+/// A bank is nothing without its customers. This aggregate handles the legal identity and the Risk Profileâ€”essential for the Model Risk Management we are passionate about.
 ///</summary>
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -16,6 +16,9 @@ public class Customer : AggregateRoot
     public string IdentificationNumber { get; private set; } // National ID or Passport
     public RiskLevel RiskRating { get; private set; }
     public bool IsActive { get; private set; }
+    
+    // Computed property for full name
+    public string FullName => $"{FirstName} {LastName}".Trim();
 
     // Private constructor for EF Core
     private Customer() : base(Guid.NewGuid()) { }
@@ -41,4 +44,4 @@ public class Customer : AggregateRoot
     public void Deactivate() => IsActive = false;
 }
 
-public enum RiskLevel { Low, Medium, High, Blocked }
+

@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
@@ -75,8 +75,7 @@ public class MessageQueue : AggregateRoot
     public string LastModifiedBy { get; private set; }
 
     // Private constructor for EF Core
-    private MessageQueue() 
-    {
+    private MessageQueue() : base(Guid.NewGuid()) {
         Arguments = new Dictionary<string, object>();
         Consumers = new List<QueueConsumer>();
         Messages = new List<QueueMessage>();
@@ -694,3 +693,4 @@ public class QueueConsumer
     public bool IsActive { get; set; }
     public Dictionary<string, object> Properties { get; set; } = new();
 }
+

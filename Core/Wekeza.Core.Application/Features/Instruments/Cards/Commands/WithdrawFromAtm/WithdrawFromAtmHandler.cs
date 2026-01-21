@@ -3,6 +3,7 @@ using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Aggregates;
 using MediatR;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Application.Features.Instruments.Cards.Commands.WithdrawFromAtm;
 
@@ -36,7 +37,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
 
         // 2. Risk Check: Validate Daily ATM Limit
         if (!card.CanWithdraw(request.Amount))
-            throw new DomainException("Daily withdrawal limit exceeded.", "LIMIT_EXCEEDED");
+            throw new GenericDomainException("Daily withdrawal limit exceeded.", "LIMIT_EXCEEDED");
 
         // 3. Fetch Linked Account and Debit
         var account = await _accountRepository.GetByIdAsync(card.AccountId, ct)

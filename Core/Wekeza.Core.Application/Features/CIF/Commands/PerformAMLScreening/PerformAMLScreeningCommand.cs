@@ -12,6 +12,7 @@ namespace Wekeza.Core.Application.Features.CIF.Commands.PerformAMLScreening;
 [Authorize(UserRole.RiskOfficer, UserRole.Administrator)]
 public record PerformAMLScreeningCommand : ICommand<AMLScreeningResult>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string PartyNumber { get; init; } = string.Empty;
     public bool CheckSanctions { get; init; } = true;
     public bool CheckPEP { get; init; } = true;

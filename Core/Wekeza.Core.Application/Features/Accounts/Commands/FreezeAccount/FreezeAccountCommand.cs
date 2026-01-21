@@ -1,9 +1,12 @@
-using Wekeza.Core.Application.Common;
+﻿using Wekeza.Core.Application.Common;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.FreezeAccount;
 
 /// <summary>
-/// 📂 Wekeza.Core.Application/Features/Accounts/Commands/FreezeAccount
+/// ðŸ“‚ Wekeza.Core.Application/Features/Accounts/Commands/FreezeAccount
 /// This vertical slice ensures that once the Model Risk Manager (you) or the Fraud Engine detects an anomaly, the account is locked instantly.
 /// 1. The Intent: FreezeAccountCommand.cs
 /// We use a record to ensure the command is immutable. We include the Reason for the freeze, which is a regulatory requirement for KYC/AML audits.

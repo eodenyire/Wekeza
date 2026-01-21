@@ -1,4 +1,5 @@
 using Wekeza.Core.Domain.Common;
+using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Domain.Events;
 
@@ -450,11 +451,6 @@ public record ComplianceCheckInitiatedDomainEvent(string CheckType, string Initi
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
 public record ComplianceCheckCompletedDomainEvent(string CheckType, bool Compliant, List<string> Violations, DateTime CompletedAt) : IDomainEvent
-{
-    public Guid EventId { get; } = Guid.NewGuid();
-    public DateTime OccurredOn { get; } = DateTime.UtcNow;
-}
-public record RegulatoryReportGeneratedDomainEvent(string ReportType, string ReportId, DateTime ReportDate, string GeneratedBy) : IDomainEvent
 {
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;

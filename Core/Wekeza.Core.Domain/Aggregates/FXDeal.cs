@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
@@ -24,7 +24,7 @@ public class FXDeal : AggregateRoot
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    private FXDeal() { }
+    private FXDeal() : base(Guid.NewGuid()) { }
 
     public static FXDeal Execute(
         string dealNumber,
@@ -63,7 +63,7 @@ public class FXDeal : AggregateRoot
             throw new ArgumentException("Maturity date must be after value date", nameof(maturityDate));
 
         // Calculate quote amount
-        var quoteAmount = new Money(baseAmount.Amount * rate.Rate, quoteCurrency);
+        var quoteAmount = new Money(baseAmount.Amount * rate.Rate, Currency.FromCode(quoteCurrency));
 
         var deal = new FXDeal
         {
@@ -143,7 +143,7 @@ public class FXDeal : AggregateRoot
         Rate = newRate;
         
         // Recalculate quote amount
-        QuoteAmount = new Money(BaseAmount.Amount * newRate.Rate, QuoteCurrency);
+        QuoteAmount = new Money(BaseAmount.Amount * newRate.Rate, Currency.FromCode(QuoteCurrency));
         UpdatedAt = DateTime.UtcNow;
 
         AddDomainEvent(new FXRateUpdatedDomainEvent(Id, DealNumber, oldRate, newRate, reason));
@@ -152,13 +152,13 @@ public class FXDeal : AggregateRoot
     public Money GetUnrealizedPnL(ExchangeRate currentMarketRate)
     {
         if (Status != DealStatus.Settled)
-            return new Money(0, BaseCurrency);
+            return new Money(0, Currency.FromCode(BaseCurrency));
 
         var currentValue = BaseAmount.Amount * currentMarketRate.Rate;
         var bookedValue = QuoteAmount.Amount;
         var pnlAmount = currentValue - bookedValue;
 
-        return new Money(pnlAmount, QuoteCurrency);
+        return new Money(pnlAmount, Currency.FromCode(QuoteCurrency));
     }
 
     public bool IsSpot => DealType == FXDealType.Spot;
@@ -178,3 +178,5 @@ public enum FXDealType
     Swap,       // Combination of spot and forward
     Option      // Currency option (basic)
 }
+
+

@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Aggregates;
+﻿using Wekeza.Core.Domain.Aggregates;
 
 namespace Wekeza.Core.Domain.Interfaces;
 
@@ -10,7 +10,7 @@ public interface ISecurityDealRepository
     Task<IEnumerable<SecurityDeal>> GetByTraderIdAsync(string traderId, CancellationToken cancellationToken = default);
     Task<IEnumerable<SecurityDeal>> GetByStatusAsync(DealStatus status, CancellationToken cancellationToken = default);
     Task<IEnumerable<SecurityDeal>> GetBySecurityTypeAsync(SecurityType securityType, CancellationToken cancellationToken = default);
-    Task<IEnumerable<SecurityDeal>> GetByTradeTypeAsync(TradeType tradeType, CancellationToken cancellationToken = default);
+    Task<IEnumerable<SecurityDeal>> GetByTradeTypeAsync(Wekeza.Core.Domain.Enums.TradeType tradeType, CancellationToken cancellationToken = default);
     Task<IEnumerable<SecurityDeal>> GetByCounterpartyIdAsync(Guid counterpartyId, CancellationToken cancellationToken = default);
     Task<IEnumerable<SecurityDeal>> GetSettlingDealsAsync(DateTime settlementDate, CancellationToken cancellationToken = default);
     Task<IEnumerable<SecurityDeal>> GetActiveDealsAsync(CancellationToken cancellationToken = default);
@@ -25,3 +25,4 @@ public interface ISecurityDealRepository
     Task DeleteAsync(SecurityDeal deal, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(string dealNumber, CancellationToken cancellationToken = default);
 }
+

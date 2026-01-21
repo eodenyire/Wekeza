@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Events;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -44,7 +45,7 @@ public class TermDeposit : AggregateRoot
     private readonly List<TermDepositTransaction> _transactions = new();
     public IReadOnlyList<TermDepositTransaction> Transactions => _transactions.AsReadOnly();
 
-    private TermDeposit() { } // EF Core
+    private TermDeposit() : base(Guid.NewGuid()) { } // EF Core
 
     public TermDeposit(
         Guid id,
@@ -59,8 +60,7 @@ public class TermDeposit : AggregateRoot
         Money minimumBalance,
         bool autoRenewal,
         string branchCode,
-        string createdBy)
-    {
+        string createdBy) : base(id) {
         Id = id;
         AccountId = accountId;
         CustomerId = customerId;
@@ -120,7 +120,7 @@ public class TermDeposit : AggregateRoot
 
         _transactions.Add(transaction);
 
-        AddDomainEvent(new InterestAccruedDomainEvent(Id, AccountId, interestAmount, accrualDate));
+        AddDomainEvent(new InterestAccruedDomainEvent(Id, DepositNumber, interestAmount, accrualDate, "MONTHLY"));
     }
 
     public void ProcessPartialWithdrawal(Money withdrawalAmount, string reason, string processedBy)
@@ -334,7 +334,7 @@ public class TermDepositTransaction
     public string Description { get; private set; }
     public DateTime TransactionDate { get; private set; }
 
-    private TermDepositTransaction() { } // EF Core
+    private TermDepositTransaction() { Id = Guid.NewGuid(); } // EF Core
 
     public TermDepositTransaction(
         Guid id,
@@ -418,3 +418,4 @@ public record TermDepositRenewedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+

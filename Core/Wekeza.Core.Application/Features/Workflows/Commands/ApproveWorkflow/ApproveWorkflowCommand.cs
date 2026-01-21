@@ -12,6 +12,7 @@ namespace Wekeza.Core.Application.Features.Workflows.Commands.ApproveWorkflow;
 [Authorize(UserRole.RiskOfficer, UserRole.Administrator)]
 public record ApproveWorkflowCommand : ICommand<bool>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public Guid WorkflowId { get; init; }
     public string Comments { get; init; } = string.Empty;
 }

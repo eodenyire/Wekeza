@@ -1,5 +1,6 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -76,7 +77,7 @@ public class JournalEntry : AggregateRoot
     public void AddLine(JournalLine line)
     {
         if (Status != JournalStatus.Draft)
-            throw new DomainException("Cannot add lines to non-draft journal entry.");
+            throw new GenericDomainException("Cannot add lines to non-draft journal entry.");
 
         _lines.Add(line);
     }
@@ -109,16 +110,27 @@ public class JournalEntry : AggregateRoot
         AddLine(line);
     }
 
+    // Alias methods for compatibility
+    public void AddDebitEntry(string glCode, decimal amount, string? description = null)
+    {
+        AddDebitLine(glCode, amount, description: description);
+    }
+
+    public void AddCreditEntry(string glCode, decimal amount, string? description = null)
+    {
+        AddCreditLine(glCode, amount, description: description);
+    }
+
     public void Post(string postedBy)
     {
         if (Status != JournalStatus.Draft)
-            throw new DomainException($"Cannot post journal entry in {Status} status.");
+            throw new GenericDomainException($"Cannot post journal entry in {Status} status.");
 
         if (!_lines.Any())
-            throw new DomainException("Cannot post journal entry without lines.");
+            throw new GenericDomainException("Cannot post journal entry without lines.");
 
         if (!IsBalanced)
-            throw new DomainException($"Journal entry is not balanced. Debit: {TotalDebit}, Credit: {TotalCredit}");
+            throw new GenericDomainException($"Journal entry is not balanced. Debit: {TotalDebit}, Credit: {TotalCredit}");
 
         Status = JournalStatus.Posted;
         PostedBy = postedBy;
@@ -128,10 +140,10 @@ public class JournalEntry : AggregateRoot
     public void Reverse(string reversedBy, Guid reversalJournalId)
     {
         if (Status != JournalStatus.Posted)
-            throw new DomainException("Can only reverse posted journal entries.");
+            throw new GenericDomainException("Can only reverse posted journal entries.");
 
         if (ReversedDate.HasValue)
-            throw new DomainException("Journal entry already reversed.");
+            throw new GenericDomainException("Journal entry already reversed.");
 
         Status = JournalStatus.Reversed;
         ReversedBy = reversedBy;
@@ -142,7 +154,7 @@ public class JournalEntry : AggregateRoot
     public JournalEntry CreateReversalEntry(string reversalJournalNumber, string createdBy)
     {
         if (Status != JournalStatus.Posted)
-            throw new DomainException("Can only reverse posted journal entries.");
+            throw new GenericDomainException("Can only reverse posted journal entries.");
 
         var reversal = Create(
             reversalJournalNumber,
@@ -183,3 +195,5 @@ public record JournalLine(
     string? CostCenter = null,
     string? ProfitCenter = null,
     string? Description = null);
+
+

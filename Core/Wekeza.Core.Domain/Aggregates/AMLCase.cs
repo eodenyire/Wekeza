@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
@@ -24,7 +24,7 @@ public class AMLCase : AggregateRoot
     public List<AMLNote> Notes { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    private AMLCase() 
+    private AMLCase() : base(Guid.NewGuid())
     {
         Evidence = new List<AMLEvidence>();
         Notes = new List<AMLNote>();
@@ -238,19 +238,7 @@ public class AMLNote
     public DateTime CreatedDate { get; set; }
 }
 
-public enum AMLAlertType
-{
-    SuspiciousTransaction,
-    StructuringActivity,
-    UnusualCashActivity,
-    RapidMovementOfFunds,
-    HighRiskCustomer,
-    PEPActivity,
-    SanctionsMatch,
-    UnusualAccountActivity,
-    CrossBorderActivity,
-    ThresholdExceeded
-}
+
 
 public enum AMLCaseStatus
 {
@@ -260,12 +248,5 @@ public enum AMLCaseStatus
     Closed
 }
 
-public enum AMLResolution
-{
-    FalsePositive,
-    SARFiled,
-    CustomerExited,
-    NoAction,
-    ReferredToAuthorities,
-    AccountClosed
-}
+
+

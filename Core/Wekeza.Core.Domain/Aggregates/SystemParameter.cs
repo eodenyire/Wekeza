@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -15,7 +15,7 @@ public class SystemParameter : AggregateRoot
     public string ParameterCode { get; private set; }
     public string ParameterName { get; private set; }
     public string Description { get; private set; }
-    public ParameterType Type { get; private set; }
+    public Wekeza.Core.Domain.Enums.ParameterType Type { get; private set; }
     public ParameterCategory Category { get; private set; }
     
     // Value & Configuration
@@ -34,7 +34,7 @@ public class SystemParameter : AggregateRoot
     public string? RegexPattern { get; private set; }
     
     // Access & Security
-    public SecurityLevel SecurityLevel { get; private set; }
+    public Wekeza.Core.Domain.Enums.SecurityLevel SecurityLevel { get; private set; }
     public List<string> AllowedRoles { get; private set; }
     public bool RequiresApproval { get; private set; }
     public string? ApprovalWorkflow { get; private set; }
@@ -56,8 +56,7 @@ public class SystemParameter : AggregateRoot
     public string CreatedBy { get; private set; }
     public Dictionary<string, object> Metadata { get; private set; }
 
-    private SystemParameter()
-    {
+    private SystemParameter() : base(Guid.NewGuid()) {
         AllowedValues = new List<string>();
         AllowedRoles = new List<string>();
         ChangeHistory = new List<ParameterChange>();
@@ -68,7 +67,7 @@ public class SystemParameter : AggregateRoot
         string parameterCode,
         string parameterName,
         string description,
-        ParameterType type,
+        Wekeza.Core.Domain.Enums.ParameterType type,
         ParameterCategory category,
         string defaultValue,
         ParameterDataType dataType,
@@ -93,7 +92,7 @@ public class SystemParameter : AggregateRoot
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         IsActive = true;
-        SecurityLevel = SecurityLevel.Internal;
+        SecurityLevel = Wekeza.Core.Domain.Enums.SecurityLevel.Internal;
         IsRequired = false;
         IsEncrypted = false;
 
@@ -243,7 +242,7 @@ public class SystemParameter : AggregateRoot
         AddDomainEvent(new SystemParameterDeactivatedDomainEvent(Id, ParameterCode, EffectiveTo.Value, deactivatedBy));
     }
 
-    public void SetSecurityLevel(SecurityLevel level, string updatedBy)
+    public void SetSecurityLevel(Wekeza.Core.Domain.Enums.SecurityLevel level, string updatedBy)
     {
         var oldLevel = SecurityLevel;
         SecurityLevel = level;
@@ -448,15 +447,7 @@ public class ParameterChange
 }
 
 // Enumerations
-public enum ParameterType
-{
-    System,
-    Business,
-    Security,
-    Integration,
-    Performance,
-    Compliance
-}
+
 
 public enum ParameterCategory
 {
@@ -482,11 +473,7 @@ public enum ParameterDataType
     Json
 }
 
-public enum SecurityLevel
-{
-    Public,
-    Internal,
-    Confidential,
-    Restricted,
-    Secret
-}
+
+
+
+

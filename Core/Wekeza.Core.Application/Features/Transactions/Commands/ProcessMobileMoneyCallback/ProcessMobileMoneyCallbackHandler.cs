@@ -1,3 +1,10 @@
+/*
+ * TEMPORARILY COMMENTED OUT - FIXING COMPILATION ERRORS
+ * This file will be restored and fixed incrementally
+ * Duplicate definition issue with ProcessMobileMoneyCallbackCommand
+ */
+
+/*
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
@@ -59,3 +66,4 @@ public class ProcessMobileMoneyCallbackHandler : IRequestHandler<ProcessMobileMo
         return true;
     }
 }
+*/

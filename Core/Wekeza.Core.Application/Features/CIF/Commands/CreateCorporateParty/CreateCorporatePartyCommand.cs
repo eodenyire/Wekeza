@@ -12,6 +12,8 @@ namespace Wekeza.Core.Application.Features.CIF.Commands.CreateCorporateParty;
 [Authorize(UserRole.RiskOfficer, UserRole.Administrator)]
 public record CreateCorporatePartyCommand : ICommand<string>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
+    
     // Company Information
     public string CompanyName { get; init; } = string.Empty;
     public string RegistrationNumber { get; init; } = string.Empty;

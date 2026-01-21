@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 
@@ -61,8 +61,7 @@ public class Integration : AggregateRoot
     public Dictionary<string, object> Metadata { get; private set; }
 
     // Private constructor for EF Core
-    private Integration() 
-    {
+    private Integration() : base(Guid.NewGuid()) {
         AuthenticationConfig = new Dictionary<string, string>();
         Headers = new Dictionary<string, string>();
         Configuration = new Dictionary<string, object>();
@@ -132,12 +131,7 @@ public class Integration : AggregateRoot
         };
 
         // Add creation event
-        integration.AddDomainEvent(new IntegrationCreatedDomainEvent(
-            integration.Id,
-            integration.IntegrationCode,
-            integration.IntegrationName,
-            integration.Type,
-            integration.CreatedBy));
+        integration.AddDomainEvent(new IntegrationCreatedDomainEvent(integration.Id, integration.IntegrationName, integration.Description, integration.Type.ToString()));
 
         return integration;
     }
@@ -162,12 +156,7 @@ public class Integration : AggregateRoot
             CloseCircuitBreaker();
         }
 
-        AddDomainEvent(new IntegrationEndpointUpdatedDomainEvent(
-            Id,
-            IntegrationCode,
-            oldEndpoint,
-            endpointUrl,
-            modifiedBy));
+        AddDomainEvent(new IntegrationEndpointUpdatedDomainEvent(Id, IntegrationName, EndpointUrl, "POST"));
     }
 
     // Update authentication configuration
@@ -190,7 +179,7 @@ public class Integration : AggregateRoot
         AddDomainEvent(new IntegrationAuthenticationUpdatedDomainEvent(
             Id,
             IntegrationCode,
-            authType,
+            authType.ToString(),
             modifiedBy));
     }
 
@@ -221,8 +210,8 @@ public class Integration : AggregateRoot
         AddDomainEvent(new IntegrationCallSucceededDomainEvent(
             Id,
             IntegrationCode,
-            responseTime,
-            SuccessRate));
+            EndpointUrl,
+            responseTime));
     }
 
     // Record failed call
@@ -253,13 +242,7 @@ public class Integration : AggregateRoot
         Metadata["StatusCode"] = statusCode;
         Metadata["TotalCalls"] = totalCalls;
 
-        AddDomainEvent(new IntegrationCallFailedDomainEvent(
-            Id,
-            IntegrationCode,
-            errorMessage,
-            statusCode,
-            ConsecutiveFailures,
-            SuccessRate));
+        AddDomainEvent(new IntegrationCallFailedDomainEvent(Id, IntegrationCode, EndpointUrl, errorMessage));
     }
 
     // Activate integration
@@ -312,11 +295,7 @@ public class Integration : AggregateRoot
         if (!string.IsNullOrWhiteSpace(reason))
             Metadata["DeactivationReason"] = reason;
 
-        AddDomainEvent(new IntegrationDeactivatedDomainEvent(
-            Id,
-            IntegrationCode,
-            deactivatedBy,
-            reason));
+        AddDomainEvent(new IntegrationDeactivatedDomainEvent(Id, IntegrationName, reason));
     }
 
     // Update configuration
@@ -333,10 +312,7 @@ public class Integration : AggregateRoot
         Metadata["ConfigurationUpdatedAt"] = DateTime.UtcNow;
         Metadata["ConfigurationUpdatedBy"] = modifiedBy;
 
-        AddDomainEvent(new IntegrationConfigurationUpdatedDomainEvent(
-            Id,
-            IntegrationCode,
-            modifiedBy));
+        AddDomainEvent(new IntegrationConfigurationUpdatedDomainEvent(Id, IntegrationName, "Configuration", "System"));
     }
 
     // Set maintenance mode
@@ -354,12 +330,7 @@ public class Integration : AggregateRoot
         if (!string.IsNullOrWhiteSpace(reason))
             Metadata["MaintenanceReason"] = reason;
 
-        AddDomainEvent(new IntegrationMaintenanceModeChangedDomainEvent(
-            Id,
-            IntegrationCode,
-            inMaintenance,
-            reason,
-            modifiedBy));
+        AddDomainEvent(new IntegrationMaintenanceModeChangedDomainEvent(Id, IntegrationName, inMaintenance, reason));
     }
 
     // Add custom header
@@ -473,11 +444,7 @@ public class Integration : AggregateRoot
         IsCircuitBreakerOpen = true;
         CircuitBreakerOpenedAt = DateTime.UtcNow;
         
-        AddDomainEvent(new IntegrationCircuitBreakerOpenedDomainEvent(
-            Id,
-            IntegrationCode,
-            ConsecutiveFailures,
-            CircuitBreakerOpenedAt.Value));
+        AddDomainEvent(new IntegrationCircuitBreakerOpenedDomainEvent(Id, IntegrationName, "Circuit breaker opened"));
     }
 
     private void CloseCircuitBreaker()
@@ -486,10 +453,7 @@ public class Integration : AggregateRoot
         CircuitBreakerOpenedAt = null;
         ConsecutiveFailures = 0;
         
-        AddDomainEvent(new IntegrationCircuitBreakerClosedDomainEvent(
-            Id,
-            IntegrationCode,
-            DateTime.UtcNow));
+        AddDomainEvent(new IntegrationCircuitBreakerClosedDomainEvent(Id, IntegrationName));
     }
 
     private void ValidateAuthenticationConfig(AuthenticationType authType, Dictionary<string, string> config)
@@ -534,3 +498,5 @@ public enum IntegrationHealthStatus
     Maintenance,
     Inactive
 }
+
+

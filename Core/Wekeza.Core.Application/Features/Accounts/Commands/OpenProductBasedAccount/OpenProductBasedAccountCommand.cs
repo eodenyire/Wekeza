@@ -1,5 +1,8 @@
-using MediatR;
+﻿using MediatR;
 using Wekeza.Core.Application.Common;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.OpenProductBasedAccount;
 
@@ -9,6 +12,7 @@ namespace Wekeza.Core.Application.Features.Accounts.Commands.OpenProductBasedAcc
 /// </summary>
 public record OpenProductBasedAccountCommand : ICommand<OpenProductBasedAccountResult>
 {
+    public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public Guid CustomerId { get; init; }
     public Guid ProductId { get; init; }
     public string Currency { get; init; } = "KES";

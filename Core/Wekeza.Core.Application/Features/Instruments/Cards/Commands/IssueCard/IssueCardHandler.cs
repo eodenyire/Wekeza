@@ -2,6 +2,7 @@ using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Application.Features.Instruments.Cards.Commands.IssueCard;
 
@@ -28,7 +29,7 @@ public class IssueCardHandler : IRequestHandler<IssueCardCommand, Guid>
 
         // Domain Rule: Cannot issue cards to Frozen accounts
         if (account.IsFrozen)
-            throw new DomainException("Cannot issue a card to a frozen account.");
+            throw new GenericDomainException("Cannot issue a card to a frozen account.");
 
         // Determine daily withdrawal limit based on card type
         decimal dailyLimit = request.CardType.ToLower() switch

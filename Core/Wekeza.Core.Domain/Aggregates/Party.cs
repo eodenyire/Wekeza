@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Domain.Aggregates;
@@ -33,6 +33,12 @@ public class Party : AggregateRoot
     public DateTime? IncorporationDate { get; private set; }
     public string? CompanyType { get; private set; }
     public string? Industry { get; private set; }
+    
+    // Computed properties for compatibility
+    public string Name => PartyType == PartyType.Individual 
+        ? $"{FirstName} {LastName}".Trim() 
+        : CompanyName ?? "Unknown";
+    public string FullName => Name;
 
     // Contact Information
     public string? PrimaryEmail { get; private set; }
@@ -53,6 +59,7 @@ public class Party : AggregateRoot
     public DateTime? KYCCompletedDate { get; private set; }
     public DateTime? KYCExpiryDate { get; private set; }
     public RiskRating RiskRating { get; private set; }
+    public RiskRating AMLRiskRating { get; private set; }
     public bool IsPEP { get; private set; } // Politically Exposed Person
     public bool IsSanctioned { get; private set; }
 
@@ -94,6 +101,7 @@ public class Party : AggregateRoot
             CreatedBy = createdBy,
             KYCStatus = KYCStatus.Pending,
             RiskRating = RiskRating.Low,
+            AMLRiskRating = RiskRating.Low,
             Segment = CustomerSegment.Retail,
             IsPEP = false,
             IsSanctioned = false
@@ -125,6 +133,7 @@ public class Party : AggregateRoot
             CreatedBy = createdBy,
             KYCStatus = KYCStatus.Pending,
             RiskRating = RiskRating.Medium,
+            AMLRiskRating = RiskRating.Medium,
             Segment = CustomerSegment.SME,
             IsPEP = false,
             IsSanctioned = false
@@ -237,3 +246,6 @@ public record PartyRelationship(
     DateTime? EndDate,
     string? Notes
 );
+
+
+

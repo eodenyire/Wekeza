@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
 
@@ -42,7 +42,7 @@ public class DigitalChannel : AggregateRoot
     private readonly List<ChannelAlert> _alerts = new();
     public IReadOnlyList<ChannelAlert> Alerts => _alerts.AsReadOnly();
 
-    private DigitalChannel() { } // EF Core
+    private DigitalChannel() : base(Guid.NewGuid()) { } // EF Core
 
     public DigitalChannel(
         Guid id,
@@ -60,8 +60,7 @@ public class DigitalChannel : AggregateRoot
         Money dailyTransactionLimit,
         Money singleTransactionLimit,
         int maxDailyTransactions,
-        string createdBy)
-    {
+        string createdBy) : base(id) {
         Id = id;
         ChannelCode = channelCode;
         ChannelName = channelName;
@@ -262,7 +261,7 @@ public class DigitalChannel : AggregateRoot
         var todayTransactions = _transactions.Where(t => 
             t.ProcessedAt.Date == today && 
             t.Status == TransactionStatus.Completed &&
-            _sessions.Any(s => s.Id == t.SessionId && s.UserId == userId));
+            _sessions.Any(s => s.SessionId == t.SessionId && s.UserId == userId));
 
         var dailyAmount = todayTransactions.Sum(t => t.Amount.Amount);
         if (dailyAmount + amount.Amount > DailyTransactionLimit.Amount)
@@ -419,7 +418,7 @@ public class ChannelService
     public DateTime? ModifiedAt { get; private set; }
     public string? DisabledReason { get; private set; }
 
-    private ChannelService() { } // EF Core
+    private ChannelService() { Id = Guid.NewGuid(); } // EF Core
 
     public ChannelService(Guid id, Guid channelId, string serviceCode, string serviceName, bool isEnabled, string createdBy, DateTime createdAt)
     {
@@ -467,7 +466,7 @@ public class ChannelSession
     public SessionStatus Status { get; private set; }
     public string? EndReason { get; private set; }
 
-    private ChannelSession() { } // EF Core
+    private ChannelSession() { Id = Guid.NewGuid(); } // EF Core
 
     public ChannelSession(Guid id, Guid channelId, string sessionId, string userId, string deviceId, string ipAddress, string userAgent, DateTime startTime, DateTime expiryTime, SessionStatus status)
     {
@@ -528,7 +527,7 @@ public class ChannelTransaction
     public DateTime? CompletedAt { get; private set; }
     public string? FailureReason { get; private set; }
 
-    private ChannelTransaction() { } // EF Core
+    private ChannelTransaction() { Id = Guid.NewGuid(); } // EF Core
 
     public ChannelTransaction(Guid id, Guid channelId, string transactionId, string sessionId, string serviceCode, Money amount, string description, TransactionStatus status, string processedBy, DateTime processedAt)
     {
@@ -575,7 +574,7 @@ public class ChannelAlert
     public DateTime? ResolvedAt { get; private set; }
     public string? ResolvedBy { get; private set; }
 
-    private ChannelAlert() { } // EF Core
+    private ChannelAlert() { Id = Guid.NewGuid(); } // EF Core
 
     public ChannelAlert(Guid id, Guid channelId, AlertType alertType, string title, string message, AlertSeverity severity, AlertStatus status, string createdBy, DateTime createdAt)
     {
@@ -643,14 +642,6 @@ public enum AlertType
     Performance = 3,
     Maintenance = 4,
     Business = 5
-}
-
-public enum AlertSeverity
-{
-    Low = 1,
-    Medium = 2,
-    High = 3,
-    Critical = 4
 }
 
 public enum AlertStatus
@@ -771,3 +762,5 @@ public record ChannelStatusUpdatedDomainEvent(
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
+
+

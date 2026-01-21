@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Events;
 
@@ -81,8 +81,7 @@ public class IntegrationEndpoint : AggregateRoot
     public string LastModifiedBy { get; private set; }
 
     // Private constructor for EF Core
-    private IntegrationEndpoint() 
-    {
+    private IntegrationEndpoint() : base(Guid.NewGuid()) {
         Headers = new Dictionary<string, string>();
         Configuration = new Dictionary<string, object>();
         Credentials = new Dictionary<string, string>();
@@ -594,3 +593,4 @@ public class IntegrationEndpoint : AggregateRoot
         Metadata["RetryConfigurationUpdatedAt"] = DateTime.UtcNow;
     }
 }
+

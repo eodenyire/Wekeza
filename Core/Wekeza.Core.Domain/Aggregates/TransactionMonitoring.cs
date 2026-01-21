@@ -1,4 +1,4 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.Events;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Enums;
@@ -20,8 +20,7 @@ public class TransactionMonitoring : AggregateRoot
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    private TransactionMonitoring() 
-    {
+    private TransactionMonitoring() : base(Guid.NewGuid()) {
         AppliedRules = new List<string>();
         Alerts = new List<MonitoringAlert>();
     }
@@ -79,10 +78,10 @@ public class TransactionMonitoring : AggregateRoot
 
         Status = decision switch
         {
-            MonitoringDecision.Approve => MonitoringStatus.Cleared,
-            MonitoringDecision.Reject => MonitoringStatus.Blocked,
+            MonitoringDecision.Allow => MonitoringStatus.Cleared,
+            MonitoringDecision.Block => MonitoringStatus.Blocked,
             MonitoringDecision.Escalate => MonitoringStatus.Escalated,
-            MonitoringDecision.RequireMoreInfo => MonitoringStatus.PendingInfo,
+            MonitoringDecision.Review => MonitoringStatus.PendingInfo,
             _ => MonitoringStatus.Pending
         };
 
@@ -181,7 +180,7 @@ public class TransactionMonitoring : AggregateRoot
             var r when r.Contains("PEP") => AlertSeverity.High,
             var r when r.Contains("CASH") => AlertSeverity.Medium,
             var r when r.Contains("THRESHOLD") => AlertSeverity.Medium,
-            var r when r.Contains("VELOCITY") => AlertSeverity.Low,
+            var r when r.Contains("VELOCITY") => AlertSeverity.Medium,
             _ => AlertSeverity.Low
         };
     }
@@ -231,26 +230,7 @@ public enum MonitoringStatus
     PendingInfo
 }
 
-public enum MonitoringDecision
-{
-    Approve,
-    Reject,
-    Escalate,
-    RequireMoreInfo
-}
 
-public enum ScreeningResult
-{
-    Clear,
-    Alert,
-    Block,
-    Review
-}
 
-public enum AlertSeverity
-{
-    Low = 1,
-    Medium = 2,
-    High = 3,
-    Critical = 4
-}
+
+

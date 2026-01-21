@@ -1,6 +1,7 @@
-using Wekeza.Core.Domain.Common;
+﻿using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Events;
+using Wekeza.Core.Domain.Exceptions;
 
 namespace Wekeza.Core.Domain.Aggregates;
 
@@ -76,10 +77,10 @@ public class ATMTransaction : AggregateRoot
             TransactionDateTime = DateTime.UtcNow,
             ReferenceNumber = GenerateReferenceNumber(),
             AccountBalanceBefore = accountBalance,
-            IsOnUs = isOnUs,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = "ATM_SYSTEM"
+            IsOnUs = isOnUs
         };
+
+        transaction.SetAuditInfo("ATM_SYSTEM");
 
         transaction.AddDomainEvent(new ATMTransactionInitiatedDomainEvent(
             transaction.Id, cardId, accountId, ATMTransactionType.CashWithdrawal, amount));
@@ -113,10 +114,10 @@ public class ATMTransaction : AggregateRoot
             ReferenceNumber = GenerateReferenceNumber(),
             AccountBalanceBefore = accountBalance,
             AccountBalanceAfter = accountBalance,
-            IsOnUs = isOnUs,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = "ATM_SYSTEM"
+            IsOnUs = isOnUs
         };
+
+        transaction.SetAuditInfo("ATM_SYSTEM");
 
         transaction.AddDomainEvent(new ATMTransactionInitiatedDomainEvent(
             transaction.Id, cardId, accountId, ATMTransactionType.BalanceInquiry, Money.Zero(accountBalance.Currency)));
@@ -127,7 +128,7 @@ public class ATMTransaction : AggregateRoot
     public void Authorize(string authorizationCode, Money newAccountBalance)
     {
         if (Status != ATMTransactionStatus.Initiated)
-            throw new DomainException($"Cannot authorize transaction in {Status} status");
+            throw new GenericDomainException($"Cannot authorize transaction in {Status} status");
 
         Status = ATMTransactionStatus.Authorized;
         AuthorizationCode = authorizationCode;
@@ -141,7 +142,7 @@ public class ATMTransaction : AggregateRoot
     public void Complete(string receiptNumber, bool receiptPrinted = true)
     {
         if (Status != ATMTransactionStatus.Authorized)
-            throw new DomainException($"Cannot complete transaction in {Status} status");
+            throw new GenericDomainException($"Cannot complete transaction in {Status} status");
 
         Status = ATMTransactionStatus.Completed;
         ReceiptNumber = receiptNumber;
@@ -154,7 +155,7 @@ public class ATMTransaction : AggregateRoot
     public void Decline(string responseCode, string responseMessage, string? failureReason = null)
     {
         if (Status == ATMTransactionStatus.Completed)
-            throw new DomainException("Cannot decline a completed transaction");
+            throw new GenericDomainException("Cannot decline a completed transaction");
 
         Status = ATMTransactionStatus.Declined;
         ResponseCode = responseCode;
@@ -168,7 +169,7 @@ public class ATMTransaction : AggregateRoot
     public void Fail(string failureReason)
     {
         if (Status == ATMTransactionStatus.Completed)
-            throw new DomainException("Cannot fail a completed transaction");
+            throw new GenericDomainException("Cannot fail a completed transaction");
 
         Status = ATMTransactionStatus.Failed;
         FailureReason = failureReason;
@@ -181,7 +182,7 @@ public class ATMTransaction : AggregateRoot
     public void Timeout()
     {
         if (Status == ATMTransactionStatus.Completed)
-            throw new DomainException("Cannot timeout a completed transaction");
+            throw new GenericDomainException("Cannot timeout a completed transaction");
 
         Status = ATMTransactionStatus.Timeout;
         FailureReason = "Transaction timeout";
@@ -194,10 +195,10 @@ public class ATMTransaction : AggregateRoot
     public void Reverse(string reversalReason, Guid reversalTransactionId)
     {
         if (Status != ATMTransactionStatus.Completed)
-            throw new DomainException("Can only reverse completed transactions");
+            throw new GenericDomainException("Can only reverse completed transactions");
 
         if (IsReversed)
-            throw new DomainException("Transaction is already reversed");
+            throw new GenericDomainException("Transaction is already reversed");
 
         IsReversed = true;
         ReversedDate = DateTime.UtcNow;
@@ -266,3 +267,5 @@ public enum ATMTransactionStatus
     Timeout = 6,
     Reversed = 7
 }
+
+
