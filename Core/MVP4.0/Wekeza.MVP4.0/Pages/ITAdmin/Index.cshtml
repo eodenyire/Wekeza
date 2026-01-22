@@ -1,0 +1,248 @@
+@page
+@model Wekeza.MVP4._0.Pages.ITAdmin.IndexModel
+@{
+    ViewData["Title"] = "IT Administrator Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "IT Administrator";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/ITAdmin" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/ITAdmin/Users" class="sidebar-menu-link">
+            <i class="fas fa-users-cog"></i>
+            <span>User Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/ITAdmin/System" class="sidebar-menu-link">
+            <i class="fas fa-server"></i>
+            <span>System Configuration</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/ITAdmin/Database" class="sidebar-menu-link">
+            <i class="fas fa-database"></i>
+            <span>Database</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/ITAdmin/Monitoring" class="sidebar-menu-link">
+            <i class="fas fa-chart-line"></i>
+            <span>Monitoring</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/ITAdmin/Logs" class="sidebar-menu-link">
+            <i class="fas fa-file-alt"></i>
+            <span>System Logs</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>System administration and infrastructure management</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>SYSTEM UPTIME</h6>
+                <div class="stat-value">@Model.SystemUptime</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i> Excellent
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-server"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>DATABASE HEALTH</h6>
+                <div class="stat-value">@Model.DatabaseHealth</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check-circle"></i> Healthy
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-database"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>ACTIVE USERS</h6>
+                <div class="stat-value">@Model.ActiveUsers</div>
+                <div class="stat-change">
+                    <i class="fas fa-users"></i> Currently online
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-user-friends"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>ERROR LOGS (24H)</h6>
+                <div class="stat-value">@Model.ErrorLogs</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-exclamation-triangle"></i> Review needed
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-bug"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/ITAdmin/Users" class="action-btn">
+            <i class="fas fa-user-plus"></i>
+            <span>Manage Users</span>
+        </a>
+        <a href="/ITAdmin/System" class="action-btn">
+            <i class="fas fa-cogs"></i>
+            <span>System Config</span>
+        </a>
+        <a href="/ITAdmin/Database/Backup" class="action-btn">
+            <i class="fas fa-database"></i>
+            <span>Database Backup</span>
+        </a>
+        <a href="/ITAdmin/Logs" class="action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>View Logs</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-chart-line"></i> System Performance</h5>
+            <canvas id="performanceChart" height="100"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-server"></i> Server Status</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><i class="fas fa-server"></i> Web Server</td>
+                        <td><span class="badge bg-success">Running</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-database"></i> Database</td>
+                        <td><span class="badge bg-success">Healthy</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-memory"></i> Memory</td>
+                        <td><span class="badge bg-warning">72%</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-hdd"></i> Disk Space</td>
+                        <td><span class="badge bg-success">65% Free</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-network-wired"></i> Network</td>
+                        <td><span class="badge bg-success">Stable</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="data-table">
+            <h5><i class="fas fa-exclamation-circle"></i> Recent Errors & Alerts</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Message</th>
+                        <th>Severity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var error in Model.RecentErrors)
+                    {
+                        <tr>
+                            <td>@error.Time</td>
+                            <td>@error.Type</td>
+                            <td>@error.Message</td>
+                            <td><span class="badge bg-@error.SeverityClass">@error.Severity</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary">View</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                datasets: [
+                    {
+                        label: 'CPU Usage (%)',
+                        data: [45, 52, 48, 65, 72, 58, 50],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Memory Usage (%)',
+                        data: [62, 65, 68, 70, 72, 70, 68],
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+    </script>
+}

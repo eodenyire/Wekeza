@@ -1,0 +1,322 @@
+﻿@page
+@model Wekeza.MVP4._0.Pages.IndexModel
+@{
+    ViewData["Title"] = "Wekeza Core Banking System";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            padding: 40px 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        .header-section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header-section p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .role-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--card-color-1), var(--card-color-2));
+        }
+
+        .role-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .role-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--card-color-1), var(--card-color-2));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .role-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .role-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, var(--card-color-1), var(--card-color-2));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            color: white;
+        }
+
+        /* Individual role color schemes */
+        .role-card:nth-child(1) { --card-color-1: #667eea; --card-color-2: #764ba2; }
+        .role-card:nth-child(2) { --card-color-1: #f093fb; --card-color-2: #f5576c; }
+        .role-card:nth-child(3) { --card-color-1: #4facfe; --card-color-2: #00f2fe; }
+        .role-card:nth-child(4) { --card-color-1: #43e97b; --card-color-2: #38f9d7; }
+        .role-card:nth-child(5) { --card-color-1: #fa709a; --card-color-2: #fee140; }
+        .role-card:nth-child(6) { --card-color-1: #30cfd0; --card-color-2: #330867; }
+        .role-card:nth-child(7) { --card-color-1: #a8edea; --card-color-2: #fed6e3; }
+        .role-card:nth-child(8) { --card-color-1: #ff9a56; --card-color-2: #ff6a88; }
+        .role-card:nth-child(9) { --card-color-1: #fbc2eb; --card-color-2: #a6c1ee; }
+        .role-card:nth-child(10) { --card-color-1: #fdcbf1; --card-color-2: #e6dee9; }
+        .role-card:nth-child(11) { --card-color-1: #a1c4fd; --card-color-2: #c2e9fb; }
+        .role-card:nth-child(12) { --card-color-1: #d299c2; --card-color-2: #fef9d7; }
+        .role-card:nth-child(13) { --card-color-1: #667eea; --card-color-2: #764ba2; }
+
+        @@media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2rem;
+            }
+            .header-section p {
+                font-size: 1rem;
+            }
+            .roles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <h1><i class="fas fa-university"></i> Wekeza Core Banking System</h1>
+            <p>MVP 4.0 - Select Your Role to Login</p>
+        </div>
+
+        <div class="roles-grid">
+            <!-- Administrator -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3 class="role-title">Administrator</h3>
+                <p class="role-description">System-wide configuration, user management, and administrative controls</p>
+                <a href="/Login/Administrator" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Teller -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-cash-register"></i>
+                </div>
+                <h3 class="role-title">Teller</h3>
+                <p class="role-description">Process customer transactions, deposits, withdrawals, and account services</p>
+                <a href="/Login/Teller" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Supervisor -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3 class="role-title">Supervisor</h3>
+                <p class="role-description">Oversee operations, approve transactions, and manage staff activities</p>
+                <a href="/Login/Supervisor" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Branch Manager -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3 class="role-title">Branch Manager</h3>
+                <p class="role-description">Manage branch operations, staff, and business development initiatives</p>
+                <a href="/Login/BranchManager" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Loan Officer -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <h3 class="role-title">Loan Officer</h3>
+                <p class="role-description">Process loan applications, assess creditworthiness, and manage loan portfolios</p>
+                <a href="/Login/LoanOfficer" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Cash Officer -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <h3 class="role-title">Cash Officer</h3>
+                <p class="role-description">Manage vault operations, cash balancing, and currency management</p>
+                <a href="/Login/CashOfficer" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Back Office Staff -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-laptop"></i>
+                </div>
+                <h3 class="role-title">Back Office Staff</h3>
+                <p class="role-description">Handle processing, documentation, and administrative support functions</p>
+                <a href="/Login/BackOfficeStaff" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Compliance Officer -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3 class="role-title">Compliance Officer</h3>
+                <p class="role-description">Ensure regulatory compliance, AML monitoring, and policy enforcement</p>
+                <a href="/Login/ComplianceOfficer" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Risk Officer -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="role-title">Risk Officer</h3>
+                <p class="role-description">Assess and manage operational, credit, and market risks</p>
+                <a href="/Login/RiskOfficer" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Auditor -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="role-title">Auditor</h3>
+                <p class="role-description">Review transactions, audit trails, and ensure system integrity</p>
+                <a href="/Login/Auditor" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Customer Care Officer -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3 class="role-title">Customer Care Officer</h3>
+                <p class="role-description">Handle customer inquiries, complaints, and service requests</p>
+                <a href="/Login/CustomerCareOfficer" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- Bancassurance Agent -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="role-title">Bancassurance Agent</h3>
+                <p class="role-description">Sell insurance products and manage bancassurance portfolio</p>
+                <a href="/Login/BancassuranceAgent" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+
+            <!-- IT Administrator -->
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-server"></i>
+                </div>
+                <h3 class="role-title">IT Administrator</h3>
+                <p class="role-description">Manage system infrastructure, security, and technical support</p>
+                <a href="/Login/ITAdministrator" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
