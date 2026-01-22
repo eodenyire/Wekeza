@@ -1,6 +1,6 @@
 # Wekeza Bank - Core Banking System
 
-![Wekeza Bank Logo](./logo.png)
+![Wekeza Bank Logo](/Assets/Logos/BCO.19e37d75-da58-4d51-a993-833739c80b13.png)
 
 ## Overview
 
