@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Wekeza.Mobile.Views.DashboardPage"
+             xmlns:viewmodel="clr-namespace:Wekeza.Mobile.ViewModels"
+             x:DataType="viewmodel:DashboardViewModel"
+             Title="Dashboard"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Header -->
+            <Frame BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="{Binding DisplayName, StringFormat='Hello, {0}'}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="#2E7D32"/>
+                    
+                    <Label Text="{Binding AccountNumber, StringFormat='Account: {0}'}"
+                           FontSize="14"
+                           TextColor="#666666"/>
+                    
+                    <BoxView HeightRequest="1" Color="#EEEEEE" Margin="0,10"/>
+                    
+                    <Label Text="Available Balance"
+                           FontSize="14"
+                           TextColor="#666666"/>
+                    
+                    <Label Text="{Binding AvailableBalance, StringFormat='KES {0:N2}'}"
+                           FontSize="32"
+                           FontAttributes="Bold"
+                           TextColor="#2E7D32"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Quick Actions Grid -->
+            <Label Text="Quick Actions"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#333333"
+                   Margin="0,10,0,0"/>
+
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*" RowSpacing="15" ColumnSpacing="15">
+                
+                <!-- Balance -->
+                <Frame Grid.Row="0" Grid.Column="0" BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToBalanceCommand}"/>
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="💰" FontSize="36" HorizontalOptions="Center"/>
+                        <Label Text="Balance" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Transfer -->
+                <Frame Grid.Row="0" Grid.Column="1" BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToTransferCommand}"/>
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="💸" FontSize="36" HorizontalOptions="Center"/>
+                        <Label Text="Transfer" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Mobile Money -->
+                <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToMobileMoneyCommand}"/>
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="📱" FontSize="36" HorizontalOptions="Center"/>
+                        <Label Text="Send Money" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Airtime -->
+                <Frame Grid.Row="1" Grid.Column="1" BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToAirtimeCommand}"/>
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="📞" FontSize="36" HorizontalOptions="Center"/>
+                        <Label Text="Airtime" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </Grid>
+
+            <!-- More Services -->
+            <Label Text="More Services"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#333333"
+                   Margin="0,10,0,0"/>
+
+            <Frame BackgroundColor="White" CornerRadius="15" Padding="15" HasShadow="True">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateToBillPaymentCommand}"/>
+                </Frame.GestureRecognizers>
+                <HorizontalStackLayout Spacing="15">
+                    <Label Text="🧾" FontSize="30" VerticalOptions="Center"/>
+                    <VerticalStackLayout Spacing="5" VerticalOptions="Center">
+                        <Label Text="Pay Bills" FontSize="16" FontAttributes="Bold"/>
+                        <Label Text="Paybill & Till Numbers" FontSize="12" TextColor="#666666"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White" CornerRadius="15" Padding="15" HasShadow="True">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateToTransactionHistoryCommand}"/>
+                </Frame.GestureRecognizers>
+                <HorizontalStackLayout Spacing="15">
+                    <Label Text="📊" FontSize="30" VerticalOptions="Center"/>
+                    <VerticalStackLayout Spacing="5" VerticalOptions="Center">
+                        <Label Text="Transaction History" FontSize="16" FontAttributes="Bold"/>
+                        <Label Text="View all transactions" FontSize="12" TextColor="#666666"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Frame>
+
+            <!-- Logout Button -->
+            <Button Text="Logout"
+                    Command="{Binding LogoutCommand}"
+                    BackgroundColor="#D32F2F"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Margin="0,20,0,20"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

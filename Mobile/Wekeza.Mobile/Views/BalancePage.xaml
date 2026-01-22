@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Wekeza.Mobile.Views.BalancePage"
+             xmlns:viewmodel="clr-namespace:Wekeza.Mobile.ViewModels"
+             x:DataType="viewmodel:BalanceViewModel"
+             Title="Account Balance"
+             BackgroundColor="#F5F5F5">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshBalanceCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- Account Info Card -->
+                <Frame BackgroundColor="White" CornerRadius="15" Padding="25" HasShadow="True">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Account Number"
+                               FontSize="14"
+                               TextColor="#666666"/>
+                        
+                        <Label Text="{Binding AccountNumber}"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#333333"/>
+                        
+                        <BoxView HeightRequest="1" Color="#EEEEEE" Margin="0,10"/>
+                        
+                        <Label Text="Available Balance"
+                               FontSize="14"
+                               TextColor="#666666"/>
+                        
+                        <Label Text="{Binding AccountBalance.AvailableBalance, StringFormat='KES {0:N2}'}"
+                               FontSize="36"
+                               FontAttributes="Bold"
+                               TextColor="#2E7D32"/>
+                        
+                        <BoxView HeightRequest="1" Color="#EEEEEE" Margin="0,10"/>
+                        
+                        <Label Text="Book Balance"
+                               FontSize="14"
+                               TextColor="#666666"/>
+                        
+                        <Label Text="{Binding AccountBalance.BookBalance, StringFormat='KES {0:N2}'}"
+                               FontSize="24"
+                               TextColor="#333333"/>
+                        
+                        <BoxView HeightRequest="1" Color="#EEEEEE" Margin="0,10"/>
+                        
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="Account Type:"
+                                   FontSize="14"
+                                   TextColor="#666666"/>
+                            <Label Text="{Binding AccountBalance.AccountType}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#333333"/>
+                        </HorizontalStackLayout>
+                        
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="Last Updated:"
+                                   FontSize="12"
+                                   TextColor="#999999"/>
+                            <Label Text="{Binding AccountBalance.LastUpdated, StringFormat='{0:MMM dd, yyyy HH:mm}'}"
+                                   FontSize="12"
+                                   TextColor="#999999"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                  IsVisible="{Binding IsLoading}"
+                                  Color="#2E7D32"
+                                  HorizontalOptions="Center"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+
+</ContentPage>

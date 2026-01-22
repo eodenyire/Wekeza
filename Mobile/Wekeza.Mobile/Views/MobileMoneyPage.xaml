@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Wekeza.Mobile.Views.MobileMoneyPage"
+             xmlns:viewmodel="clr-namespace:Wekeza.Mobile.ViewModels"
+             x:DataType="viewmodel:MobileMoneyViewModel"
+             Title="Send Money"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <Frame BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
+                <VerticalStackLayout Spacing="15">
+
+                    <Label Text="Send money from your Wekeza account to any mobile number"
+                           FontSize="14"
+                           TextColor="#666666"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,0,0,10"/>
+
+                    <!-- From Account -->
+                    <Label Text="From Account"
+                           FontSize="14"
+                           TextColor="#666666"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding FromAccountNumber}"
+                               IsReadOnly="True"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- To Phone Number -->
+                    <Label Text="To Phone Number"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding ToPhoneNumber}"
+                               Placeholder="e.g., 254712345678"
+                               Keyboard="Telephone"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Amount -->
+                    <Label Text="Amount (KES)"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding Amount}"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Description -->
+                    <Label Text="Description (Optional)"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding Description}"
+                               Placeholder="Enter description"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Send Button -->
+                    <Button Text="Send Money"
+                            Command="{Binding SendMoneyCommand}"
+                            BackgroundColor="#2E7D32"
+                            TextColor="White"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            CornerRadius="10"
+                            HeightRequest="50"
+                            Margin="0,20,0,0"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"/>
+
+                    <!-- Loading Indicator -->
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                      IsVisible="{Binding IsLoading}"
+                                      Color="#2E7D32"
+                                      HorizontalOptions="Center"/>
+
+                    <!-- Result Message -->
+                    <Frame IsVisible="{Binding ShowResult}"
+                           BackgroundColor="#E8F5E9"
+                           BorderColor="#4CAF50"
+                           CornerRadius="10"
+                           Padding="15"
+                           Margin="0,10,0,0">
+                        <Label Text="{Binding ResultMessage}"
+                               TextColor="#2E7D32"
+                               FontSize="14"
+                               HorizontalTextAlignment="Center"/>
+                    </Frame>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Info Box -->
+            <Frame BackgroundColor="#FFF3E0" BorderColor="#FF9800" CornerRadius="10" Padding="15">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="ℹ️ Important Information"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="#F57C00"/>
+                    <Label Text="• Funds will be sent via M-Pesa"
+                           FontSize="12"
+                           TextColor="#666666"/>
+                    <Label Text="• Transactions are instant"
+                           FontSize="12"
+                           TextColor="#666666"/>
+                    <Label Text="• Standard charges apply"
+                           FontSize="12"
+                           TextColor="#666666"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
