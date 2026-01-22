@@ -1,0 +1,190 @@
+@page
+@model Wekeza.MVP4._0.Pages.Risk.IndexModel
+@{
+    ViewData["Title"] = "Risk Management Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Risk Officer";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Risk" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Risk/Assessment" class="sidebar-menu-link">
+            <i class="fas fa-chart-pie"></i>
+            <span>Risk Assessment</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Risk/Portfolio" class="sidebar-menu-link">
+            <i class="fas fa-briefcase"></i>
+            <span>Portfolio Analysis</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Risk/Alerts" class="sidebar-menu-link">
+            <i class="fas fa-bell"></i>
+            <span>Risk Alerts</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Risk/Reports" class="sidebar-menu-link">
+            <i class="fas fa-file-alt"></i>
+            <span>Risk Reports</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>Enterprise risk management and monitoring</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>CREDIT RISK EXPOSURE</h6>
+                <div class="stat-value">@Model.CreditRiskExposure</div>
+                <div class="stat-change">
+                    <i class="fas fa-chart-line"></i> Portfolio total
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-chart-area"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>NPL RATIO</h6>
+                <div class="stat-value">@Model.NPLRatio</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i> Within limits
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-percentage"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>HIGH RISK ACCOUNTS</h6>
+                <div class="stat-value">@Model.HighRiskAccounts</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-exclamation-triangle"></i> Monitor closely
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>CONCENTRATION RISK</h6>
+                <div class="stat-value">@Model.ConcentrationRisk</div>
+                <div class="stat-change warning">
+                    <i class="fas fa-balance-scale"></i> Review needed
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-layer-group"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/Risk/Assessment" class="action-btn">
+            <i class="fas fa-chart-pie"></i>
+            <span>Risk Assessment</span>
+        </a>
+        <a href="/Risk/Alerts" class="action-btn">
+            <i class="fas fa-bell"></i>
+            <span>Review Alerts</span>
+        </a>
+        <a href="/Risk/Portfolio" class="action-btn">
+            <i class="fas fa-briefcase"></i>
+            <span>Portfolio Analysis</span>
+        </a>
+        <a href="/Risk/Reports" class="action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>Generate Report</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-chart-line"></i> Risk Exposure by Sector</h5>
+            <canvas id="riskChart" height="100"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-exclamation-triangle"></i> Risk Alerts</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Alert</th>
+                        <th>Severity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Credit Concentration</td>
+                        <td><span class="badge bg-danger">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>Market Volatility</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>Liquidity Alert</td>
+                        <td><span class="badge bg-info">Low</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('riskChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Real Estate', 'Manufacturing', 'Retail', 'Agriculture', 'Services'],
+                datasets: [{
+                    label: 'Exposure ($M)',
+                    data: [45, 32, 28, 15, 12],
+                    backgroundColor: '#667eea'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+    </script>
+}

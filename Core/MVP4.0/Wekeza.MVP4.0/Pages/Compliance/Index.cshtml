@@ -1,0 +1,198 @@
+@page
+@model Wekeza.MVP4._0.Pages.Compliance.IndexModel
+@{
+    ViewData["Title"] = "Compliance Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Compliance Officer";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Compliance" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Compliance/AML" class="sidebar-menu-link">
+            <i class="fas fa-shield-virus"></i>
+            <span>AML Monitoring</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Compliance/KYC" class="sidebar-menu-link">
+            <i class="fas fa-user-check"></i>
+            <span>KYC Reviews</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Compliance/Sanctions" class="sidebar-menu-link">
+            <i class="fas fa-ban"></i>
+            <span>Sanctions Screening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Compliance/Reports" class="sidebar-menu-link">
+            <i class="fas fa-file-alt"></i>
+            <span>Compliance Reports</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>Compliance monitoring and regulatory oversight</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>AML ALERTS</h6>
+                <div class="stat-value">@Model.AMLAlerts</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-exclamation-triangle"></i> Review required
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-shield-virus"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>KYC PENDING</h6>
+                <div class="stat-value">@Model.KYCPending</div>
+                <div class="stat-change">
+                    <i class="fas fa-user-check"></i> Under review
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>SANCTIONS HITS</h6>
+                <div class="stat-value">@Model.SanctionsHits</div>
+                <div class="stat-change">
+                    <i class="fas fa-ban"></i> Investigate
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-gavel"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>HIGH RISK ACCOUNTS</h6>
+                <div class="stat-value">@Model.HighRiskAccounts</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-exclamation-circle"></i> Monitor closely
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/Compliance/AML" class="action-btn">
+            <i class="fas fa-shield-virus"></i>
+            <span>Review AML Cases</span>
+        </a>
+        <a href="/Compliance/KYC" class="action-btn">
+            <i class="fas fa-user-check"></i>
+            <span>KYC Reviews</span>
+        </a>
+        <a href="/Compliance/Sanctions" class="action-btn">
+            <i class="fas fa-ban"></i>
+            <span>Sanctions Check</span>
+        </a>
+        <a href="/Compliance/Reports" class="action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>Generate Report</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-exclamation-triangle"></i> Recent AML Alerts</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Alert Type</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1001234567</td>
+                        <td>Large Transaction</td>
+                        <td><span class="badge bg-danger">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>1001234568</td>
+                        <td>Unusual Pattern</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>1001234569</td>
+                        <td>Multiple Transfers</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-user-check"></i> KYC Pending Reviews</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Type</th>
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Doe</td>
+                        <td>New Account</td>
+                        <td>Today</td>
+                    </tr>
+                    <tr>
+                        <td>Jane Smith</td>
+                        <td>Annual Review</td>
+                        <td>Tomorrow</td>
+                    </tr>
+                    <tr>
+                        <td>Mike Johnson</td>
+                        <td>Update Required</td>
+                        <td>In 2 days</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
