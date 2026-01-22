@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wekeza Bank - Modern Banking Solutions for Kenya">
+    <title>Wekeza Bank - Banking Made Simple</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <img src="/static/images/bank-logo.png" alt="Wekeza Bank Logo" class="logo-img">
+                    <span class="logo-text">Wekeza Bank</span>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="btn btn-outline" onclick="showLoginModal()">Login</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">Open Account</button>
+                    <button class="hamburger" id="hamburger">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Banking Made <span class="gradient-text">Simple</span></h1>
+                    <p class="hero-subtitle">Experience modern banking with seamless digital solutions. From savings to loans, we've got you covered.</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary btn-lg" onclick="showRegisterModal()">
+                            <i class="fas fa-user-plus"></i> Get Started
+                        </button>
+                        <button class="btn btn-outline btn-lg" onclick="scrollToSection('services')">
+                            <i class="fas fa-compass"></i> Explore Services
+                        </button>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" data-target="50000">0</div>
+                            <div class="stat-label">Happy Customers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" data-target="1000000000">0</div>
+                            <div class="stat-label">Money Secured (KES)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" data-target="24">0</div>
+                            <div class="stat-label">24/7 Support</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="floating-card card-1">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>Secure</h4>
+                        <p>Bank-grade security</p>
+                    </div>
+                    <div class="floating-card card-2">
+                        <i class="fas fa-bolt"></i>
+                        <h4>Fast</h4>
+                        <p>Instant transactions</p>
+                    </div>
+                    <div class="floating-card card-3">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Mobile</h4>
+                        <p>Bank anywhere</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Our Services</h2>
+                <p class="section-subtitle">Comprehensive banking solutions tailored for you</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <h3>Savings Accounts</h3>
+                    <p>Secure your future with competitive interest rates and flexible savings options.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Up to 5% interest rate</li>
+                        <li><i class="fas fa-check"></i> No monthly fees</li>
+                        <li><i class="fas fa-check"></i> Free withdrawals</li>
+                    </ul>
+                    <button class="btn btn-link" onclick="showAccountModal('SAVINGS')">Learn More <i class="fas fa-arrow-right"></i></button>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h3>Current Accounts</h3>
+                    <p>Perfect for daily transactions with unlimited access to your funds.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Free debit card</li>
+                        <li><i class="fas fa-check"></i> Mobile banking</li>
+                        <li><i class="fas fa-check"></i> Unlimited transactions</li>
+                    </ul>
+                    <button class="btn btn-link" onclick="showAccountModal('CHECKING')">Learn More <i class="fas fa-arrow-right"></i></button>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <h3>Loans</h3>
+                    <p>Flexible loan options for personal, business, and mortgage needs.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Low interest rates</li>
+                        <li><i class="fas fa-check"></i> Quick approval</li>
+                        <li><i class="fas fa-check"></i> Flexible repayment</li>
+                    </ul>
+                    <button class="btn btn-link" onclick="showLoanModal()">Apply Now <i class="fas fa-arrow-right"></i></button>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>Business Banking</h3>
+                    <p>Grow your business with tailored banking solutions and support.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Business accounts</li>
+                        <li><i class="fas fa-check"></i> Business loans</li>
+                        <li><i class="fas fa-check"></i> Merchant services</li>
+                    </ul>
+                    <button class="btn btn-link" onclick="showAccountModal('BUSINESS')">Get Started <i class="fas fa-arrow-right"></i></button>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h3>Money Transfers</h3>
+                    <p>Send and receive money instantly with M-Pesa integration.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Instant transfers</li>
+                        <li><i class="fas fa-check"></i> M-Pesa integration</li>
+                        <li><i class="fas fa-check"></i> International transfers</li>
+                    </ul>
+                    <button class="btn btn-link" onclick="showTransferModal()">Transfer Now <i class="fas fa-arrow-right"></i></button>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Banking</h3>
+                    <p>Bank on the go with our powerful mobile application.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> 24/7 access</li>
+                        <li><i class="fas fa-check"></i> Secure transactions</li>
+                        <li><i class="fas fa-check"></i> Real-time updates</li>
+                    </ul>
+                    <button class="btn btn-link" onclick="showMobileAppInfo()">Download App <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Choose Wekeza Bank</h2>
+                <p class="section-subtitle">Modern banking backed by cutting-edge technology</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Bank-Grade Security</h3>
+                    <p>Your money is protected with military-grade encryption and multi-factor authentication.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Real-Time Analytics</h3>
+                    <p>Track your spending, savings, and investments with powerful analytics tools.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Our dedicated support team is always available to help you with any questions.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Multi-Currency</h3>
+                    <p>Hold and transact in multiple currencies including KES, USD, EUR, and GBP.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Preview Section -->
+    <section class="dashboard-preview" id="about">
+        <div class="container">
+            <div class="dashboard-content">
+                <div class="dashboard-text">
+                    <h2 class="section-title">Your Money, Your Control</h2>
+                    <p>Access your complete banking dashboard with real-time updates, transaction history, and personalized insights.</p>
+                    <ul class="dashboard-features">
+                        <li><i class="fas fa-check-circle"></i> Real-time balance updates</li>
+                        <li><i class="fas fa-check-circle"></i> Instant transaction notifications</li>
+                        <li><i class="fas fa-check-circle"></i> Customizable spending alerts</li>
+                        <li><i class="fas fa-check-circle"></i> Detailed financial reports</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="showLoginModal()">Access Dashboard</button>
+                </div>
+                <div class="dashboard-mockup">
+                    <div class="mockup-window">
+                        <div class="window-header">
+                            <div class="window-buttons">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <div class="window-title">Banking Dashboard</div>
+                        </div>
+                        <div class="window-content">
+                            <div class="balance-display">
+                                <div class="balance-label">Total Balance</div>
+                                <div class="balance-amount">KES 1,234,567.89</div>
+                            </div>
+                            <div class="quick-actions">
+                                <div class="action-btn"><i class="fas fa-paper-plane"></i> Send</div>
+                                <div class="action-btn"><i class="fas fa-download"></i> Receive</div>
+                                <div class="action-btn"><i class="fas fa-exchange-alt"></i> Transfer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Get Started?</h2>
+                <p>Open your account today and experience banking like never before</p>
+                <button class="btn btn-white btn-lg" onclick="showRegisterModal()">
+                    <i class="fas fa-rocket"></i> Open Account Now
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Get In Touch</h2>
+                <p class="section-subtitle">We're here to help with all your banking needs</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <h4>Phone</h4>
+                        <p>0716478835</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <h4>Email</h4>
+                        <p>support@wekeza.com</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h4>Location</h4>
+                        <p>Nairobi, Kenya</p>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Your Message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Wekeza Bank</h3>
+                    <p>Modern banking solutions for Kenya and beyond.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Savings Accounts</a></li>
+                        <li><a href="#">Current Accounts</a></li>
+                        <li><a href="#">Loans</a></li>
+                        <li><a href="#">Cards</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Wekeza Bank. All rights reserved. | Owner: Emmanuel Odenyire</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Welcome Back</h2>
+                <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+                <p class="form-footer">Don't have an account? <a href="#" onclick="switchToRegister()">Sign up</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Open Your Account</h2>
+                <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
+            </div>
+            <form id="registerForm" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="regFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="regLastName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="regUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="regPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ID Number</label>
+                        <input type="text" id="regIdNumber" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="regDob" required>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea id="regAddress" rows="3" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="regPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="regPassword2" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                <p class="form-footer">Already have an account? <a href="#" onclick="switchToLogin()">Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard (Hidden initially) -->
+    <div id="dashboardSection" style="display: none;">
+        <!-- Dashboard content will be loaded here after login -->
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
