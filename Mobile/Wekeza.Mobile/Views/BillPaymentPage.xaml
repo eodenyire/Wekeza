@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Wekeza.Mobile.Views.BillPaymentPage"
+             xmlns:viewmodel="clr-namespace:Wekeza.Mobile.ViewModels"
+             x:DataType="viewmodel:BillPaymentViewModel"
+             Title="Pay Bills"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <Frame BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
+                <VerticalStackLayout Spacing="15">
+
+                    <Label Text="Pay bills using Paybill or Till numbers"
+                           FontSize="14"
+                           TextColor="#666666"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,0,0,10"/>
+
+                    <!-- From Account -->
+                    <Label Text="From Account"
+                           FontSize="14"
+                           TextColor="#666666"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding FromAccountNumber}"
+                               IsReadOnly="True"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Bill Type -->
+                    <Label Text="Bill Type"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Picker ItemsSource="{Binding BillTypes}"
+                            SelectedItem="{Binding BillType}"
+                            TextColor="#333333"
+                            BackgroundColor="#F5F5F5"/>
+
+                    <!-- Business Number -->
+                    <Label Text="Business Number"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding BusinessNumber}"
+                               Placeholder="Enter Paybill/Till number"
+                               Keyboard="Numeric"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Account Number (for Paybill) -->
+                    <Label Text="Account Number (for Paybill)"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding BillNumber}"
+                               Placeholder="Optional for Till numbers"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Amount -->
+                    <Label Text="Amount (KES)"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding Amount}"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Description -->
+                    <Label Text="Description (Optional)"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding Description}"
+                               Placeholder="Enter description"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Pay Button -->
+                    <Button Text="Pay Bill"
+                            Command="{Binding PayBillCommand}"
+                            BackgroundColor="#2E7D32"
+                            TextColor="White"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            CornerRadius="10"
+                            HeightRequest="50"
+                            Margin="0,20,0,0"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"/>
+
+                    <!-- Loading Indicator -->
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                      IsVisible="{Binding IsLoading}"
+                                      Color="#2E7D32"
+                                      HorizontalOptions="Center"/>
+
+                    <!-- Result Message -->
+                    <Frame IsVisible="{Binding ShowResult}"
+                           BackgroundColor="#E8F5E9"
+                           BorderColor="#4CAF50"
+                           CornerRadius="10"
+                           Padding="15"
+                           Margin="0,10,0,0">
+                        <Label Text="{Binding ResultMessage}"
+                               TextColor="#2E7D32"
+                               FontSize="14"
+                               HorizontalTextAlignment="Center"/>
+                    </Frame>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Info Box -->
+            <Frame BackgroundColor="#E3F2FD" BorderColor="#2196F3" CornerRadius="10" Padding="15">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="💡 Tips"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="#1976D2"/>
+                    <Label Text="• Paybill: Requires business number + account number"
+                           FontSize="12"
+                           TextColor="#666666"/>
+                    <Label Text="• Till: Only requires till number"
+                           FontSize="12"
+                           TextColor="#666666"/>
+                    <Label Text="• Verify details before confirming"
+                           FontSize="12"
+                           TextColor="#666666"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

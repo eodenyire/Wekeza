@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Wekeza.Mobile.Views.LoginPage"
+             xmlns:viewmodel="clr-namespace:Wekeza.Mobile.ViewModels"
+             x:DataType="viewmodel:LoginViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+            
+            <!-- Logo/Title -->
+            <Label Text="Wekeza Mobile"
+                   FontSize="36"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="#2E7D32"
+                   Margin="0,0,0,40"/>
+
+            <Label Text="Welcome Back"
+                   FontSize="24"
+                   HorizontalOptions="Center"
+                   TextColor="#333333"
+                   Margin="0,0,0,10"/>
+
+            <Label Text="Login to your account"
+                   FontSize="16"
+                   HorizontalOptions="Center"
+                   TextColor="#666666"
+                   Margin="0,0,0,30"/>
+
+            <!-- Username Entry -->
+            <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                <Entry Text="{Binding Username}"
+                       Placeholder="Username"
+                       PlaceholderColor="#999999"
+                       TextColor="#333333"
+                       Margin="15,10"/>
+            </Frame>
+
+            <!-- Password Entry -->
+            <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                <Entry Text="{Binding Password}"
+                       Placeholder="Password"
+                       IsPassword="True"
+                       PlaceholderColor="#999999"
+                       TextColor="#333333"
+                       Margin="15,10"/>
+            </Frame>
+
+            <!-- Error Message -->
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                   HorizontalOptions="Center"/>
+
+            <!-- Login Button -->
+            <Button Text="Login"
+                    Command="{Binding LoginCommand}"
+                    BackgroundColor="#2E7D32"
+                    TextColor="White"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    CornerRadius="10"
+                    HeightRequest="50"
+                    Margin="0,20,0,0"
+                    IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"/>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                              IsVisible="{Binding IsLoading}"
+                              Color="#2E7D32"
+                              HorizontalOptions="Center"/>
+
+            <!-- Additional Options -->
+            <Label Text="Forgot Password?"
+                   HorizontalOptions="Center"
+                   TextColor="#2E7D32"
+                   Margin="0,20,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

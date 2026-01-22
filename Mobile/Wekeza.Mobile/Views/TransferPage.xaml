@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Wekeza.Mobile.Views.TransferPage"
+             xmlns:viewmodel="clr-namespace:Wekeza.Mobile.ViewModels"
+             x:DataType="viewmodel:TransferViewModel"
+             Title="Transfer Funds"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <Frame BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
+                <VerticalStackLayout Spacing="15">
+
+                    <!-- From Account -->
+                    <Label Text="From Account"
+                           FontSize="14"
+                           TextColor="#666666"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding FromAccountNumber}"
+                               IsReadOnly="True"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- To Account -->
+                    <Label Text="To Account Number"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding ToAccountNumber}"
+                               Placeholder="Enter account number"
+                               Keyboard="Numeric"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Transfer Type -->
+                    <Label Text="Transfer Type"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Picker ItemsSource="{Binding TransferTypes}"
+                            SelectedItem="{Binding TransferType}"
+                            TextColor="#333333"
+                            BackgroundColor="#F5F5F5"/>
+
+                    <!-- Amount -->
+                    <Label Text="Amount (KES)"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding Amount}"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Description -->
+                    <Label Text="Description (Optional)"
+                           FontSize="14"
+                           TextColor="#666666"
+                           Margin="0,10,0,0"/>
+                    
+                    <Frame Padding="0" CornerRadius="10" BorderColor="#DDDDDD" HasShadow="False">
+                        <Entry Text="{Binding Description}"
+                               Placeholder="Enter description"
+                               TextColor="#333333"
+                               Margin="15,10"/>
+                    </Frame>
+
+                    <!-- Transfer Button -->
+                    <Button Text="Transfer Funds"
+                            Command="{Binding TransferCommand}"
+                            BackgroundColor="#2E7D32"
+                            TextColor="White"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            CornerRadius="10"
+                            HeightRequest="50"
+                            Margin="0,20,0,0"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"/>
+
+                    <!-- Loading Indicator -->
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                      IsVisible="{Binding IsLoading}"
+                                      Color="#2E7D32"
+                                      HorizontalOptions="Center"/>
+
+                    <!-- Result Message -->
+                    <Frame IsVisible="{Binding ShowResult}"
+                           BackgroundColor="#E8F5E9"
+                           BorderColor="#4CAF50"
+                           CornerRadius="10"
+                           Padding="15"
+                           Margin="0,10,0,0">
+                        <Label Text="{Binding ResultMessage}"
+                               TextColor="#2E7D32"
+                               FontSize="14"
+                               HorizontalTextAlignment="Center"/>
+                    </Frame>
+
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
