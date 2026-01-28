@@ -41,8 +41,11 @@ cd WekezaERMS-standalone
 # Initialize as a git repository
 git init
 
-# Pull the split branch
-git pull ../Wekeza erms-only
+# Fetch the split branch
+git fetch ../Wekeza erms-only
+
+# Merge the fetched content
+git merge FETCH_HEAD
 
 # Add the remote for the new repository
 git remote add origin https://github.com/eodenyire/WekezaERMS.git
@@ -252,7 +255,8 @@ Create a script `sync-erms.sh` in the Wekeza repository:
 # Sync WekezaERMS changes to the standalone repository
 
 cd WekezaERMS
-git pull origin main
+git fetch origin main
+git merge origin/main
 # Make your changes
 git add .
 git commit -m "Update ERMS"
@@ -297,7 +301,8 @@ dotnet test
 
 **Solution**:
 ```bash
-git pull origin main --rebase
+git fetch origin main
+git rebase origin/main
 git push origin main
 ```
 

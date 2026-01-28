@@ -18,6 +18,9 @@ TARGET_REPO="https://github.com/eodenyire/WekezaERMS.git"
 ERMS_FOLDER="WekezaERMS"
 WORK_DIR=$(mktemp -d)
 
+# Set up cleanup trap
+trap "rm -rf '$WORK_DIR'" EXIT
+
 echo -e "${BLUE}===============================================${NC}"
 echo -e "${BLUE}WekezaERMS Repository Migration Script${NC}"
 echo -e "${BLUE}===============================================${NC}"
@@ -96,7 +99,6 @@ esac
 # Create working directory
 echo ""
 print_info "Creating working directory: $WORK_DIR"
-mkdir -p "$WORK_DIR"
 cd "$WORK_DIR"
 
 # Method 1: Git Subtree

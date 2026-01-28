@@ -11,7 +11,7 @@ param(
 $SourceRepo = "https://github.com/eodenyire/Wekeza.git"
 $TargetRepo = "https://github.com/eodenyire/WekezaERMS.git"
 $ErmsFolder = "WekezaERMS"
-$WorkDir = "C:\Temp\erms-migration-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$WorkDir = Join-Path $env:TEMP "erms-migration-$(Get-Date -Format 'yyyyMMddHHmmss')"
 
 # Color functions
 function Write-Status {
@@ -106,7 +106,7 @@ if ($Method -eq "subtree") {
     
     Write-Status "Repository prepared successfully!"
     Write-Host ""
-    Write-Warning-Custom "To push to GitHub, run:"
+    Write-WarningMessage "To push to GitHub, run:"
     Write-Host "cd $WorkDir\erms-standalone"
     Write-Host "git push -u origin main"
 }
