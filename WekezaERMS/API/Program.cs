@@ -1,5 +1,8 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using WekezaERMS.Application.Behaviors;
 using WekezaERMS.Application.Commands.Risks;
+using WekezaERMS.Application.Mappings;
 using WekezaERMS.Infrastructure.Persistence;
 using WekezaERMS.Infrastructure.Persistence.Repositories;
 
@@ -32,9 +35,19 @@ else
         options.UseNpgsql(connectionString));
 }
 
-// Register MediatR
+// Register AutoMapper
+builder.Services.AddAutoMapper(config =>
+{
+    config.AddProfile<RiskMappingProfile>();
+});
+
+// Register FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<CreateRiskCommand>();
+
+// Register MediatR with validation pipeline
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(CreateRiskCommand).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 
 // Register Repositories

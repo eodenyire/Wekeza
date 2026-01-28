@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WekezaERMS.Application.Commands.Risks;
 using WekezaERMS.Application.DTOs;
 using WekezaERMS.Application.Queries.Risks;
+using FluentValidation;
 
 namespace WekezaERMS.API.Controllers;
 
@@ -33,6 +34,26 @@ public class RisksController : ControllerBase
     }
 
     /// <summary>
+    /// Get a single risk by ID
+    /// </summary>
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(RiskDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RiskDto>> GetRiskById(Guid id)
+    {
+        _logger.LogInformation("Getting risk by ID: {Id}", id);
+        var query = new GetRiskByIdQuery { Id = id };
+        var risk = await _mediator.Send(query);
+        
+        if (risk == null)
+        {
+            return NotFound(new { message = $"Risk with ID {id} not found" });
+        }
+        
+        return Ok(risk);
+    }
+
+    /// <summary>
     /// Create a new risk
     /// </summary>
     [HttpPost]
@@ -40,17 +61,87 @@ public class RisksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<RiskDto>> CreateRisk([FromBody] CreateRiskDto createRiskDto)
     {
-        _logger.LogInformation("Creating new risk: {Title}", createRiskDto.Title);
-        
-        var command = new CreateRiskCommand
+        try
         {
-            RiskData = createRiskDto,
-            CreatedBy = Guid.NewGuid() // TODO: Get from authentication context
+            _logger.LogInformation("Creating new risk: {Title}", createRiskDto.Title);
+            
+            var command = new CreateRiskCommand
+            {
+                RiskData = createRiskDto,
+                CreatedBy = Guid.NewGuid() // TODO: Get from authentication context
+            };
+
+            var risk = await _mediator.Send(command);
+            
+            return CreatedAtAction(nameof(GetRiskById), new { id = risk.Id }, risk);
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning("Validation failed for CreateRisk: {Errors}", ex.Errors);
+            return BadRequest(new { errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }) });
+        }
+    }
+
+    /// <summary>
+    /// Update an existing risk
+    /// </summary>
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(RiskDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<RiskDto>> UpdateRisk(Guid id, [FromBody] UpdateRiskDto updateRiskDto)
+    {
+        try
+        {
+            _logger.LogInformation("Updating risk: {Id}", id);
+            
+            var command = new UpdateRiskCommand
+            {
+                Id = id,
+                RiskData = updateRiskDto,
+                UpdatedBy = Guid.NewGuid() // TODO: Get from authentication context
+            };
+
+            var risk = await _mediator.Send(command);
+            
+            if (risk == null)
+            {
+                return NotFound(new { message = $"Risk with ID {id} not found" });
+            }
+            
+            return Ok(risk);
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning("Validation failed for UpdateRisk: {Errors}", ex.Errors);
+            return BadRequest(new { errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }) });
+        }
+    }
+
+    /// <summary>
+    /// Delete/archive a risk (soft delete)
+    /// </summary>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteRisk(Guid id)
+    {
+        _logger.LogInformation("Deleting risk: {Id}", id);
+        
+        var command = new DeleteRiskCommand
+        {
+            Id = id,
+            DeletedBy = Guid.NewGuid() // TODO: Get from authentication context
         };
 
-        var risk = await _mediator.Send(command);
+        var success = await _mediator.Send(command);
         
-        return CreatedAtAction(nameof(GetAllRisks), new { id = risk.Id }, risk);
+        if (!success)
+        {
+            return NotFound(new { message = $"Risk with ID {id} not found" });
+        }
+        
+        return NoContent();
     }
 
     /// <summary>

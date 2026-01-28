@@ -244,6 +244,29 @@ public class Risk
         UpdatedBy = closedBy;
     }
 
+    public void Update(
+        string title,
+        string description,
+        RiskCategory category,
+        string department,
+        RiskTreatmentStrategy treatmentStrategy,
+        Guid ownerId,
+        int riskAppetite,
+        DateTime nextReviewDate,
+        Guid updatedBy)
+    {
+        Title = title;
+        Description = description;
+        Category = category;
+        Department = department;
+        TreatmentStrategy = treatmentStrategy;
+        OwnerId = ownerId;
+        RiskAppetite = riskAppetite;
+        NextReviewDate = nextReviewDate;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = updatedBy;
+    }
+
     private void CalculateInherentRisk()
     {
         InherentRiskScore = (int)InherentLikelihood * (int)InherentImpact;
