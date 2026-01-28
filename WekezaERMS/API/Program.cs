@@ -59,6 +59,7 @@ else
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<RiskMappingProfile>();
+    config.AddProfile<WekezaERMS.Application.Mappings.ControlMappingProfile>();
 });
 
 // Register FluentValidation
@@ -73,6 +74,7 @@ builder.Services.AddMediatR(cfg => {
 // Register Repositories
 builder.Services.AddScoped<IRiskRepository, RiskRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<WekezaERMS.Application.Commands.Controls.IControlRepository, ControlRepository>();
 
 // Register Services
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
