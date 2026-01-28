@@ -4,11 +4,14 @@ using WekezaERMS.Application.Commands.Risks;
 using WekezaERMS.Application.DTOs;
 using WekezaERMS.Application.Queries.Risks;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace WekezaERMS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class RisksController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -24,6 +27,7 @@ public class RisksController : ControllerBase
     /// Get all risks
     /// </summary>
     [HttpGet]
+    [Authorize(Policy = "RiskViewer")]
     [ProducesResponseType(typeof(List<RiskDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<RiskDto>>> GetAllRisks()
     {
@@ -37,6 +41,7 @@ public class RisksController : ControllerBase
     /// Get a single risk by ID
     /// </summary>
     [HttpGet("{id}")]
+    [Authorize(Policy = "RiskViewer")]
     [ProducesResponseType(typeof(RiskDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RiskDto>> GetRiskById(Guid id)
@@ -57,6 +62,7 @@ public class RisksController : ControllerBase
     /// Create a new risk
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = "RiskOfficer")]
     [ProducesResponseType(typeof(RiskDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<RiskDto>> CreateRisk([FromBody] CreateRiskDto createRiskDto)
@@ -65,10 +71,12 @@ public class RisksController : ControllerBase
         {
             _logger.LogInformation("Creating new risk: {Title}", createRiskDto.Title);
             
+            var userId = GetCurrentUserId();
+            
             var command = new CreateRiskCommand
             {
                 RiskData = createRiskDto,
-                CreatedBy = Guid.NewGuid() // TODO: Get from authentication context
+                CreatedBy = userId
             };
 
             var risk = await _mediator.Send(command);
@@ -86,6 +94,7 @@ public class RisksController : ControllerBase
     /// Update an existing risk
     /// </summary>
     [HttpPut("{id}")]
+    [Authorize(Policy = "RiskOfficer")]
     [ProducesResponseType(typeof(RiskDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -95,11 +104,13 @@ public class RisksController : ControllerBase
         {
             _logger.LogInformation("Updating risk: {Id}", id);
             
+            var userId = GetCurrentUserId();
+            
             var command = new UpdateRiskCommand
             {
                 Id = id,
                 RiskData = updateRiskDto,
-                UpdatedBy = Guid.NewGuid() // TODO: Get from authentication context
+                UpdatedBy = userId
             };
 
             var risk = await _mediator.Send(command);
@@ -122,16 +133,19 @@ public class RisksController : ControllerBase
     /// Delete/archive a risk (soft delete)
     /// </summary>
     [HttpDelete("{id}")]
+    [Authorize(Policy = "RiskManager")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteRisk(Guid id)
     {
         _logger.LogInformation("Deleting risk: {Id}", id);
         
+        var userId = GetCurrentUserId();
+        
         var command = new DeleteRiskCommand
         {
             Id = id,
-            DeletedBy = Guid.NewGuid() // TODO: Get from authentication context
+            DeletedBy = userId
         };
 
         var success = await _mediator.Send(command);
@@ -148,6 +162,7 @@ public class RisksController : ControllerBase
     /// Get risk statistics
     /// </summary>
     [HttpGet("statistics")]
+    [Authorize(Policy = "RiskViewer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetStatistics()
     {
@@ -169,6 +184,7 @@ public class RisksController : ControllerBase
     /// Get risk dashboard data
     /// </summary>
     [HttpGet("dashboard")]
+    [Authorize(Policy = "RiskViewer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetDashboard()
     {
@@ -186,5 +202,11 @@ public class RisksController : ControllerBase
         };
         
         return Ok(dashboard);
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
     }
 }
