@@ -16,7 +16,7 @@ Riskonnect stands out as the market leader because of its broad spectrum of use 
 - **The comprehensive risk taxonomy** enables firms to compare and prioritize risk ratings across different areas holistically, ensuring effective risk quantification.
 - **Best-practice frameworks** to manage multiple risk types in one integrated platform, including:
   - Operational risk
-  - Strategic Risk
+  - Strategic risk
   - Cyber and IT risk
   - Third-party risk
   - Insurable risk and claims
