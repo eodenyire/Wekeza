@@ -1,3 +1,5 @@
+using WekezaERMS.Domain.Enums;
+
 namespace WekezaERMS.Domain.Entities;
 
 /// <summary>
@@ -66,19 +68,11 @@ public class KeyRiskIndicator
         LastMeasuredDate = DateTime.UtcNow;
         NextMeasurementDate = CalculateNextMeasurementDate();
 
-        var measurement = new KRIMeasurement
-        {
-            Id = Guid.NewGuid(),
-            KRIId = Id,
-            Value = value,
-            MeasuredDate = DateTime.UtcNow,
-            Status = DetermineStatus(value),
-            Notes = notes,
-            RecordedBy = recordedBy
-        };
+        var status = DetermineStatus(value);
+        var measurement = KRIMeasurement.Create(Id, value, status, notes, recordedBy);
 
         Measurements.Add(measurement);
-        Status = measurement.Status;
+        Status = status;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = recordedBy;
     }
@@ -109,21 +103,32 @@ public class KeyRiskIndicator
 /// </summary>
 public class KRIMeasurement
 {
-    public Guid Id { get; set; }
-    public Guid KRIId { get; set; }
-    public decimal Value { get; set; }
-    public DateTime MeasuredDate { get; set; }
-    public KRIStatus Status { get; set; }
-    public string Notes { get; set; }
-    public Guid RecordedBy { get; set; }
-}
+    public Guid Id { get; private set; }
+    public Guid KRIId { get; private set; }
+    public decimal Value { get; private set; }
+    public DateTime MeasuredDate { get; private set; }
+    public KRIStatus Status { get; private set; }
+    public string Notes { get; private set; }
+    public Guid RecordedBy { get; private set; }
 
-/// <summary>
-/// Status of KRI based on threshold comparison
-/// </summary>
-public enum KRIStatus
-{
-    Normal = 1,
-    Warning = 2,
-    Critical = 3
+    private KRIMeasurement() { }
+
+    public static KRIMeasurement Create(
+        Guid kriId,
+        decimal value,
+        KRIStatus status,
+        string notes,
+        Guid recordedBy)
+    {
+        return new KRIMeasurement
+        {
+            Id = Guid.NewGuid(),
+            KRIId = kriId,
+            Value = value,
+            MeasuredDate = DateTime.UtcNow,
+            Status = status,
+            Notes = notes,
+            RecordedBy = recordedBy
+        };
+    }
 }

@@ -1,3 +1,5 @@
+using WekezaERMS.Domain.Enums;
+
 namespace WekezaERMS.Domain.Entities;
 
 /// <summary>

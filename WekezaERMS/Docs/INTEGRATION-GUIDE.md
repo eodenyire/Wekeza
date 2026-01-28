@@ -95,10 +95,11 @@ public class CreditRiskIntegrationService
         // Update KRI for concentration risk
         var concentrationKRI = await _riskRepository.GetKRIByName("Credit Concentration Ratio");
         var maxConcentration = sectorConcentration.Max(s => s.Percentage);
+        var topSector = sectorConcentration.OrderByDescending(s => s.Percentage).First();
         
         await concentrationKRI.RecordMeasurement(
             maxConcentration,
-            $"Highest sector concentration: {sectorConcentration.First().Sector}",
+            $"Highest sector concentration: {topSector.Sector}",
             SystemUserId
         );
         
@@ -304,22 +305,22 @@ public class RiskMonitoringEventHandler :
     INotificationHandler<TransactionFailedEvent>,
     INotificationHandler<AMLAlertGeneratedEvent>
 {
-    public async Task Handle(LoanDisbursedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(LoanDisbursedEvent @event, CancellationToken cancellationToken)
     {
         // Check if loan disbursement increases concentration risk
-        await _riskAssessmentService.AssessCreditConcentration(notification.LoanId);
+        await _riskAssessmentService.AssessCreditConcentration(@event.LoanId);
     }
     
-    public async Task Handle(TransactionFailedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(TransactionFailedEvent @event, CancellationToken cancellationToken)
     {
         // Update operational risk KRI
-        await _kriService.RecordTransactionFailure(notification.TransactionId);
+        await _kriService.RecordTransactionFailure(@event.TransactionId);
     }
     
-    public async Task Handle(AMLAlertGeneratedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(AMLAlertGeneratedEvent @event, CancellationToken cancellationToken)
     {
         // Assess compliance risk
-        await _riskAssessmentService.AssessComplianceRisk(notification.AlertId);
+        await _riskAssessmentService.AssessComplianceRisk(@event.AlertId);
     }
 }
 ```
@@ -403,7 +404,7 @@ Content-Type: application/json
   "incidentType": "SystemOutage",
   "severity": "High",
   "affectedSystem": "Core Banking System",
-  "downtime Minutes": 120,
+  "downtimeMinutes": 120,
   "financialImpact": 50000.00,
   "description": "Database connection failure causing system outage"
 }

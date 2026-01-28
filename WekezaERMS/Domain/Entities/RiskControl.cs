@@ -72,15 +72,3 @@ public class RiskControl
         };
     }
 }
-
-/// <summary>
-/// Status of mitigation actions
-/// </summary>
-public enum MitigationStatus
-{
-    Planned = 1,
-    InProgress = 2,
-    Completed = 3,
-    Delayed = 4,
-    Cancelled = 5
-}
