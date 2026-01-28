@@ -1,8 +1,13 @@
 # Wekeza Bank - Enterprise Risk Management System (ERMS)
 
-> 📝 **Note**: For instructions on pushing this ERMS to a separate repository at `https://github.com/eodenyire/WekezaERMS`, see:
-> - [QUICK-REFERENCE.md](./QUICK-REFERENCE.md) - Quick start guide
-> - [REPOSITORY-SETUP-GUIDE.md](./REPOSITORY-SETUP-GUIDE.md) - Detailed setup instructions
+> 📦 **Want to push this ERMS to a separate repository?**
+> 
+> **👉 START HERE: [MIGRATION-INDEX.md](./MIGRATION-INDEX.md)** - Complete migration guide with step-by-step instructions, automation scripts, and documentation.
+>
+> Quick links:
+> - [Step-by-Step Checklist](./STEP-BY-STEP-CHECKLIST.md) - Interactive checklist (RECOMMENDED)
+> - [Quick Reference](./QUICK-REFERENCE.md) - 5-minute quick start
+> - [Detailed Guide](./REPOSITORY-SETUP-GUIDE.md) - Comprehensive instructions
 
 ## Overview
 
