@@ -287,6 +287,7 @@ For detailed documentation, see:
 - [API Reference](./Docs/API-REFERENCE.md) - Complete API documentation
 - [Implementation Guide](./Docs/IMPLEMENTATION-GUIDE.md) - Setup and configuration
 - [Integration Guide](./Docs/INTEGRATION-GUIDE.md) - Wekeza Core integration
+- [ERM Vendor Comparison](./Docs/ERM-VENDOR-COMPARISON.md) - Industry-leading ERM software analysis
 
 ## License
 
