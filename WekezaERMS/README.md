@@ -1,5 +1,9 @@
 # Wekeza Bank - Enterprise Risk Management System (ERMS)
 
+> 📝 **Note**: For instructions on pushing this ERMS to a separate repository at `https://github.com/eodenyire/WekezaERMS`, see:
+> - [QUICK-REFERENCE.md](./QUICK-REFERENCE.md) - Quick start guide
+> - [REPOSITORY-SETUP-GUIDE.md](./REPOSITORY-SETUP-GUIDE.md) - Detailed setup instructions
+
 ## Overview
 
 The Wekeza Enterprise Risk Management System (ERMS) is a comprehensive, production-ready risk management platform designed for Wekeza Bank. This system implements industry best practices for identifying, assessing, monitoring, and mitigating risks across the organization.
