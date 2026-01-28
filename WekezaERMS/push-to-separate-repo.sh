@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 SOURCE_REPO="https://github.com/eodenyire/Wekeza.git"
 TARGET_REPO="https://github.com/eodenyire/WekezaERMS.git"
 ERMS_FOLDER="WekezaERMS"
-WORK_DIR="/tmp/erms-migration-$(date +%s)"
+WORK_DIR=$(mktemp -d)
 
 echo -e "${BLUE}===============================================${NC}"
 echo -e "${BLUE}WekezaERMS Repository Migration Script${NC}"
@@ -113,7 +113,8 @@ if [ "$METHOD" = "subtree" ]; then
     mkdir erms-standalone
     cd erms-standalone
     git init
-    git pull ../wekeza-source erms-only
+    git fetch ../wekeza-source erms-only
+    git merge FETCH_HEAD
     
     print_info "Adding remote for target repository..."
     git remote add origin "$TARGET_REPO"

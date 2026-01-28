@@ -19,12 +19,12 @@ function Write-Status {
     Write-Host "[✓] $Message" -ForegroundColor Green
 }
 
-function Write-Error-Custom {
+function Write-ErrorMessage {
     param([string]$Message)
     Write-Host "[✗] $Message" -ForegroundColor Red
 }
 
-function Write-Warning-Custom {
+function Write-WarningMessage {
     param([string]$Message)
     Write-Host "[!] $Message" -ForegroundColor Yellow
 }
@@ -48,7 +48,7 @@ try {
     $gitVersion = git --version
     Write-Status "Git is installed: $gitVersion"
 } catch {
-    Write-Error-Custom "Git is not installed. Please install git first."
+    Write-ErrorMessage "Git is not installed. Please install git first."
     exit 1
 }
 
@@ -58,7 +58,7 @@ try {
     Write-Status "GitHub CLI (gh) is available"
     $GhAvailable = $true
 } catch {
-    Write-Warning-Custom "GitHub CLI (gh) is not available. Repository creation will be manual."
+    Write-WarningMessage "GitHub CLI (gh) is not available. Repository creation will be manual."
     $GhAvailable = $false
 }
 
@@ -74,7 +74,7 @@ if (-not $PSBoundParameters.ContainsKey('Method')) {
     switch ($methodChoice) {
         "1" { $Method = "manual"; Write-Info "Using Manual Copy method" }
         "2" { $Method = "subtree"; Write-Info "Using Git Subtree method" }
-        default { Write-Error-Custom "Invalid choice"; exit 1 }
+        default { Write-ErrorMessage "Invalid choice"; exit 1 }
     }
 }
 
@@ -98,7 +98,8 @@ if ($Method -eq "subtree") {
     New-Item -ItemType Directory -Path "erms-standalone" -Force | Out-Null
     Set-Location erms-standalone
     git init
-    git pull ..\wekeza-source erms-only
+    git fetch ..\wekeza-source erms-only
+    git merge FETCH_HEAD
     
     Write-Info "Adding remote for target repository..."
     git remote add origin $TargetRepo
@@ -133,7 +134,7 @@ if ($Method -eq "manual") {
     
     Write-Status "Repository prepared successfully!"
     Write-Host ""
-    Write-Warning-Custom "To push to GitHub, run:"
+    Write-WarningMessage "To push to GitHub, run:"
     Write-Host "cd $WorkDir\erms-standalone"
     Write-Host "git push -u origin main"
 }
