@@ -118,7 +118,7 @@
 | KRIs | 5 | 0 | ❌ 0% |
 | Reporting | 4 | 0 | ❌ 0% |
 | Integration | 2 | 0 | ❌ 0% |
-| **Total** | **29+** | **4** | **14%** |
+| **Total** | **29** | **4** | **14%** |
 
 #### ❌ **Phase 6: Testing** - NOT STARTED (0%)
 - [ ] Unit tests (domain logic)

@@ -381,7 +381,7 @@ Risk Management: 7 endpoints ▓▓▓▓▓▓▓▓░░░░░░░░░
 Controls:        7 endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%
 ```
 
-### Week 6 Target (24 endpoints)
+### Week 6 Target (27 endpoints)
 ```
 Risk Management: 7 endpoints ▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░ 50%
 Controls:        7 endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%
@@ -389,7 +389,7 @@ Mitigations:     6 endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 KRIs:            7 endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%
 ```
 
-### Week 10 Target (34 endpoints)
+### Week 10 Target (33 endpoints)
 ```
 Risk Management: 7 endpoints ▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░ 50%
 Controls:        7 endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%
@@ -399,9 +399,9 @@ Reporting:       4 endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 Integration:     2 endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%
 ```
 
-### Final Target (40+ endpoints)
+### Final Target (33+ endpoints)
 ```
-All Modules:    40+ endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%
+All Modules:    33+ endpoints ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%
 ```
 
 ---
