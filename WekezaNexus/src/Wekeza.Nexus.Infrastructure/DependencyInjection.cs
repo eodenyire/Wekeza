@@ -15,10 +15,13 @@ public static class DependencyInjection
     public static IServiceCollection AddWekezaNexusInfrastructure(this IServiceCollection services)
     {
         // Register Repositories
-        // Using in-memory implementation for MVP with Scoped lifetime
+        // Using in-memory implementations for MVP with Scoped lifetime
         // Scoped is better than Singleton for distributed systems
-        // TODO: In production, replace with EF Core implementation
+        // ARCHITECTURE NOTE: InMemory implementations are suitable for MVP and development
+        // environments. For production deployments requiring data persistence and audit
+        // trails, extend with EF Core, Dapper, or other data access implementations.
         services.AddScoped<IFraudEvaluationRepository, InMemoryFraudEvaluationRepository>();
+        services.AddScoped<ITransactionHistoryRepository, InMemoryTransactionHistoryRepository>();
         
         return services;
     }

@@ -3,69 +3,188 @@ using Wekeza.Nexus.Domain.Interfaces;
 namespace Wekeza.Nexus.Application.Services;
 
 /// <summary>
-/// Implementation of transaction velocity tracking
-/// In production, this would be backed by a Redis cache or time-series database
-/// For MVP, we provide a simple in-memory implementation
+/// Implementation of transaction velocity tracking with actual historical data
+/// 
+/// This service tracks transaction history in memory and provides real-time
+/// velocity analysis for fraud detection. For production deployments with large
+/// scale, this can be extended with Redis cache, time-series databases, or direct
+/// integration with the Core banking system's transaction repository.
 /// </summary>
 public class TransactionVelocityService : ITransactionVelocityService
 {
-    // In production, inject IAccountRepository from Core domain
-    // For now, we'll provide stub implementations
+    private readonly ITransactionHistoryRepository _historyRepository;
     
-    public Task<int> GetTransactionCountAsync(
+    public TransactionVelocityService(ITransactionHistoryRepository historyRepository)
+    {
+        _historyRepository = historyRepository;
+    }
+    
+    public async Task<int> GetTransactionCountAsync(
         Guid userId, 
         int minutes, 
         CancellationToken cancellationToken = default)
     {
-        // TODO: Query transaction history for user in last N minutes
-        // For MVP, return conservative value
-        return Task.FromResult(0);
+        var since = DateTime.UtcNow.AddMinutes(-minutes);
+        var transactions = await _historyRepository.GetUserTransactionsAsync(
+            userId, since, cancellationToken);
+        
+        return transactions.Count;
     }
     
-    public Task<decimal> GetTransactionAmountAsync(
+    public async Task<decimal> GetTransactionAmountAsync(
         Guid userId, 
         int minutes, 
         CancellationToken cancellationToken = default)
     {
-        // TODO: Sum transaction amounts for user in last N minutes
-        return Task.FromResult(0m);
+        var since = DateTime.UtcNow.AddMinutes(-minutes);
+        var transactions = await _historyRepository.GetUserTransactionsAsync(
+            userId, since, cancellationToken);
+        
+        return transactions.Sum(t => t.Amount);
     }
     
-    public Task<decimal> GetAverageTransactionAmountAsync(
+    public async Task<decimal> GetAverageTransactionAmountAsync(
         Guid userId, 
         CancellationToken cancellationToken = default)
     {
-        // TODO: Calculate 30-day average from transaction history
-        // For MVP, return a reasonable default to enable amount-based fraud detection
-        // This allows the deviation calculation to work properly
-        return Task.FromResult(5000m); // Default baseline amount
+        var since = DateTime.UtcNow.AddDays(-30);
+        var transactions = await _historyRepository.GetUserTransactionsAsync(
+            userId, since, cancellationToken);
+        
+        if (transactions.Count == 0)
+        {
+            // Return intelligent default baseline for new users
+            return 5000m;
+        }
+        
+        return transactions.Average(t => t.Amount);
     }
     
-    public Task<bool> IsFirstTimeBeneficiaryAsync(
+    public async Task<bool> IsFirstTimeBeneficiaryAsync(
         Guid userId, 
         string beneficiaryAccountNumber, 
         CancellationToken cancellationToken = default)
     {
-        // TODO: Check if user has transacted with this beneficiary before
-        return Task.FromResult(false);
+        var hasHistory = await _historyRepository.HasTransactionHistoryWithBeneficiaryAsync(
+            userId, beneficiaryAccountNumber, cancellationToken);
+        
+        // Return true if no history (first time)
+        return !hasHistory;
     }
     
-    public Task<int?> GetAccountAgeDaysAsync(
+    public async Task<int?> GetAccountAgeDaysAsync(
         string accountNumber, 
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get account creation date and calculate age
-        return Task.FromResult<int?>(null);
+        var metadata = await _historyRepository.GetAccountMetadataAsync(
+            accountNumber, cancellationToken);
+        
+        return metadata?.AgeDays;
     }
     
-    public Task<bool> DetectCircularTransactionAsync(
+    public async Task<bool> DetectCircularTransactionAsync(
         string fromAccount, 
         string toAccount, 
         int lookbackHours = 24, 
         CancellationToken cancellationToken = default)
     {
-        // TODO: Implement graph traversal to detect A→B→C→A patterns
-        // This would typically use a graph database like Neo4j
-        return Task.FromResult(false);
+        var since = DateTime.UtcNow.AddHours(-lookbackHours);
+        
+        // Build a transaction graph and detect cycles using BFS
+        var graph = await BuildTransactionGraphAsync(fromAccount, since, cancellationToken);
+        
+        // Check if there's a path from toAccount back to fromAccount
+        return HasPathBFS(graph, toAccount, fromAccount);
+    }
+    
+    /// <summary>
+    /// Builds a transaction graph from historical data
+    /// </summary>
+    private async Task<Dictionary<string, HashSet<string>>> BuildTransactionGraphAsync(
+        string startAccount,
+        DateTime since,
+        CancellationToken cancellationToken)
+    {
+        var graph = new Dictionary<string, HashSet<string>>();
+        var toVisit = new Queue<string>();
+        var visited = new HashSet<string>();
+        
+        toVisit.Enqueue(startAccount);
+        
+        // BFS to build graph within lookback window
+        while (toVisit.Count > 0 && visited.Count < 100) // Limit to prevent infinite loops
+        {
+            var currentAccount = toVisit.Dequeue();
+            if (visited.Contains(currentAccount))
+                continue;
+                
+            visited.Add(currentAccount);
+            
+            // Get all transactions from this account
+            var transactions = await _historyRepository.GetUserTransactionsAsync(
+                Guid.Empty, since, cancellationToken);
+            
+            var outgoingTxns = transactions
+                .Where(t => t.FromAccountNumber == currentAccount)
+                .Select(t => t.ToAccountNumber)
+                .Distinct()
+                .ToList();
+            
+            if (outgoingTxns.Any())
+            {
+                if (!graph.ContainsKey(currentAccount))
+                    graph[currentAccount] = new HashSet<string>();
+                
+                foreach (var dest in outgoingTxns)
+                {
+                    graph[currentAccount].Add(dest);
+                    if (!visited.Contains(dest))
+                        toVisit.Enqueue(dest);
+                }
+            }
+        }
+        
+        return graph;
+    }
+    
+    /// <summary>
+    /// Uses BFS to detect if there's a path from source to destination
+    /// Returns true if circular pattern detected (A→B→...→A)
+    /// </summary>
+    private bool HasPathBFS(
+        Dictionary<string, HashSet<string>> graph,
+        string source,
+        string destination)
+    {
+        if (!graph.ContainsKey(source))
+            return false;
+            
+        var queue = new Queue<string>();
+        var visited = new HashSet<string>();
+        
+        queue.Enqueue(source);
+        visited.Add(source);
+        
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            
+            if (current == destination)
+                return true; // Circular transaction detected!
+            
+            if (graph.ContainsKey(current))
+            {
+                foreach (var neighbor in graph[current])
+                {
+                    if (!visited.Contains(neighbor))
+                    {
+                        visited.Add(neighbor);
+                        queue.Enqueue(neighbor);
+                    }
+                }
+            }
+        }
+        
+        return false;
     }
 }
