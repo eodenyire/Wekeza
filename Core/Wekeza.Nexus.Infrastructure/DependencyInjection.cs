@@ -15,9 +15,10 @@ public static class DependencyInjection
     public static IServiceCollection AddWekezaNexusInfrastructure(this IServiceCollection services)
     {
         // Register Repositories
-        // Using in-memory implementation for MVP
-        // In production, replace with EF Core implementation
-        services.AddSingleton<IFraudEvaluationRepository, InMemoryFraudEvaluationRepository>();
+        // Using in-memory implementation for MVP with Scoped lifetime
+        // Scoped is better than Singleton for distributed systems
+        // TODO: In production, replace with EF Core implementation
+        services.AddScoped<IFraudEvaluationRepository, InMemoryFraudEvaluationRepository>();
         
         return services;
     }

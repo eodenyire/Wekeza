@@ -31,9 +31,11 @@ public class InMemoryFraudEvaluationRepository : IFraudEvaluationRepository
     {
         lock (_lock)
         {
-            if (_transactionRefIndex.TryGetValue(transactionReference, out var id))
+            // Direct lookup without calling GetByIdAsync to avoid deadlock
+            if (_transactionRefIndex.TryGetValue(transactionReference, out var id) &&
+                _evaluations.TryGetValue(id, out var evaluation))
             {
-                return GetByIdAsync(id, cancellationToken);
+                return Task.FromResult<FraudEvaluation?>(evaluation);
             }
             return Task.FromResult<FraudEvaluation?>(null);
         }

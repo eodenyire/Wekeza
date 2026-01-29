@@ -81,15 +81,17 @@ public class WekezaNexusClient
                 RequiresStepUpAuth = fraudScore.Decision == FraudDecision.Challenge
             };
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            // Fail-safe: On error, allow but flag for review
+            // Fail-safe: On error, flag for review
+            // Don't expose internal error details to users
+            // TODO: Add proper logging for monitoring
             return new NexusVerdict
             {
                 Decision = FraudDecision.Review,
                 RiskScore = 500,
                 RiskLevel = RiskLevel.Medium,
-                Reason = $"Fraud check encountered an error: {ex.Message}",
+                Reason = "Fraud check encountered a technical error. Transaction flagged for manual review.",
                 RequiresStepUpAuth = false
             };
         }
@@ -140,7 +142,8 @@ public class WekezaNexusClient
         var dailyAmount = await _velocityService.GetTransactionAmountAsync(userId, 1440, cancellationToken);
         var avgAmount = await _velocityService.GetAverageTransactionAmountAsync(userId, cancellationToken);
         
-        // Calculate deviation
+        // Calculate deviation (as percentage)
+        // Positive deviation = higher than average, Negative = lower than average
         var deviation = avgAmount > 0 ? ((amount - avgAmount) / avgAmount) * 100 : 0;
         
         // Check beneficiary

@@ -28,8 +28,9 @@ public record TransferFundsCommandWithNexus : ICommand<Guid>
     
     /// <summary>
     /// User ID initiating the transaction (for velocity tracking)
+    /// Required field - must not be empty
     /// </summary>
-    public Guid UserId { get; init; }
+    public required Guid UserId { get; init; }
     
     /// <summary>
     /// Device fingerprint captured from client

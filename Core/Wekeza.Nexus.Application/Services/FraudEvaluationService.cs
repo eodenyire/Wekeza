@@ -120,13 +120,15 @@ public class FraudEvaluationService : IFraudEvaluationService
             
             return fraudScore;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // On error, fail-safe: allow transaction but flag for review
+            // Log full exception details internally but don't expose to users
+            // TODO: Add proper logging infrastructure
             return FraudScore.Create(
                 500, 
                 FraudReason.None, 
-                explanation: $"Fraud evaluation encountered an error: {ex.Message}. Transaction flagged for manual review.",
+                explanation: "Fraud evaluation encountered a technical error. Transaction flagged for manual review.",
                 confidence: 0.0);
         }
     }
@@ -312,9 +314,10 @@ public class FraudEvaluationService : IFraudEvaluationService
         }
         
         // Round amount pattern (common in fraud)
-        if (context.Amount % 1000 == 0 && context.Amount >= 10000)
+        // Note: Only flag for very large round amounts to reduce false positives
+        if (context.Amount % 10000 == 0 && context.Amount >= 100000)
         {
-            score += 100;
+            score += 50; // Reduced from 100
             reasons.Add(FraudReason.RoundAmountPattern);
         }
         
@@ -433,7 +436,15 @@ public class FraudEvaluationService : IFraudEvaluationService
         
         if (amount.Score > 200)
         {
-            details.Add($"amount {context.AmountDeviationPercent:F0}% higher than normal");
+            // Check if deviation is positive (higher) or negative (lower)
+            if (context.AmountDeviationPercent > 0)
+            {
+                details.Add($"amount {Math.Abs(context.AmountDeviationPercent):F0}% higher than normal");
+            }
+            else if (context.AmountDeviationPercent < 0)
+            {
+                details.Add($"amount {Math.Abs(context.AmountDeviationPercent):F0}% lower than normal");
+            }
         }
         
         if (device.Score > 100 && context.DeviceInfo != null)

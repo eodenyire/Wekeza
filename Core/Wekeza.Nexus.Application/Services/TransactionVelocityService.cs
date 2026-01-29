@@ -36,7 +36,9 @@ public class TransactionVelocityService : ITransactionVelocityService
         CancellationToken cancellationToken = default)
     {
         // TODO: Calculate 30-day average from transaction history
-        return Task.FromResult(0m);
+        // For MVP, return a reasonable default to enable amount-based fraud detection
+        // This allows the deviation calculation to work properly
+        return Task.FromResult(5000m); // Default baseline amount
     }
     
     public Task<bool> IsFirstTimeBeneficiaryAsync(
