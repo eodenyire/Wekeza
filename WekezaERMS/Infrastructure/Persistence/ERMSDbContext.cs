@@ -13,6 +13,7 @@ public class ERMSDbContext : DbContext
     public DbSet<RiskControl> RiskControls { get; set; } = null!;
     public DbSet<MitigationAction> MitigationActions { get; set; } = null!;
     public DbSet<KeyRiskIndicator> KeyRiskIndicators { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -75,6 +76,19 @@ public class ERMSDbContext : DbContext
             entity.Property(kri => kri.Description).HasMaxLength(2000);
             entity.Property(kri => kri.MeasurementUnit).HasMaxLength(50);
             entity.Property(kri => kri.DataSource).HasMaxLength(200);
+        });
+
+        // User entity configuration
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.Email).IsRequired().HasMaxLength(200);
+            entity.Property(u => u.PasswordHash).IsRequired();
+            entity.Property(u => u.FullName).HasMaxLength(200);
+            
+            entity.HasIndex(u => u.Username).IsUnique();
+            entity.HasIndex(u => u.Email).IsUnique();
         });
     }
 }
