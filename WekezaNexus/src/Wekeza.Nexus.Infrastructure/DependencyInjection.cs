@@ -17,9 +17,9 @@ public static class DependencyInjection
         // Register Repositories
         // Using in-memory implementation for MVP with Scoped lifetime
         // Scoped is better than Singleton for distributed systems
-        // ARCHITECTURE NOTE: InMemory implementation is production-ready for MVP.
-        // For enterprise deployments requiring persistence, this can be extended
-        // with EF Core, Dapper, or other data access implementations.
+        // ARCHITECTURE NOTE: InMemory implementation is suitable for MVP and development
+        // environments. For production deployments requiring data persistence and audit
+        // trails, extend with EF Core, Dapper, or other data access implementations.
         services.AddScoped<IFraudEvaluationRepository, InMemoryFraudEvaluationRepository>();
         
         return services;
