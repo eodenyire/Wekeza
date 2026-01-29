@@ -4,14 +4,35 @@
 
 The Wekeza Enterprise Risk Management System (ERMS) is a comprehensive, production-ready risk management platform designed for Wekeza Bank. This system implements industry best practices for identifying, assessing, monitoring, and mitigating risks across the organization.
 
-## MVP 4.0 Features
+**Now Enhanced with Riskonnect Features**: The system has been enhanced to include all major features from Riskonnect, the leading ERM software platform, making Wekeza ERMS a world-class risk management solution.
+
+## MVP 5.0 Features - Riskonnect Enhanced
+
+### Comprehensive Risk Categories (15 Categories)
+- ✅ Credit Risk
+- ✅ Operational Risk  
+- ✅ Market Risk
+- ✅ Liquidity Risk
+- ✅ Strategic Risk
+- ✅ Compliance Risk
+- ✅ Reputation Risk
+- ✅ Technology Risk
+- ✅ **Cyber and IT Risk** (NEW)
+- ✅ **Third-Party Risk** (NEW)
+- ✅ **Insurable Risk** (NEW)
+- ✅ **Environmental Risk (ESG)** (NEW)
+- ✅ **Social Risk (ESG)** (NEW)
+- ✅ **Governance Risk (ESG)** (NEW)
+- ✅ **AI and Algorithm Risk** (NEW)
 
 ### Risk Assessment & Classification
-- ✅ Multi-dimensional risk categorization (Credit, Operational, Market, Liquidity, Strategic)
+- ✅ Multi-dimensional risk categorization (15 risk categories)
 - ✅ Risk severity matrix (5x5 matrix: Rare to Almost Certain vs Insignificant to Catastrophic)
 - ✅ Automated risk scoring and rating
 - ✅ Risk appetite and tolerance thresholds
 - ✅ Risk heat maps and visualization
+- ✅ **Risk taxonomy with hierarchical classification** (NEW)
+- ✅ **Risk correlation analysis** (NEW)
 
 ### Risk Register Management
 - ✅ Centralized risk register with unique risk IDs
@@ -19,6 +40,8 @@ The Wekeza Enterprise Risk Management System (ERMS) is a comprehensive, producti
 - ✅ Risk status lifecycle management
 - ✅ Risk dependencies and relationships
 - ✅ Historical risk tracking and trending
+- ✅ **Out-of-the-box risk templates** (NEW)
+- ✅ **Industry-specific templates (Banking, Healthcare, Finance)** (NEW)
 
 ### Risk Treatment & Controls
 - ✅ Control effectiveness assessment
@@ -34,14 +57,59 @@ The Wekeza Enterprise Risk Management System (ERMS) is a comprehensive, producti
 - ✅ Executive risk summaries
 - ✅ Regulatory compliance reporting
 - ✅ Audit trail for all risk activities
+- ✅ **Complete audit logging system** (NEW)
+
+### Third-Party Risk Management (NEW)
+- ✅ Vendor risk assessment and classification
+- ✅ Contract and SLA management
+- ✅ Vendor monitoring and compliance tracking
+- ✅ Security certification tracking
+- ✅ Business criticality assessment
+- ✅ Vendor audit scheduling
+
+### Incident Management (NEW)
+- ✅ Real-time incident capture
+- ✅ Incident investigation workflows
+- ✅ Root cause analysis
+- ✅ Remediation tracking
+- ✅ Lessons learned documentation
+- ✅ Financial impact tracking
+
+### Business Continuity & Resilience (NEW)
+- ✅ Recovery Time Objective (RTO) tracking
+- ✅ Recovery Point Objective (RPO) tracking
+- ✅ Business impact analysis
+- ✅ Crisis management plans
+- ✅ Business continuity testing
+- ✅ Alternative site planning
+
+### Insurable Risk & Claims Management (NEW)
+- ✅ Insurance portfolio management
+- ✅ Claims tracking and reporting
+- ✅ Coverage gap analysis
+- ✅ Premium optimization
+- ✅ Policy lifecycle management
+
+### ESG Risk Management (NEW)
+- ✅ Environmental risk tracking with carbon footprint
+- ✅ Social responsibility monitoring
+- ✅ Governance compliance tracking
+- ✅ ESG reporting and disclosure
+- ✅ Sustainability goals and target tracking
+
+### AI Governance (NEW)
+- ✅ AI risk assessment frameworks
+- ✅ Machine learning model monitoring
+- ✅ Algorithm bias detection and scoring
+- ✅ AI ethics compliance
+- ✅ Model performance tracking
+- ✅ Human oversight requirements
 
 ### Integration & Compliance
 - ✅ Integration with existing Wekeza Core Banking System
 - ✅ AML/CFT risk integration
 - ✅ Compliance and regulatory reporting
-- ✅ Basel III framework alignment
-- ✅ COSO ERM framework implementation
-- ✅ ISO 31000 risk management standards
+- ✅ **12 Major Framework Alignments**: Basel III, COSO ERM, ISO 31000, ISO 27001, ISO 22301, SOX, DORA, APRA CPS 230, GDPR, NIS2, NIST, HIPAA
 
 ## Architecture
 
@@ -287,6 +355,8 @@ For detailed documentation, see:
 - [API Reference](./Docs/API-REFERENCE.md) - Complete API documentation
 - [Implementation Guide](./Docs/IMPLEMENTATION-GUIDE.md) - Setup and configuration
 - [Integration Guide](./Docs/INTEGRATION-GUIDE.md) - Wekeza Core integration
+- [ERM Vendor Comparison](./Docs/ERM-VENDOR-COMPARISON.md) - Industry-leading ERM software analysis
+- [Riskonnect Implementation Summary](./Docs/RISKONNECT-IMPLEMENTATION-SUMMARY.md) - Complete feature implementation details
 
 ## License
 
