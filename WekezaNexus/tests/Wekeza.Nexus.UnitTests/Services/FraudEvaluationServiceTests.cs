@@ -1,6 +1,7 @@
 using Xunit;
 using FluentAssertions;
 using Moq;
+using Microsoft.Extensions.Logging;
 using Wekeza.Nexus.Application.Services;
 using Wekeza.Nexus.Domain.Entities;
 using Wekeza.Nexus.Domain.Enums;
@@ -23,13 +24,18 @@ public class FraudEvaluationServiceTests
 {
     private readonly Mock<ITransactionVelocityService> _mockVelocityService;
     private readonly Mock<IFraudEvaluationRepository> _mockRepository;
+    private readonly Mock<ILogger<FraudEvaluationService>> _mockLogger;
     private readonly FraudEvaluationService _fraudService;
     
     public FraudEvaluationServiceTests()
     {
         _mockVelocityService = new Mock<ITransactionVelocityService>();
         _mockRepository = new Mock<IFraudEvaluationRepository>();
-        _fraudService = new FraudEvaluationService(_mockVelocityService.Object, _mockRepository.Object);
+        _mockLogger = new Mock<ILogger<FraudEvaluationService>>();
+        _fraudService = new FraudEvaluationService(
+            _mockVelocityService.Object, 
+            _mockRepository.Object,
+            _mockLogger.Object);
         
         // Setup default safe values
         _mockVelocityService.Setup(x => x.GetTransactionCountAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))

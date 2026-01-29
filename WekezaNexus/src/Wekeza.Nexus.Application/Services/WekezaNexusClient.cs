@@ -2,6 +2,7 @@ using Wekeza.Nexus.Domain.Entities;
 using Wekeza.Nexus.Domain.Enums;
 using Wekeza.Nexus.Domain.Interfaces;
 using Wekeza.Nexus.Domain.ValueObjects;
+using Microsoft.Extensions.Logging;
 
 namespace Wekeza.Nexus.Application.Services;
 
@@ -25,13 +26,19 @@ public class WekezaNexusClient
 {
     private readonly IFraudEvaluationService _fraudService;
     private readonly ITransactionVelocityService _velocityService;
+    private readonly ITransactionHistoryRepository _historyRepository;
+    private readonly ILogger<WekezaNexusClient> _logger;
     
     public WekezaNexusClient(
         IFraudEvaluationService fraudService,
-        ITransactionVelocityService velocityService)
+        ITransactionVelocityService velocityService,
+        ITransactionHistoryRepository historyRepository,
+        ILogger<WekezaNexusClient> logger)
     {
         _fraudService = fraudService;
         _velocityService = velocityService;
+        _historyRepository = historyRepository;
+        _logger = logger;
     }
     
     /// <summary>
@@ -53,6 +60,10 @@ public class WekezaNexusClient
     {
         try
         {
+            _logger.LogInformation(
+                "Wekeza Nexus evaluating {TransactionType} of {Amount} {Currency} from {FromAccount} to {ToAccount} for user {UserId}",
+                transactionType, amount, currency, fromAccountNumber, toAccountNumber, userId);
+            
             // Build transaction context
             var context = await BuildTransactionContext(
                 userId,
@@ -71,6 +82,21 @@ public class WekezaNexusClient
             // Evaluate through Nexus
             var fraudScore = await _fraudService.EvaluateAsync(context, cancellationToken);
             
+            // Record transaction in history for future velocity analysis
+            // Only record if transaction is allowed or challenged (not blocked)
+            if (fraudScore.Decision == FraudDecision.Allow || 
+                fraudScore.Decision == FraudDecision.Challenge)
+            {
+                await RecordTransactionAsync(
+                    userId, fromAccountNumber, toAccountNumber, amount, 
+                    currency, transactionType, fraudScore.Decision.ToString(),
+                    cancellationToken);
+            }
+            
+            _logger.LogInformation(
+                "Wekeza Nexus verdict: {Decision} (Score: {Score}, Risk: {RiskLevel}) for context {ContextId}",
+                fraudScore.Decision, fraudScore.Score, fraudScore.RiskLevel, context.Id);
+            
             return new NexusVerdict
             {
                 Decision = fraudScore.Decision,
@@ -81,12 +107,13 @@ public class WekezaNexusClient
                 RequiresStepUpAuth = fraudScore.Decision == FraudDecision.Challenge
             };
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // Fail-safe: On error, flag for review
-            // ARCHITECTURE NOTE: Integrates with centralized logging and monitoring
-            // infrastructure via dependency injection. Fail-safe design prioritizes
-            // system availability and customer experience while maintaining security.
+            _logger.LogError(ex,
+                "Wekeza Nexus encountered error evaluating transaction for user {UserId}. Failing safe to Review.",
+                userId);
+                
             return new NexusVerdict
             {
                 Decision = FraudDecision.Review,
@@ -184,6 +211,36 @@ public class WekezaNexusClient
             SessionId = sessionId,
             Channel = channel
         };
+    }
+    
+    /// <summary>
+    /// Records a transaction in the history repository for velocity analysis
+    /// </summary>
+    private async Task RecordTransactionAsync(
+        Guid userId,
+        string fromAccountNumber,
+        string toAccountNumber,
+        decimal amount,
+        string currency,
+        string transactionType,
+        string fraudDecision,
+        CancellationToken cancellationToken)
+    {
+        var transactionRecord = new TransactionRecord
+        {
+            UserId = userId,
+            FromAccountNumber = fromAccountNumber,
+            ToAccountNumber = toAccountNumber,
+            Amount = amount,
+            Currency = currency,
+            TransactionType = transactionType,
+            TransactionTime = DateTime.UtcNow,
+            TransactionReference = $"TXN-{Guid.NewGuid():N}",
+            WasAllowed = fraudDecision == "Allow",
+            FraudDecision = fraudDecision
+        };
+        
+        await _historyRepository.AddTransactionAsync(transactionRecord, cancellationToken);
     }
 }
 
