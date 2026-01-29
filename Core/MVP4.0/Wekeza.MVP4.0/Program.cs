@@ -5,6 +5,8 @@ using System.Text;
 using Serilog;
 using Wekeza.MVP4._0.Data;
 using Wekeza.MVP4._0.Services;
+using Wekeza.Nexus.Application;
+using Wekeza.Nexus.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,13 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<MVP4DbContext>(options =>
     options.UseNpgsql(connectionString));
+
+// Add Wekeza Nexus Fraud Detection System
+// Integrated with MVP4.0 PostgreSQL and Redis infrastructure
+builder.Services.AddWekezaNexus();
+builder.Services.AddWekezaNexusInfrastructure(builder.Configuration, usePostgreSql: true, useRedis: true);
+
+Log.Information("Wekeza Nexus fraud detection system registered successfully");
 
 // Configure JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "WekeezaMVP4SecretKeyThatIsAtLeast32CharactersLong123456";
@@ -95,17 +104,34 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        // Apply MVP4.0 migrations
         var context = services.GetRequiredService<MVP4DbContext>();
         context.Database.Migrate();
-        Log.Information("Database created and migrations applied successfully");
+        Log.Information("MVP4.0 database created and migrations applied successfully");
+        
+        // Apply Wekeza Nexus migrations
+        var nexusContext = services.GetRequiredService<Wekeza.Nexus.Infrastructure.Data.NexusDbContext>();
+        nexusContext.Database.Migrate();
+        Log.Information("Wekeza Nexus database migrations applied successfully");
     }
     catch (Exception ex)
     {
         Log.Error(ex, "An error occurred while creating the database");
         // Try to ensure created if migration fails
-        var context = services.GetRequiredService<MVP4DbContext>();
-        context.Database.EnsureCreated();
-        Log.Information("Database ensured created");
+        try
+        {
+            var context = services.GetRequiredService<MVP4DbContext>();
+            context.Database.EnsureCreated();
+            Log.Information("MVP4.0 database ensured created");
+            
+            var nexusContext = services.GetRequiredService<Wekeza.Nexus.Infrastructure.Data.NexusDbContext>();
+            nexusContext.Database.EnsureCreated();
+            Log.Information("Wekeza Nexus database ensured created");
+        }
+        catch (Exception innerEx)
+        {
+            Log.Error(innerEx, "Failed to ensure database creation");
+        }
     }
 }
 
