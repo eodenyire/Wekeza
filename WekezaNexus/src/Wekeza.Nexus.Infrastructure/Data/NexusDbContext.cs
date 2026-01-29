@@ -100,28 +100,8 @@ public class NexusDbContext : DbContext
             // Configure FraudScore as owned entity (Value Object)
             entity.OwnsOne(e => e.FraudScore, fraudScore =>
             {
-                fraudScore.Property(fs => fs.TotalScore)
+                fraudScore.Property(fs => fs.Score)
                     .HasColumnName("fraud_score")
-                    .IsRequired();
-                
-                fraudScore.Property(fs => fs.VelocityScore)
-                    .HasColumnName("velocity_score")
-                    .IsRequired();
-                
-                fraudScore.Property(fs => fs.BehavioralScore)
-                    .HasColumnName("behavioral_score")
-                    .IsRequired();
-                
-                fraudScore.Property(fs => fs.RelationshipScore)
-                    .HasColumnName("relationship_score")
-                    .IsRequired();
-                
-                fraudScore.Property(fs => fs.AmountScore)
-                    .HasColumnName("amount_score")
-                    .IsRequired();
-                
-                fraudScore.Property(fs => fs.DeviceScore)
-                    .HasColumnName("device_score")
                     .IsRequired();
                 
                 fraudScore.Property(fs => fs.Decision)
@@ -136,8 +116,14 @@ public class NexusDbContext : DbContext
                     .HasMaxLength(20)
                     .IsRequired();
                 
-                fraudScore.Property(fs => fs.Reasons)
-                    .HasColumnName("fraud_reasons")
+                fraudScore.Property(fs => fs.PrimaryReason)
+                    .HasColumnName("primary_reason")
+                    .HasConversion<string>()
+                    .HasMaxLength(50)
+                    .IsRequired();
+                
+                fraudScore.Property(fs => fs.ContributingReasons)
+                    .HasColumnName("contributing_reasons")
                     .HasConversion(
                         v => string.Join(',', v.Select(r => r.ToString())),
                         v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -149,6 +135,10 @@ public class NexusDbContext : DbContext
                 fraudScore.Property(fs => fs.Explanation)
                     .HasColumnName("explanation")
                     .HasMaxLength(2000)
+                    .IsRequired();
+                
+                fraudScore.Property(fs => fs.Confidence)
+                    .HasColumnName("confidence")
                     .IsRequired();
             });
         });
