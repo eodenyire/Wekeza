@@ -179,7 +179,7 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
         builder.OwnsOne(l => l.PastDueAmount, money =>
         {
             money.Property(m => m.Amount)
-                .HasColumnName("PastDueAmountAmount")
+                .HasColumnName("PastDueAmount")
                 .HasPrecision(18, 2)
                 .IsRequired();
             
@@ -206,7 +206,7 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
         builder.OwnsOne(l => l.ProvisionAmount, money =>
         {
             money.Property(m => m.Amount)
-                .HasColumnName("ProvisionAmountAmount")
+                .HasColumnName("ProvisionAmount")
                 .HasPrecision(18, 2)
                 .IsRequired();
             
