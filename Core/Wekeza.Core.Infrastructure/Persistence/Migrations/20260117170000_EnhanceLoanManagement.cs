@@ -77,7 +77,7 @@ public partial class EnhanceLoanManagement : Migration
                 DaysPastDue = table.Column<int>(type: "integer", nullable: false),
                 
                 // Past due amount (Money value object)
-                PastDueAmountAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                PastDueAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                 PastDueAmountCurrency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
                 
                 // GL Integration
@@ -86,7 +86,7 @@ public partial class EnhanceLoanManagement : Migration
                 
                 // Provisioning
                 ProvisionRate = table.Column<decimal>(type: "numeric(5,4)", precision: 5, scale: 4, nullable: false),
-                ProvisionAmountAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                ProvisionAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                 ProvisionAmountCurrency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
                 LastProvisionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                 
