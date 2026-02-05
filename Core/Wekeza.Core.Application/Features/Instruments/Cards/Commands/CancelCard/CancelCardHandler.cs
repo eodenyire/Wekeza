@@ -19,10 +19,11 @@ public class CancelCardHandler : IRequestHandler<CancelCardCommand, bool>
     {
         // 1. Locate the Card
         var card = await _cardRepository.GetByIdAsync(request.CardId, ct)
-            ?? throw new NotFoundException("Card", request.CardId);
+            ?? throw new NotFoundException("Card", request.CardId.ToString(), request.CardId);
 
         // 2. State Transition: Set Status to 'Cancelled' or 'Hotlisted'
-        card.Cancel(request.Reason);
+        var cancelledBy = "System"; // TODO: Get from ICurrentUserService
+        card.Cancel(request.Reason, cancelledBy);
 
         // 3. Persist changes
         _cardRepository.Update(card);

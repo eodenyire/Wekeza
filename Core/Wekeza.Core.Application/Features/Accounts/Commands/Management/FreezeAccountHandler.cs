@@ -28,10 +28,11 @@ public class FreezeAccountHandler : IRequestHandler<FreezeAccountCommand, bool>
     {
         var accountNumber = new AccountNumber(request.AccountNumber);
         var account = await _accountRepository.GetByAccountNumberAsync(accountNumber, ct)
-            ?? throw new NotFoundException("Account", request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
 
         // Domain Logic: The Soul decides if this is allowed
-        account.Freeze(request.Reason);
+        var currentUser = "System"; // TODO: Get from ICurrentUserService
+        account.Freeze(request.Reason, currentUser);
 
         await _unitOfWork.SaveChangesAsync(ct);
         

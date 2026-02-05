@@ -23,7 +23,7 @@ public class WithdrawFundsHandler : IRequestHandler<WithdrawFundsCommand, Guid>
     {
         // 1. Fetch Aggregate
         var account = await _accountRepository.GetByAccountNumberAsync(new AccountNumber(request.AccountNumber), cancellationToken)
-            ?? throw new NotFoundException("Account", request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
 
         // 2. Risk Check: Daily Limit (Future-proofing: Injected ILimitService)
         // For now, let's assume a hard limit of 100,000 KES for ATMs
@@ -35,7 +35,8 @@ public class WithdrawFundsHandler : IRequestHandler<WithdrawFundsCommand, Guid>
         // 3. Domain Logic: Debit
         // This internal call checks if balance is sufficient and if account is frozen
         var withdrawalAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
-        account.Debit(withdrawalAmount);
+        var transactionReference = Guid.NewGuid().ToString();
+        account.Debit(withdrawalAmount, transactionReference);
 
         // 4. Update Ledger
         _accountRepository.Update(account);

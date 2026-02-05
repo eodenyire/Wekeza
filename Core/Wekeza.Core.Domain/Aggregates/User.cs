@@ -216,6 +216,49 @@ public class User : AggregateRoot
         return Roles.Any(r => r.RoleCode == roleCode);
     }
 
+    public void SetPassword(string passwordHash, string setBy)
+    {
+        PasswordHash = passwordHash;
+        LastPasswordChange = DateTime.UtcNow;
+        MustChangePassword = false;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = setBy;
+    }
+
+    public void AssignRole(string roleCode, string roleName, string assignedBy)
+    {
+        var role = new UserRole(roleCode, roleName, new List<string>(), assignedBy);
+        AddRole(role, assignedBy);
+    }
+
+    public void UpdatePhoneNumber(string phoneNumber, string updatedBy)
+    {
+        PhoneNumber = phoneNumber;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = updatedBy;
+    }
+
+    public void UpdateDepartment(string department, string updatedBy)
+    {
+        Department = department;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = updatedBy;
+    }
+
+    public void UpdateJobTitle(string jobTitle, string updatedBy)
+    {
+        JobTitle = jobTitle;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = updatedBy;
+    }
+
+    public void AssignToBranch(string branchCode, string assignedBy)
+    {
+        Metadata["BranchCode"] = branchCode;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = assignedBy;
+    }
+
     public void UpdateProfile(UserProfile profile, string updatedBy)
     {
         FirstName = profile.FirstName ?? FirstName;

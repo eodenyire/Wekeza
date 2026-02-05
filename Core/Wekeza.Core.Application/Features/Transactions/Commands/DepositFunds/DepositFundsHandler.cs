@@ -25,14 +25,15 @@ public class DepositFundsHandler : IRequestHandler<DepositFundsCommand, Guid>
     {
         // 1. Fetch the Target Account
         var account = await _accountRepository.GetByAccountNumberAsync(new AccountNumber(request.AccountNumber), cancellationToken)
-            ?? throw new NotFoundException("Account", request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
 
         // 2. Wrap Amount into Value Object
         var depositAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
 
         // 3. Domain Logic: Execute Credit
         // This validates if the account is frozen and updates the balance
-        account.Credit(depositAmount);
+        var transactionReference = Guid.NewGuid().ToString();
+        account.Credit(depositAmount, transactionReference);
 
         // 4. Record the specific Transaction entity (The Ledger entry)
         // This is what the 'GetStatement' query will read later

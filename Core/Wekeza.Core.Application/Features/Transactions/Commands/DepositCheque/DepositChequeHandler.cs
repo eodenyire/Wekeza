@@ -24,7 +24,7 @@ public class DepositChequeHandler : IRequestHandler<DepositChequeCommand, Guid>
     public async Task<Guid> Handle(DepositChequeCommand request, CancellationToken ct)
     {
         var account = await _accountRepository.GetByAccountNumberAsync(new AccountNumber(request.AccountNumber), ct)
-            ?? throw new NotFoundException("Account", request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
 
         var chequeAmount = new Money(request.Amount, account.Balance.Currency);
         
@@ -35,7 +35,8 @@ public class DepositChequeHandler : IRequestHandler<DepositChequeCommand, Guid>
         // The balance update logic would distinguish between Ledger and Available.
         
         // For this MVP core, we record the intent and update the Ledger
-        account.Credit(chequeAmount); 
+        var transactionReference = Guid.NewGuid().ToString();
+        account.Credit(chequeAmount, transactionReference); 
 
         // Add detailed transaction record for the clearing system to pick up later
         _accountRepository.Update(account);

@@ -28,11 +28,12 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
         // 1. Fetch Source Account
         var sourceAccount = await _accountRepository.GetByAccountNumberAsync(
             new AccountNumber(request.SourceAccountNumber), ct)
-            ?? throw new NotFoundException("Account", request.SourceAccountNumber);
+            ?? throw new NotFoundException("Account", request.SourceAccountNumber, request.SourceAccountNumber);
 
         // 2. Validate Funds Availability
         var amount = new Money(request.PrincipalAmount, sourceAccount.Balance.Currency);
-        sourceAccount.Debit(amount); // This will throw InsufficientFunds if they don't have it
+        var transactionReference = Guid.NewGuid().ToString();
+        sourceAccount.Debit(amount, transactionReference); // This will throw InsufficientFunds if they don't have it
 
         // 3. Create Fixed Deposit Aggregate
         // We calculate maturity date: Today + Term

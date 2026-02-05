@@ -18,7 +18,7 @@ public class VerifyBusinessAccountHandler : IRequestHandler<VerifyBusinessAccoun
     public async Task<bool> Handle(VerifyBusinessAccountCommand request, CancellationToken ct)
     {
         var account = await _repository.GetByIdAsync(request.AccountId, ct)
-            ?? throw new NotFoundException("Account", request.AccountId);
+            ?? throw new NotFoundException("Account", request.AccountId.ToString(), request.AccountId);
 
         // Business Rule: Update status and set the 'Corporate Mandate'
         account.Verify(request.VerifiedBy); 

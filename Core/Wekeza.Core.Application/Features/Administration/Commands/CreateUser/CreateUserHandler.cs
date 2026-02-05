@@ -78,39 +78,39 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             );
 
             // 5. Set password and security settings
-            user.SetPassword(passwordHash, request.MustChangePassword);
+            user.SetPassword(passwordHash, request.CreatedBy);
             
             if (request.MfaEnabled)
             {
-                user.EnableMfa(MfaMethod.TOTP);
+                user.EnableMfa(MfaMethod.TOTP, GenerateMfaSecret(), request.CreatedBy);
             }
 
             // 6. Assign roles
             foreach (var role in request.Roles)
             {
-                user.AssignRole(role);
+                user.AssignRole(role, $"Role_{role}", request.CreatedBy);
             }
 
             // 7. Set additional properties
             if (!string.IsNullOrEmpty(request.PhoneNumber))
-                user.UpdatePhoneNumber(request.PhoneNumber);
+                user.UpdatePhoneNumber(request.PhoneNumber, request.CreatedBy);
             
             if (!string.IsNullOrEmpty(request.Department))
-                user.UpdateDepartment(request.Department);
+                user.UpdateDepartment(request.Department, request.CreatedBy);
             
             if (!string.IsNullOrEmpty(request.JobTitle))
-                user.UpdateJobTitle(request.JobTitle);
+                user.UpdateJobTitle(request.JobTitle, request.CreatedBy);
 
             if (request.BranchId.HasValue)
-                user.AssignToBranch(request.BranchId.Value);
+                user.AssignToBranch(request.BranchId.Value.ToString(), request.CreatedBy);
 
             // 8. Save user
             await _userRepository.AddAsync(user, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // 9. Send welcome email with temporary password
-            // This would be handled by a domain event handler
-            user.AddDomainEvent(new UserCreatedDomainEvent(user.Id, user.Username, user.Email, _currentUserService.Username ?? "System"));
+            // Domain events are now raised automatically by the aggregate
+            // user.AddDomainEvent is protected, domain events are added inside User methods
 
             return Result<Guid>.Success(user.Id);
         }
@@ -126,6 +126,15 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
         var random = new Random();
         return new string(Enumerable.Repeat(chars, 12)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    private static string GenerateMfaSecret()
+    {
+        // Generate a random MFA secret for TOTP
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        var random = new Random();
+        return new string(Enumerable.Repeat(chars, 32)
             .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 }
