@@ -26,11 +26,11 @@ public class CloseAccountHandler : IRequestHandler<CloseAccountCommand, bool>
     {
         var accountNumber = new AccountNumber(request.AccountNumber);
         var account = await _accountRepository.GetByAccountNumberAsync(accountNumber, ct)
-            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber);
 
         // Domain Logic: Will throw DomainException if Balance > 0
         var reason = "Account closed by customer request";
-        account.Close(reason);
+        account.Close(reason, "System");
 
         await _unitOfWork.SaveChangesAsync(ct);
         return true;

@@ -30,7 +30,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
     {
         // 1. Fetch and Validate Card
         var card = await _cardRepository.GetByIdAsync(request.CardId, ct)
-            ?? throw new NotFoundException("Card", request.CardId.ToString(), request.CardId);
+            ?? throw new NotFoundException("Card", request.CardId);
 
         if (card.IsCancelled) 
             throw new ForbiddenAccessException("This card has been hot-listed.");
@@ -41,7 +41,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
 
         // 3. Fetch Linked Account and Debit
         var account = await _accountRepository.GetByIdAsync(card.AccountId, ct)
-            ?? throw new NotFoundException("Linked Account", card.AccountId.ToString(), card.AccountId);
+            ?? throw new NotFoundException("Linked Account", card.AccountId);
 
         var withdrawalAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
         
@@ -50,7 +50,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
         account.Debit(withdrawalAmount, transactionReference);
 
         // 4. Record withdrawal on card
-        card.RecordWithdrawal(request.Amount);
+        card.RecordWithdrawal(request.Amount, transactionReference);
 
         // 5. Record Transaction with ATM Metadata
         var transaction = new Transaction(
@@ -58,7 +58,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
             request.CorrelationId,
             account.Id,
             withdrawalAmount,
-            TransactionType.Withdrawal,
+            TransactionType.ATMWithdrawal,
             $"ATM Withdrawal | Terminal: {request.TerminalId}"
         );
 

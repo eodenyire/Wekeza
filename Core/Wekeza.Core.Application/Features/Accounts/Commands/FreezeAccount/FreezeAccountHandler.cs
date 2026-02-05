@@ -23,7 +23,7 @@ public class FreezeAccountHandler : IRequestHandler<FreezeAccountCommand, bool>
     {
         // 1. Fetch the Aggregate
         var account = await _accountRepository.GetByAccountNumberAsync(new AccountNumber(request.AccountNumber), cancellationToken)
-            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber);
 
         // 2. Execute Domain Logic
         // The .Freeze() method inside the Domain Aggregate handles state change and Event generation.

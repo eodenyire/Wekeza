@@ -79,7 +79,7 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
             }
 
             // 4. Create loan application
-            var currentUser = _currentUserService.UserId ?? "System";
+            var currentUser = _currentUserService.UserId?.ToString() ?? "System";
             var loan = Loan.CreateApplication(
                 request.CustomerId,
                 request.ProductId,
