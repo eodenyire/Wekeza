@@ -8,29 +8,29 @@ Write-Host "==================================================" -ForegroundColor
 Write-Host ""
 
 # Function to print colored messages
-function Write-Info {
+function Write-InfoMessage {
     param([string]$message)
     Write-Host "[INFO] $message" -ForegroundColor Blue
 }
 
-function Write-Success {
+function Write-SuccessMessage {
     param([string]$message)
     Write-Host "[SUCCESS] $message" -ForegroundColor Green
 }
 
-function Write-Warning {
+function Write-WarningMessage {
     param([string]$message)
     Write-Host "[WARNING] $message" -ForegroundColor Yellow
 }
 
-function Write-Error {
+function Write-ErrorMessage {
     param([string]$message)
     Write-Host "[ERROR] $message" -ForegroundColor Red
 }
 
 # Check if Docker is installed
 if (!(Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Error "Docker is not installed. Please install Docker Desktop first."
+    Write-ErrorMessage "Docker is not installed. Please install Docker Desktop first."
     exit 1
 }
 
@@ -41,47 +41,47 @@ if (Get-Command docker-compose -ErrorAction SilentlyContinue) {
 } elseif ((docker compose version 2>&1) -match "Docker Compose") {
     $dockerComposeCmd = "docker compose"
 } else {
-    Write-Error "Docker Compose is not available. Please ensure Docker Desktop is properly installed."
+    Write-ErrorMessage "Docker Compose is not available. Please ensure Docker Desktop is properly installed."
     exit 1
 }
 
-Write-Info "Starting Wekeza Banking System MVP5.0..."
+Write-InfoMessage "Starting Wekeza Banking System MVP5.0..."
 Write-Host ""
 
 # Stop any existing containers
-Write-Info "Stopping any existing MVP5.0 containers..."
+Write-InfoMessage "Stopping any existing MVP5.0 containers..."
 & $dockerComposeCmd -f docker-compose.mvp5.yml down 2>$null
 
 # Build all services
-Write-Info "Building all banking services..."
+Write-InfoMessage "Building all banking services..."
 & $dockerComposeCmd -f docker-compose.mvp5.yml build --no-cache
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "Build failed. Please check the error messages above."
+    Write-ErrorMessage "Build failed. Please check the error messages above."
     exit 1
 }
 
 # Start all services
-Write-Info "Starting all services..."
+Write-InfoMessage "Starting all services..."
 & $dockerComposeCmd -f docker-compose.mvp5.yml up -d
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "Failed to start services. Please check the error messages above."
+    Write-ErrorMessage "Failed to start services. Please check the error messages above."
     exit 1
 }
 
 # Wait for services to be healthy
-Write-Info "Waiting for services to become healthy..."
+Write-InfoMessage "Waiting for services to become healthy..."
 Start-Sleep -Seconds 10
 
 # Check service status
-Write-Info "Checking service status..."
+Write-InfoMessage "Checking service status..."
 Write-Host ""
 
 & $dockerComposeCmd -f docker-compose.mvp5.yml ps
 
 Write-Host ""
-Write-Success "MVP5.0 Banking System is now running!"
+Write-SuccessMessage "MVP5.0 Banking System is now running!"
 Write-Host ""
 
 Write-Host "==================================================" -ForegroundColor Cyan
@@ -120,7 +120,7 @@ Write-Host "  docker-compose -f docker-compose.mvp5.yml exec [service-name] bash
 Write-Host ""
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Success "System is operational! Open your browser and navigate to the APIs above."
+Write-SuccessMessage "System is operational! Open your browser and navigate to the APIs above."
 Write-Host ""
 
 # Optional: Open browser automatically
