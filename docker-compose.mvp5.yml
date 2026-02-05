@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database - Shared database for all services
+  postgres:
+    image: postgres:15-alpine
+    container_name: wekeza-postgres-mvp5
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data-mvp5:/var/lib/postgresql/data
+    networks:
+      - wekeza-mvp5-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Minimal Wekeza API - Simple endpoints for quick transactions
+  minimal-api:
+    build:
+      context: ./MinimalWekezaApi
+      dockerfile: Dockerfile
+    container_name: wekeza-minimal-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8081
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=WekezaCoreDB;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}"
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wekeza-mvp5-network
+    restart: unless-stopped
+
+  # Database Wekeza API - Comprehensive banking operations
+  database-api:
+    build:
+      context: ./DatabaseWekezaApi
+      dockerfile: Dockerfile
+    container_name: wekeza-database-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8082
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=WekezaCoreDB;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}"
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wekeza-mvp5-network
+    restart: unless-stopped
+
+  # Enhanced Wekeza API - Extended features
+  enhanced-api:
+    build:
+      context: ./EnhancedWekezaApi
+      dockerfile: Dockerfile
+    container_name: wekeza-enhanced-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8083
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=WekezaCoreDB;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}"
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wekeza-mvp5-network
+    restart: unless-stopped
+
+  # Comprehensive Wekeza API - Full admin panel and banking operations
+  comprehensive-api:
+    build:
+      context: ./ComprehensiveWekezaApi
+      dockerfile: Dockerfile
+    container_name: wekeza-comprehensive-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8084
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=WekezaCoreDB;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}"
+      JwtSettings__SecretKey: ${JWT_SECRET:-WekeZa-BaNk-PrOdUcTiOn-SeCrEt-KeY-2026-ChAnGe-ThIs-In-PrOd!}
+      JwtSettings__Issuer: ${JWT_ISSUER:-https://api.wekeza.com}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-https://wekeza.com}
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wekeza-mvp5-network
+    restart: unless-stopped
+
+  # pgAdmin (Optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: wekeza-pgadmin-mvp5
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@wekeza.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - wekeza-mvp5-network
+    volumes:
+      - pgadmin-data-mvp5:/var/lib/pgadmin
+    restart: unless-stopped
+    profiles:
+      - tools
+
+networks:
+  wekeza-mvp5-network:
+    driver: bridge
+
+volumes:
+  postgres-data-mvp5:
+    driver: local
+  pgadmin-data-mvp5:
+    driver: local
