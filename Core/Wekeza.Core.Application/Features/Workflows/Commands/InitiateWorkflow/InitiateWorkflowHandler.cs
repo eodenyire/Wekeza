@@ -38,7 +38,7 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
         try
         {
             // 1. Validate initiator permissions
-            var initiator = await _userRepository.GetByIdAsync(_currentUserService.UserId, cancellationToken);
+            var initiator = await _userRepository.GetByIdAsync(_currentUserService.UserId.GetValueOrDefault(), cancellationToken);
             if (initiator == null)
             {
                 return Result<Guid>.Failure("User not found");
@@ -82,7 +82,7 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
             var workflow = WorkflowInstance.Create(
                 workflowCode: request.WorkflowCode,
                 workflowName: request.WorkflowName,
-                type: request.WorkflowType,
+                type: (WorkflowType)request.WorkflowType,
                 entityType: request.EntityType,
                 entityId: request.EntityId,
                 entityReference: request.EntityReference,
@@ -99,8 +99,7 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
                     level: step.Level,
                     approverRole: step.RequiredRole.ToString(),
                     specificApprover: step.SpecificApprover,
-                    isRequired: step.IsRequired,
-                    timeoutHours: step.TimeoutHours
+                    isRequired: step.IsRequired
                 );
             }
 
@@ -111,7 +110,7 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
             }
 
             // 8. Set priority and due date
-            workflow.SetPriority(request.Priority);
+            workflow.SetPriority((int)request.Priority);
             workflow.SetDueDate(DateTime.UtcNow.AddHours(request.SLAHours));
 
             // 9. Save workflow
@@ -136,12 +135,12 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
         
         return workflowCode switch
         {
-            "ACCOUNT_OPENING" => user.HasRole(UserRole.Teller) || user.HasRole(UserRole.CustomerService),
-            "LOAN_APPROVAL" => user.HasRole(UserRole.LoanOfficer),
-            "LARGE_TRANSACTION" => user.HasRole(UserRole.Teller) || user.HasRole(UserRole.CustomerService),
-            "CARD_ISSUANCE" => user.HasRole(UserRole.Teller) || user.HasRole(UserRole.CustomerService),
-            "CUSTOMER_ONBOARDING" => user.HasRole(UserRole.Teller) || user.HasRole(UserRole.CustomerService),
-            _ => user.HasRole(UserRole.Administrator) || user.HasRole(UserRole.Supervisor)
+            "ACCOUNT_OPENING" => user.HasRole(Enums.UserRole.Teller.ToString()) || user.HasRole(Enums.UserRole.CustomerService.ToString()),
+            "LOAN_APPROVAL" => user.HasRole(Enums.UserRole.LoanOfficer.ToString()),
+            "LARGE_TRANSACTION" => user.HasRole(Enums.UserRole.Teller.ToString()) || user.HasRole(Enums.UserRole.CustomerService.ToString()),
+            "CARD_ISSUANCE" => user.HasRole(Enums.UserRole.Teller.ToString()) || user.HasRole(Enums.UserRole.CustomerService.ToString()),
+            "CUSTOMER_ONBOARDING" => user.HasRole(Enums.UserRole.Teller.ToString()) || user.HasRole(Enums.UserRole.CustomerService.ToString()),
+            _ => user.HasRole(Enums.UserRole.Administrator.ToString()) || user.HasRole(Enums.UserRole.Supervisor.ToString())
         };
     }
 
@@ -163,26 +162,26 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
             
             if (amount <= 10000) // Small amounts - single approval
             {
-                matrix.AddRule(new ApprovalRule(1, new List<UserRole> { UserRole.Supervisor }, amount, amount, null, 24));
+                matrix.AddRule(new ApprovalRule(1, new List<Enums.UserRole> { Enums.UserRole.Supervisor }, amount, amount, null, 24));
             }
             else if (amount <= 100000) // Medium amounts - supervisor approval
             {
-                matrix.AddRule(new ApprovalRule(1, new List<UserRole> { UserRole.Supervisor }, 10001, 100000, null, 24));
+                matrix.AddRule(new ApprovalRule(1, new List<Enums.UserRole> { Enums.UserRole.Supervisor }, 10001, 100000, null, 24));
             }
             else if (amount <= 1000000) // Large amounts - manager approval
             {
-                matrix.AddRule(new ApprovalRule(1, new List<UserRole> { UserRole.BranchManager }, 100001, 1000000, null, 48));
+                matrix.AddRule(new ApprovalRule(1, new List<Enums.UserRole> { Enums.UserRole.BranchManager }, 100001, 1000000, null, 48));
             }
             else // Very large amounts - multiple approvals
             {
-                matrix.AddRule(new ApprovalRule(1, new List<UserRole> { UserRole.BranchManager }, 1000001, null, null, 48));
-                matrix.AddRule(new ApprovalRule(2, new List<UserRole> { UserRole.Administrator }, 1000001, null, null, 72));
+                matrix.AddRule(new ApprovalRule(1, new List<Enums.UserRole> { Enums.UserRole.BranchManager }, 1000001, null, null, 48));
+                matrix.AddRule(new ApprovalRule(2, new List<Enums.UserRole> { Enums.UserRole.Administrator }, 1000001, null, null, 72));
             }
         }
         else
         {
             // Default single approval for non-monetary workflows
-            matrix.AddRule(new ApprovalRule(1, new List<UserRole> { UserRole.Supervisor }, null, null, null, 24));
+            matrix.AddRule(new ApprovalRule(1, new List<Enums.UserRole> { Enums.UserRole.Supervisor }, null, null, null, 24));
         }
 
         await _approvalMatrixRepository.AddAsync(matrix, cancellationToken);

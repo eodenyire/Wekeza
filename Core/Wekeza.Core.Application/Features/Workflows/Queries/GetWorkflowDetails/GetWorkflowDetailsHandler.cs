@@ -19,7 +19,7 @@ public class GetWorkflowDetailsHandler : IRequestHandler<GetWorkflowDetailsQuery
         
         if (workflow == null)
         {
-            throw new NotFoundException($"Workflow with ID {request.WorkflowId} not found.");
+            throw new NotFoundException(nameof(WorkflowInstance), request.WorkflowId);
         }
 
         return new WorkflowDetailsDto

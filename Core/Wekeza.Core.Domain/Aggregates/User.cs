@@ -211,6 +211,11 @@ public class User : AggregateRoot
         AddDomainEvent(new UserRoleRemovedDomainEvent(Id, Username, roleCode, removedBy));
     }
 
+    public bool HasRole(string roleCode)
+    {
+        return Roles.Any(r => r.RoleCode == roleCode);
+    }
+
     public void UpdateProfile(UserProfile profile, string updatedBy)
     {
         FirstName = profile.FirstName ?? FirstName;
