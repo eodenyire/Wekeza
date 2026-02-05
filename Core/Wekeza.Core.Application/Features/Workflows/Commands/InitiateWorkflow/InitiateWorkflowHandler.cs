@@ -82,7 +82,7 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
             var workflow = WorkflowInstance.Create(
                 workflowCode: request.WorkflowCode,
                 workflowName: request.WorkflowName,
-                type: (WorkflowType)request.WorkflowType,
+                type: (Enums.WorkflowType)request.WorkflowType,
                 entityType: request.EntityType,
                 entityId: request.EntityId,
                 entityReference: request.EntityReference,
@@ -203,7 +203,7 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
             {
                 matrix.AddRule(new ApprovalRule(
                     level.Level,
-                    new List<UserRole> { role },
+                    new List<Enums.UserRole> { role },
                     level.MinAmount,
                     level.MaxAmount,
                     null,
