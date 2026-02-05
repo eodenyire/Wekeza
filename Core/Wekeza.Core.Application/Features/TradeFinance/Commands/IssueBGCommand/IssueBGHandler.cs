@@ -45,7 +45,7 @@ public class IssueBGHandler : IRequestHandler<IssueBGCommand, IssueBGResponse>
         }
 
         // Create money value object
-        var amount = new Money(request.Amount, request.Currency);
+        var amount = new Money(request.Amount, Currency.FromCode(request.Currency));
 
         // Issue the Bank Guarantee
         var bankGuarantee = BankGuarantee.Issue(

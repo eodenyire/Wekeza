@@ -23,7 +23,7 @@ public class WithdrawFundsHandler : IRequestHandler<WithdrawFundsCommand, Guid>
     {
         // 1. Fetch Aggregate
         var account = await _accountRepository.GetByAccountNumberAsync(new AccountNumber(request.AccountNumber), cancellationToken)
-            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber);
 
         // 2. Risk Check: Daily Limit (Future-proofing: Injected ILimitService)
         // For now, let's assume a hard limit of 100,000 KES for ATMs

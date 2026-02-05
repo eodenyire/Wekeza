@@ -67,14 +67,14 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
             var loanAmount = new Money(request.Amount, new Currency(request.Currency));
             if (product.LimitConfig != null)
             {
-                if (loanAmount.IsLessThan(product.LimitConfig.MinAmount))
+                if (product.LimitConfig.MinTransactionAmount.HasValue && request.Amount < product.LimitConfig.MinTransactionAmount.Value)
                 {
-                    return ApplyForLoanResult.Failed($"Loan amount below minimum limit of {product.LimitConfig.MinAmount.Amount}");
+                    return ApplyForLoanResult.Failed($"Loan amount below minimum limit of {product.LimitConfig.MinTransactionAmount.Value}");
                 }
 
-                if (loanAmount.IsGreaterThan(product.LimitConfig.MaxAmount))
+                if (product.LimitConfig.MaxTransactionAmount.HasValue && request.Amount > product.LimitConfig.MaxTransactionAmount.Value)
                 {
-                    return ApplyForLoanResult.Failed($"Loan amount exceeds maximum limit of {product.LimitConfig.MaxAmount.Amount}");
+                    return ApplyForLoanResult.Failed($"Loan amount exceeds maximum limit of {product.LimitConfig.MaxTransactionAmount.Value}");
                 }
             }
 

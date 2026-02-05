@@ -45,7 +45,16 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
         }
 
         // Create money value object
-        var amount = new Money(request.Amount, request.Currency);
+        var amount = new Money(request.Amount, Currency.FromCode(request.Currency));
+
+        // Map LCType from enum to aggregate type
+        var lcType = request.Type switch
+        {
+            Domain.Enums.LCType.Commercial => Aggregates.LCType.Irrevocable,
+            Domain.Enums.LCType.Standby => Aggregates.LCType.Standby,
+            Domain.Enums.LCType.Transferable => Aggregates.LCType.Transferable,
+            _ => Aggregates.LCType.Irrevocable
+        };
 
         // Issue the Letter of Credit
         var letterOfCredit = LetterOfCredit.Issue(
@@ -57,7 +66,7 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
             request.ExpiryDate,
             request.Terms,
             request.GoodsDescription,
-            request.Type,
+            lcType,
             request.LastShipmentDate,
             request.AdvisingBankId,
             request.IsTransferable);

@@ -24,7 +24,7 @@ public class DepositChequeHandler : IRequestHandler<DepositChequeCommand, Guid>
     public async Task<Guid> Handle(DepositChequeCommand request, CancellationToken ct)
     {
         var account = await _accountRepository.GetByAccountNumberAsync(new AccountNumber(request.AccountNumber), ct)
-            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber);
 
         var chequeAmount = new Money(request.Amount, account.Balance.Currency);
         

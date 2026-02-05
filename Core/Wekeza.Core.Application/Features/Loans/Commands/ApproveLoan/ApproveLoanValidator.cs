@@ -10,10 +10,10 @@ public class ApproveLoanValidator : AbstractValidator<ApproveLoanCommand>
             .NotEmpty()
             .WithMessage("Loan ID is required.");
 
-        RuleFor(x => x.OfficerName)
+        RuleFor(x => x.ApprovedBy)
             .NotEmpty()
-            .WithMessage("Officer name is required.")
+            .WithMessage("Approver name is required.")
             .MaximumLength(100)
-            .WithMessage("Officer name cannot exceed 100 characters.");
+            .WithMessage("Approver name cannot exceed 100 characters.");
     }
 }

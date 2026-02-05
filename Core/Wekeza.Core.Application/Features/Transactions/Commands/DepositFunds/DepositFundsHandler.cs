@@ -25,7 +25,7 @@ public class DepositFundsHandler : IRequestHandler<DepositFundsCommand, Guid>
     {
         // 1. Fetch the Target Account
         var account = await _accountRepository.GetByAccountNumberAsync(new AccountNumber(request.AccountNumber), cancellationToken)
-            ?? throw new NotFoundException("Account", request.AccountNumber, request.AccountNumber);
+            ?? throw new NotFoundException("Account", request.AccountNumber);
 
         // 2. Wrap Amount into Value Object
         var depositAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
