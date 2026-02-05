@@ -35,6 +35,7 @@ public class RegisterBusinessHandler : IRequestHandler<RegisterBusinessCommand, 
             request.BusinessName,
             request.BusinessType, // Using LastName field to store type/category for now
             request.Email,
+            "", // PhoneNumber - empty for now as not in command
             request.RegistrationNumber
         );
 

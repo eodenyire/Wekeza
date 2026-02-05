@@ -1,6 +1,7 @@
 using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Application.Common.Interfaces;
+using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Workflows.Commands.RejectWorkflow;

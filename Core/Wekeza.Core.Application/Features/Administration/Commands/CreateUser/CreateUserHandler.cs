@@ -53,7 +53,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             // 2. Validate branch if specified
             if (request.BranchId.HasValue)
             {
-                var branch = await _branchRepository.GetByIdAsync(request.BranchId.Value, cancellationToken);
+                var branch = await _branchRepository.GetByIdAsync(request.BranchId.Value);
                 if (branch == null)
                 {
                     return Result<Guid>.Failure("Branch not found");
@@ -78,31 +78,32 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             );
 
             // 5. Set password and security settings
-            user.SetPassword(passwordHash, request.CreatedBy);
+            var currentUsername = _currentUserService.Username ?? "System";
+            user.SetPassword(passwordHash, currentUsername);
             
             if (request.MfaEnabled)
             {
-                user.EnableMfa(MfaMethod.TOTP, GenerateMfaSecret(), request.CreatedBy);
+                user.EnableMfa(MfaMethod.TOTP, GenerateMfaSecret(), currentUsername);
             }
 
             // 6. Assign roles
             foreach (var role in request.Roles)
             {
-                user.AssignRole(role, $"Role_{role}", request.CreatedBy);
+                user.AssignRole(role.ToString(), $"Role_{role}", currentUsername);
             }
 
             // 7. Set additional properties
             if (!string.IsNullOrEmpty(request.PhoneNumber))
-                user.UpdatePhoneNumber(request.PhoneNumber, request.CreatedBy);
+                user.UpdatePhoneNumber(request.PhoneNumber, currentUsername);
             
             if (!string.IsNullOrEmpty(request.Department))
-                user.UpdateDepartment(request.Department, request.CreatedBy);
+                user.UpdateDepartment(request.Department, currentUsername);
             
             if (!string.IsNullOrEmpty(request.JobTitle))
-                user.UpdateJobTitle(request.JobTitle, request.CreatedBy);
+                user.UpdateJobTitle(request.JobTitle, currentUsername);
 
             if (request.BranchId.HasValue)
-                user.AssignToBranch(request.BranchId.Value.ToString(), request.CreatedBy);
+                user.AssignToBranch(request.BranchId.Value.ToString(), currentUsername);
 
             // 8. Save user
             await _userRepository.AddAsync(user, cancellationToken);
