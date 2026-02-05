@@ -104,8 +104,16 @@ public class ApproveLoanHandler : IRequestHandler<ApproveLoanCommand, ApproveLoa
 
         if (workflow != null && workflow.Status == WorkflowStatus.Pending)
         {
+            // Create UserRole instance from enum
+            var approverRoleEnum = Domain.Enums.UserRole.LoanOfficer;
+            var approverRole = new Wekeza.Core.Domain.Aggregates.UserRole(
+                approverRoleEnum.ToString(),
+                approverRoleEnum.ToString(),
+                new List<string>(),
+                approvedBy);
+            
             // Approve the workflow
-            workflow.Approve(approvedBy, comments ?? "Loan approved", Domain.Enums.UserRole.LoanOfficer);
+            workflow.Approve(approvedBy, comments ?? "Loan approved", approverRole);
             await _workflowRepository.UpdateWorkflow(workflow, CancellationToken.None);
         }
     }

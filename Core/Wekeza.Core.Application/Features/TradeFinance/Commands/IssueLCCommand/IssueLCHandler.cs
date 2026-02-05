@@ -27,7 +27,7 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
         // Validate LC number uniqueness
         if (await _lcRepository.ExistsAsync(request.LCNumber, cancellationToken))
         {
-            throw new ValidationException($"LC with number {request.LCNumber} already exists");
+            throw new ValidationException(new[] { new FluentValidation.Results.ValidationFailure("LCNumber", $"LC with number {request.LCNumber} already exists") });
         }
 
         // Validate applicant exists
@@ -50,10 +50,10 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
         // Map LCType from enum to aggregate type
         var lcType = request.Type switch
         {
-            Domain.Enums.LCType.Commercial => Aggregates.LCType.Irrevocable,
-            Domain.Enums.LCType.Standby => Aggregates.LCType.Standby,
-            Domain.Enums.LCType.Transferable => Aggregates.LCType.Transferable,
-            _ => Aggregates.LCType.Irrevocable
+            Domain.Enums.LCType.Commercial => LCType.Irrevocable,
+            Domain.Enums.LCType.Standby => LCType.Standby,
+            Domain.Enums.LCType.Transferable => LCType.Transferable,
+            _ => LCType.Irrevocable
         };
 
         // Issue the Letter of Credit
