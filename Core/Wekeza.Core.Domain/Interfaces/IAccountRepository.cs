@@ -29,4 +29,9 @@ public interface IAccountRepository
     Task<int> GetNextAccountSequenceAsync(string prefix);
     
     Task<IEnumerable<Account>> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Gets accounts created within a date range
+    /// </summary>
+    Task<IEnumerable<Account>> GetAccountsByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default);
 }

@@ -100,14 +100,13 @@ public class ApproveLoanHandler : IRequestHandler<ApproveLoanCommand, ApproveLoa
     private async Task UpdateWorkflowStatusAsync(Guid loanId, string approvedBy, string? comments)
     {
         // Find any pending workflow for this loan
-        var workflows = await _workflowRepository.GetByEntityIdAsync(loanId);
-        var pendingWorkflow = workflows.FirstOrDefault(w => w.Status == WorkflowStatus.Pending);
+        var workflow = await _workflowRepository.GetByEntityIdAsync(loanId);
 
-        if (pendingWorkflow != null)
+        if (workflow != null && workflow.Status == WorkflowStatus.Pending)
         {
             // Approve the workflow
-            pendingWorkflow.Approve(approvedBy, comments ?? "Loan approved");
-            _workflowRepository.UpdateWorkflow(pendingWorkflow);
+            workflow.Approve(approvedBy, comments ?? "Loan approved", Domain.Enums.UserRole.LoanOfficer);
+            await _workflowRepository.UpdateWorkflow(workflow, CancellationToken.None);
         }
     }
 }

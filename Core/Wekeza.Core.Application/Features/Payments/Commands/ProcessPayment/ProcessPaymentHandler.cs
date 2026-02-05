@@ -54,7 +54,7 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
                     Amount = request.Amount,
                     Currency = request.Currency,
                     WorkflowName = $"Payment approval required: {request.Description}",
-                    Priority = (Priority)MapPriorityToWorkflow(request.Priority),
+                    Priority = (Domain.Enums.Priority)MapPriorityToWorkflow(request.Priority),
                     InitiatorComments = _currentUserService.UserId?.ToString() ?? "System"
                 };
 

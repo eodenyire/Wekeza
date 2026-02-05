@@ -58,7 +58,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
             request.CorrelationId,
             account.Id,
             withdrawalAmount,
-            Aggregates.TransactionType.Withdrawal,
+            Domain.Aggregates.TransactionType.Withdrawal,
             $"ATM Withdrawal | Terminal: {request.TerminalId}"
         );
 

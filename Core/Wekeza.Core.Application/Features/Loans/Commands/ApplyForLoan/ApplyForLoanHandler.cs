@@ -187,7 +187,7 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
         var approvalLevel = DetermineApprovalLevel(loan.Principal, creditScore.RiskGrade);
         
         // Get approval matrix for loan approval
-        var approvalMatrix = await _workflowRepository.GetApprovalMatrixAsync("LoanApproval", approvalLevel);
+        var approvalMatrix = await _workflowRepository.GetApprovalMatrixAsync("LoanApproval", (decimal?)approvalLevel);
         
         if (approvalMatrix != null)
         {
