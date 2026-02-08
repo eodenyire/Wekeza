@@ -33,7 +33,7 @@ public class OpenRecurringDepositHandler : IRequestHandler<OpenRecurringDepositC
         try
         {
             // Validate account exists and is active
-            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value, cancellationToken);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId, cancellationToken);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
