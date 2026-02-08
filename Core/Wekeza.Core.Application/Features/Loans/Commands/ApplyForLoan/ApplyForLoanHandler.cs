@@ -3,8 +3,8 @@ using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Services;
-using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Application.Common.Interfaces;
+using DomainEnums = Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Application.Features.Loans.Commands.ApplyForLoan;
 
@@ -67,14 +67,16 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
             var loanAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
             if (product.LimitConfig != null)
             {
-                if (loanAmount.IsLessThan(product.LimitConfig.MinAmount))
+                if (product.LimitConfig.MinTransactionAmount.HasValue && 
+                    loanAmount.Amount < product.LimitConfig.MinTransactionAmount.Value)
                 {
-                    return ApplyForLoanResult.Failed($"Loan amount below minimum limit of {product.LimitConfig.MinAmount.Amount}");
+                    return ApplyForLoanResult.Failed($"Loan amount below minimum limit of {product.LimitConfig.MinTransactionAmount.Value}");
                 }
 
-                if (loanAmount.IsGreaterThan(product.LimitConfig.MaxAmount))
+                if (product.LimitConfig.MaxTransactionAmount.HasValue && 
+                    loanAmount.Amount > product.LimitConfig.MaxTransactionAmount.Value)
                 {
-                    return ApplyForLoanResult.Failed($"Loan amount exceeds maximum limit of {product.LimitConfig.MaxAmount.Amount}");
+                    return ApplyForLoanResult.Failed($"Loan amount exceeds maximum limit of {product.LimitConfig.MaxTransactionAmount.Value}");
                 }
             }
 
@@ -181,36 +183,44 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
         return true;
     }
 
-    private async Task CreateApprovalWorkflowAsync(Loan loan, CreditScoreResult creditScore, string initiatedBy)
+    private async Task CreateApprovalWorkflowAsync(Loan loan, CreditScoreResult creditScore, string initiatedBy, CancellationToken cancellationToken = default)
     {
         // Determine approval level based on loan amount and risk
         var approvalLevel = DetermineApprovalLevel(loan.Principal, creditScore.RiskGrade);
         
         // Get approval matrix for loan approval
-        var approvalMatrix = await _workflowRepository.GetApprovalMatrixAsync("LoanApproval", approvalLevel);
+        var approvalMatrix = await _workflowRepository.GetApprovalMatrixAsync(
+            "LoanApproval", 
+            loan.Principal.Amount, 
+            loan.Principal.Currency.Code,
+            cancellationToken);
         
         if (approvalMatrix != null)
         {
             // Create workflow instance
             var workflow = WorkflowInstance.Create(
-                "LoanApproval",
+                "LOAN_APPROVAL",
+                "Loan Approval",
+                Wekeza.Core.Domain.Aggregates.WorkflowType.LoanApproval,
+                "Loan",
                 loan.Id,
                 loan.LoanNumber,
-                approvalMatrix,
+                approvalMatrix.Rules?.Count ?? 1, // Use rule count as required levels
                 initiatedBy,
-                $"Loan approval request for {loan.LoanNumber} - Amount: {loan.Principal.Amount}, Risk Grade: {creditScore.RiskGrade}");
+                $"Loan approval request for {loan.LoanNumber} - Amount: {loan.Principal.Amount}, Risk Grade: {creditScore.RiskGrade}",
+                24);
 
-            await _workflowRepository.AddWorkflowAsync(workflow);
+            await _workflowRepository.AddWorkflowAsync(workflow, cancellationToken);
         }
     }
 
-    private string DetermineApprovalLevel(Money loanAmount, CreditRiskGrade riskGrade)
+    private string DetermineApprovalLevel(Money loanAmount, DomainEnums.CreditRiskGrade riskGrade)
     {
         // Determine approval level based on amount and risk
         return (loanAmount.Amount, riskGrade) switch
         {
-            (< 50000, CreditRiskGrade.AAA or CreditRiskGrade.AA or CreditRiskGrade.A) => "Level1", // Branch Manager
-            (< 100000, CreditRiskGrade.AAA or CreditRiskGrade.AA or CreditRiskGrade.A) => "Level2", // Regional Manager
+            (< 50000, DomainEnums.CreditRiskGrade.AAA or DomainEnums.CreditRiskGrade.AA or DomainEnums.CreditRiskGrade.A) => "Level1", // Branch Manager
+            (< 100000, DomainEnums.CreditRiskGrade.AAA or DomainEnums.CreditRiskGrade.AA or DomainEnums.CreditRiskGrade.A) => "Level2", // Regional Manager
             (< 500000, _) => "Level3", // Credit Committee
             (_, _) => "Level4" // Board Approval
         };

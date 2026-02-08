@@ -100,13 +100,13 @@ public class ApproveLoanHandler : IRequestHandler<ApproveLoanCommand, ApproveLoa
     private async Task UpdateWorkflowStatusAsync(Guid loanId, string approvedBy, string? comments)
     {
         // Find any pending workflow for this loan
-        var workflows = await _workflowRepository.GetByEntityIdAsync(loanId);
-        var pendingWorkflow = workflows.FirstOrDefault(w => w.Status == WorkflowStatus.Pending);
+        var pendingWorkflow = await _workflowRepository.GetByEntityIdAsync(loanId);
 
-        if (pendingWorkflow != null)
+        if (pendingWorkflow != null && pendingWorkflow.Status == WorkflowStatus.Pending)
         {
-            // Approve the workflow
-            pendingWorkflow.Approve(approvedBy, comments ?? "Loan approved");
+            // Approve the workflow - use a default role since we don't have role tracking here
+            var approverRole = new Wekeza.Core.Domain.Aggregates.UserRole("LOAN_OFFICER", "Loan Officer", new List<string>(), approvedBy);
+            pendingWorkflow.Approve(approvedBy, comments ?? "Loan approved", approverRole);
             _workflowRepository.UpdateWorkflow(pendingWorkflow);
         }
     }
