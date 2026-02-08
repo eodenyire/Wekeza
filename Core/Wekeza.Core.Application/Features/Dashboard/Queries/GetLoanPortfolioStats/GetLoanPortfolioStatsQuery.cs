@@ -16,6 +16,11 @@ public class LoanPortfolioStatsDto
     public decimal NPLRatio { get; set; }
     public decimal AverageInterestRate { get; set; }
     public decimal TotalDisbursedThisMonth { get; set; }
+    public decimal TotalLoanAmount { get; set; }
+    public decimal OutstandingAmount { get; set; }
+    public Dictionary<string, int> LoansByStatus { get; set; } = new();
+    public Dictionary<string, decimal> LoansByProduct { get; set; } = new();
+    public decimal ProvisionCoverage { get; set; }
 }
 
 public class GetLoanPortfolioStatsHandler : IRequestHandler<GetLoanPortfolioStatsQuery, Result<LoanPortfolioStatsDto>>

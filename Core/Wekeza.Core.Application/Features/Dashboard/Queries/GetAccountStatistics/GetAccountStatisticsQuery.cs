@@ -13,9 +13,20 @@ public class AccountStatisticsDto
     public int TotalAccounts { get; set; }
     public int ActiveAccounts { get; set; }
     public int DormantAccounts { get; set; }
+    public int InactiveAccounts { get; set; }
     public int FrozenAccounts { get; set; }
     public decimal TotalBalance { get; set; }
     public decimal AverageBalance { get; set; }
+    public Dictionary<string, int> AccountsByType { get; set; } = new();
+    public Dictionary<string, int> AccountsByBranch { get; set; } = new();
+    public List<TopAccountDto> TopAccountsByBalance { get; set; } = new();
+}
+
+public class TopAccountDto
+{
+    public string AccountNumber { get; set; } = string.Empty;
+    public string CustomerName { get; set; } = string.Empty;
+    public decimal Balance { get; set; }
 }
 
 public class GetAccountStatisticsHandler : IRequestHandler<GetAccountStatisticsQuery, Result<AccountStatisticsDto>>

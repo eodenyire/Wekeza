@@ -15,6 +15,12 @@ public class CustomerStatisticsDto
     public int NewCustomersThisMonth { get; set; }
     public int IndividualCustomers { get; set; }
     public int CorporateCustomers { get; set; }
+    public Dictionary<string, int> CustomersBySegment { get; set; } = new();
+    public Dictionary<string, int> CustomersByBranch { get; set; } = new();
+    public int CustomersWithMultipleAccounts { get; set; }
+    public int CIFsWithoutAccounts { get; set; }
+    public int KYCPendingCustomers { get; set; }
+    public int HighRiskCustomers { get; set; }
 }
 
 public class GetCustomerStatisticsHandler : IRequestHandler<GetCustomerStatisticsQuery, Result<CustomerStatisticsDto>>

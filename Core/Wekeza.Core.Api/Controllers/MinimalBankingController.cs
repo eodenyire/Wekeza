@@ -241,7 +241,8 @@ public record CreateCustomerRequest(
     string FirstName,
     string LastName, 
     string Email,
-    string IdentificationNumber
+    string IdentificationNumber,
+    string? PhoneNumber = null
 );
 
 public record CreateAccountRequest(

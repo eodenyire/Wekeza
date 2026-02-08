@@ -205,8 +205,8 @@ public class CustomerPortalController : BaseApiController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> DownloadStatement(Guid accountId, [FromBody] DownloadStatementCommand command)
     {
-        command.AccountId = accountId;
-        var result = await Mediator.Send(command);
+        var updatedCommand = command with { AccountId = accountId };
+        var result = await Mediator.Send(updatedCommand);
         return Ok(result);
     }
 
@@ -226,9 +226,7 @@ public class CustomerPortalController : BaseApiController
         {
             return Ok(new
             {
-                TransactionId = result.Value.TransactionId,
-                TransactionReference = result.Value.TransactionReference,
-                Status = result.Value.Status,
+                TransactionId = result.Value,
                 Message = "Transfer initiated successfully"
             });
         }

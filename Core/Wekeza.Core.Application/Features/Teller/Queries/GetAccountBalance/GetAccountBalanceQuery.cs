@@ -7,6 +7,7 @@ namespace Wekeza.Core.Application.Features.Teller.Queries.GetAccountBalance;
 public record GetAccountBalanceQuery : IRequest<Result<AccountBalanceDto>>
 {
     public string AccountNumber { get; init; } = string.Empty;
+    public Guid AccountId { get; init; }
 }
 
 public class AccountBalanceDto

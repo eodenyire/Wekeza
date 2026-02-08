@@ -9,6 +9,9 @@ public record GetTransactionHistoryQuery : IRequest<Result<List<TransactionHisto
     public string AccountNumber { get; init; } = string.Empty;
     public DateTime? StartDate { get; init; }
     public DateTime? EndDate { get; init; }
+    public Guid AccountId { get; init; }
+    public int PageSize { get; init; } = 20;
+    public int PageNumber { get; init; } = 1;
 }
 
 public class TransactionHistoryDto
