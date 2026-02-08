@@ -43,6 +43,7 @@ public class RiskControl
             ControlType = controlType,
             OwnerId = ownerId,
             TestingFrequency = testingFrequency,
+            TestingEvidence = string.Empty,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = createdBy
         };
@@ -57,6 +58,23 @@ public class RiskControl
         TestingEvidence = testingEvidence;
         LastTestedDate = DateTime.UtcNow;
         NextTestDate = CalculateNextTestDate();
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = updatedBy;
+    }
+
+    public void Update(
+        string controlName,
+        string description,
+        string controlType,
+        Guid ownerId,
+        string testingFrequency,
+        Guid updatedBy)
+    {
+        ControlName = controlName;
+        Description = description;
+        ControlType = controlType;
+        OwnerId = ownerId;
+        TestingFrequency = testingFrequency;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = updatedBy;
     }

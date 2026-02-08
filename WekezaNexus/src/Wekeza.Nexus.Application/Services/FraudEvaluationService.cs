@@ -3,6 +3,7 @@ using Wekeza.Nexus.Domain.Enums;
 using Wekeza.Nexus.Domain.Interfaces;
 using Wekeza.Nexus.Domain.ValueObjects;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace Wekeza.Nexus.Application.Services;
 
@@ -22,6 +23,7 @@ public class FraudEvaluationService : IFraudEvaluationService
 {
     private readonly ITransactionVelocityService _velocityService;
     private readonly IFraudEvaluationRepository _evaluationRepository;
+    private readonly ILogger<FraudEvaluationService> _logger;
     
     // Scoring weights for the ensemble model
     private const double VelocityWeight = 0.30;
@@ -32,10 +34,12 @@ public class FraudEvaluationService : IFraudEvaluationService
     
     public FraudEvaluationService(
         ITransactionVelocityService velocityService,
-        IFraudEvaluationRepository evaluationRepository)
+        IFraudEvaluationRepository evaluationRepository,
+        ILogger<FraudEvaluationService> logger)
     {
         _velocityService = velocityService;
         _evaluationRepository = evaluationRepository;
+        _logger = logger;
     }
     
     public async Task<FraudScore> EvaluateAsync(
@@ -46,6 +50,10 @@ public class FraudEvaluationService : IFraudEvaluationService
         
         try
         {
+            _logger.LogInformation(
+                "Starting fraud evaluation for transaction {TransactionId} by user {UserId}, amount {Amount} {Currency}",
+                context.Id, context.UserId, context.Amount, context.Currency);
+            
             // Run all scoring engines in parallel for speed
             var velocityScoreTask = CalculateVelocityScore(context, cancellationToken);
             var behavioralScoreTask = CalculateBehavioralScore(context, cancellationToken);
@@ -118,13 +126,20 @@ public class FraudEvaluationService : IFraudEvaluationService
             
             await _evaluationRepository.AddAsync(evaluation, cancellationToken);
             
+            _logger.LogInformation(
+                "Fraud evaluation completed for transaction {TransactionId}. Decision: {Decision}, Score: {Score}, Time: {ElapsedMs}ms",
+                context.Id, fraudScore.Decision, fraudScore.Score, stopwatch.ElapsedMilliseconds);
+            
             return fraudScore;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // On error, fail-safe: allow transaction but flag for review
-            // Log full exception details internally but don't expose to users
-            // TODO: Add proper logging infrastructure
+            // Log full exception details internally
+            _logger.LogError(ex,
+                "Fraud evaluation encountered an error for transaction {TransactionId}. Failing safe to Review decision.",
+                context.Id);
+                
             return FraudScore.Create(
                 500, 
                 FraudReason.None, 

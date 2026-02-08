@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+
 namespace Wekeza.Core.Infrastructure.ApiGateway;
 
 /// <summary>

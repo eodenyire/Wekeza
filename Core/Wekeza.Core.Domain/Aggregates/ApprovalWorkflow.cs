@@ -372,8 +372,12 @@ public class ApprovalStep
     public ApprovalStepStatus Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? AssignedAt { get; private set; }
+    public string? AssignedTo { get; private set; }
+    public DateTime? AssignedDate { get; private set; }
     public DateTime? ProcessedAt { get; private set; }
     public string? ProcessedBy { get; private set; }
+    public string? ApprovedBy { get; private set; }
+    public DateTime? ApprovedDate { get; private set; }
     public string? Comments { get; private set; }
 
     private ApprovalStep() { } // EF Core
@@ -401,13 +405,15 @@ public class ApprovalStep
         Status = ApprovalStepStatus.Pending;
     }
 
-    public void Assign()
+    public void Assign(string? assignedToUserId = null)
     {
         if (Status != ApprovalStepStatus.Pending)
             throw new InvalidOperationException("Step is not in pending state");
 
         Status = ApprovalStepStatus.Assigned;
         AssignedAt = DateTime.UtcNow;
+        AssignedDate = DateTime.UtcNow;
+        AssignedTo = assignedToUserId ?? SpecificApprover;
     }
 
     public void Approve(string approverUserId, string? comments = null)
@@ -418,6 +424,8 @@ public class ApprovalStep
         Status = ApprovalStepStatus.Approved;
         ProcessedAt = DateTime.UtcNow;
         ProcessedBy = approverUserId;
+        ApprovedBy = approverUserId;
+        ApprovedDate = DateTime.UtcNow;
         Comments = comments;
     }
 
@@ -455,9 +463,11 @@ public class WorkflowComment
     public Guid Id { get; private set; }
     public Guid WorkflowId { get; private set; }
     public string UserId { get; private set; }
+    public string CommentBy { get; private set; }
     public string Comment { get; private set; }
     public WorkflowCommentType CommentType { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public DateTime CommentDate { get; private set; }
 
     private WorkflowComment() { } // EF Core
 
@@ -466,9 +476,11 @@ public class WorkflowComment
         Id = id;
         WorkflowId = workflowId;
         UserId = userId;
+        CommentBy = userId;
         Comment = comment;
         CommentType = commentType;
         CreatedAt = createdAt;
+        CommentDate = createdAt;
     }
 }
 

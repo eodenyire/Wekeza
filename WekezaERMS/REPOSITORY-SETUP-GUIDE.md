@@ -1,0 +1,343 @@
+# WekezaERMS - Separate Repository Setup Guide
+
+## Overview
+
+This guide provides instructions for setting up the WekezaERMS as a standalone repository at `https://github.com/eodenyire/WekezaERMS`.
+
+Currently, WekezaERMS exists as a subfolder within the main Wekeza repository. This guide will help you extract it and push it to its own dedicated repository.
+
+## Prerequisites
+
+- Git installed on your local machine
+- Access to both repositories:
+  - Source: `https://github.com/eodenyire/Wekeza`
+  - Target: `https://github.com/eodenyire/WekezaERMS` (should be created if it doesn't exist)
+- GitHub credentials with push access
+
+## Method 1: Using Git Subtree (Recommended)
+
+This method preserves the full git history of the WekezaERMS folder.
+
+### Step 1: Create the Target Repository
+
+1. Go to GitHub and create a new repository: `https://github.com/eodenyire/WekezaERMS`
+2. Do NOT initialize it with a README, .gitignore, or license (we'll push these from the source)
+
+### Step 2: Extract WekezaERMS with History
+
+```bash
+# Clone the Wekeza repository
+git clone https://github.com/eodenyire/Wekeza.git
+cd Wekeza
+
+# Use git subtree to split out the WekezaERMS folder with its history
+git subtree split --prefix=WekezaERMS -b erms-only
+
+# Create a new directory for the standalone ERMS repo
+cd ..
+mkdir WekezaERMS-standalone
+cd WekezaERMS-standalone
+
+# Initialize as a git repository
+git init
+
+# Fetch the split branch
+git fetch ../Wekeza erms-only
+
+# Merge the fetched content
+git merge FETCH_HEAD
+
+# Add the remote for the new repository
+git remote add origin https://github.com/eodenyire/WekezaERMS.git
+
+# Push to the new repository
+git push -u origin main
+```
+
+### Step 3: Verify the Push
+
+```bash
+# Check the remote repository
+git remote -v
+
+# Verify all files are present
+ls -la
+
+# Check git log to ensure history is preserved
+git log --oneline
+```
+
+## Method 2: Manual Copy (Quick & Simple)
+
+This method does not preserve git history but is faster and simpler.
+
+### Step 1: Create the Target Repository
+
+1. Go to GitHub and create a new repository: `https://github.com/eodenyire/WekezaERMS`
+2. Optionally initialize with a README
+
+### Step 2: Copy Files
+
+```bash
+# Clone the Wekeza repository
+git clone https://github.com/eodenyire/Wekeza.git
+cd Wekeza
+
+# Clone the target repository
+cd ..
+git clone https://github.com/eodenyire/WekezaERMS.git
+
+# Copy the WekezaERMS folder contents
+cp -r Wekeza/WekezaERMS/* WekezaERMS/
+
+# Navigate to the target repo
+cd WekezaERMS
+
+# Add all files
+git add .
+
+# Commit
+git commit -m "Initial commit: WekezaERMS from Wekeza repository"
+
+# Push to GitHub
+git push origin main
+```
+
+## Method 3: Using Git Filter-Repo (Advanced)
+
+This method is the most advanced and provides the cleanest result.
+
+### Prerequisites
+
+Install git-filter-repo:
+```bash
+pip install git-filter-repo
+```
+
+### Steps
+
+```bash
+# Clone the Wekeza repository
+git clone https://github.com/eodenyire/Wekeza.git WekezaERMS-extraction
+cd WekezaERMS-extraction
+
+# Use git-filter-repo to keep only the WekezaERMS folder
+git filter-repo --path WekezaERMS/ --path-rename WekezaERMS/:
+
+# Add the new remote
+git remote add origin https://github.com/eodenyire/WekezaERMS.git
+
+# Push to the new repository
+git push -u origin main
+```
+
+## Post-Setup Tasks
+
+After pushing to the new repository, complete these tasks:
+
+### 1. Update Documentation
+
+Update any references to the old repository location in:
+- README.md
+- IMPLEMENTATION-GUIDE.md
+- API-REFERENCE.md
+- Any other documentation files
+
+### 2. Update GitHub Repository Settings
+
+1. Add repository description: "Wekeza Enterprise Risk Management System (ERMS)"
+2. Add topics: `risk-management`, `enterprise-risk`, `banking`, `dotnet`, `csharp`
+3. Set up branch protection rules for `main` branch
+4. Configure GitHub Actions (if needed)
+
+### 3. Update Links
+
+Update any links that reference the old repository:
+```bash
+# Find and replace old repository links
+find . -type f -name "*.md" -exec sed -i 's|github.com/eodenyire/Wekeza/tree/main/WekezaERMS|github.com/eodenyire/WekezaERMS|g' {} +
+```
+
+### 4. Create GitHub Actions Workflows
+
+Add `.github/workflows/dotnet-build.yml`:
+```yaml
+name: .NET Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '10.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore
+    
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+```
+
+### 5. Update .gitignore
+
+Ensure the root .gitignore file is appropriate for a .NET project:
+```gitignore
+## Ignore Visual Studio temporary files, build results, and
+## files generated by popular Visual Studio add-ons.
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+
+# Visual Studio
+.vs/
+*.vsidx
+*.vssscc
+```
+
+## Maintaining Sync Between Repositories
+
+If you want to keep the WekezaERMS folder in the main Wekeza repository synced with the standalone repository:
+
+### Option 1: Git Submodule
+
+In the Wekeza repository:
+```bash
+# Remove the existing WekezaERMS folder
+git rm -r WekezaERMS
+git commit -m "Remove WekezaERMS folder to replace with submodule"
+
+# Add as submodule
+git submodule add https://github.com/eodenyire/WekezaERMS.git WekezaERMS
+git commit -m "Add WekezaERMS as submodule"
+git push
+```
+
+### Option 2: Manual Sync Script
+
+Create a script `sync-erms.sh` in the Wekeza repository:
+```bash
+#!/bin/bash
+# Sync WekezaERMS changes to the standalone repository
+
+cd WekezaERMS
+git fetch origin main
+git merge origin/main
+# Make your changes
+git add .
+git commit -m "Update ERMS"
+git push origin main
+cd ..
+```
+
+### Option 3: Keep Separate
+
+Simply maintain them separately and manually copy changes when needed.
+
+## Verification Checklist
+
+After completing the setup, verify:
+
+- [ ] All files are present in the new repository
+- [ ] The solution builds successfully: `dotnet build`
+- [ ] All project references work correctly
+- [ ] Documentation is updated with correct repository links
+- [ ] GitHub Actions workflows are configured (if applicable)
+- [ ] README.md is properly displayed on GitHub
+- [ ] Repository description and topics are set
+- [ ] Branch protection rules are configured
+- [ ] Collaborators have appropriate access
+
+## Building and Testing
+
+After setup, verify the project builds:
+
+```bash
+cd WekezaERMS
+dotnet restore
+dotnet build
+dotnet test
+```
+
+## Troubleshooting
+
+### Issue: Push rejected
+
+**Error**: `! [rejected] main -> main (fetch first)`
+
+**Solution**:
+```bash
+git fetch origin main
+git rebase origin/main
+git push origin main
+```
+
+### Issue: Missing files
+
+**Problem**: Some files are missing after the split
+
+**Solution**: Ensure you're using the correct path prefix:
+```bash
+git subtree split --prefix=WekezaERMS -b erms-only
+```
+
+### Issue: Large repository size
+
+**Problem**: The repository is larger than expected
+
+**Solution**: Clean up git history:
+```bash
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+```
+
+## Support
+
+For questions or issues:
+- Create an issue in the WekezaERMS repository
+- Contact: risk@wekeza.com
+- Documentation: https://docs.wekeza.com/erms
+
+## Summary
+
+This guide provides three methods to extract and push WekezaERMS to its own repository:
+
+1. **Git Subtree** - Best for preserving history
+2. **Manual Copy** - Quickest and simplest
+3. **Git Filter-Repo** - Most advanced, cleanest result
+
+Choose the method that best fits your needs and follow the post-setup tasks to ensure everything is properly configured.

@@ -27,7 +27,7 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
         // Validate LC number uniqueness
         if (await _lcRepository.ExistsAsync(request.LCNumber, cancellationToken))
         {
-            throw new ValidationException($"LC with number {request.LCNumber} already exists");
+            throw new ValidationException(new[] { new FluentValidation.Results.ValidationFailure("LCNumber", $"LC with number {request.LCNumber} already exists") });
         }
 
         // Validate applicant exists
@@ -45,7 +45,16 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
         }
 
         // Create money value object
-        var amount = new Money(request.Amount, request.Currency);
+        var amount = new Money(request.Amount, Currency.FromCode(request.Currency));
+
+        // Map LCType from enum to aggregate type
+        var lcType = request.Type switch
+        {
+            Domain.Enums.LCType.Commercial => LCType.Irrevocable,
+            Domain.Enums.LCType.Standby => LCType.Standby,
+            Domain.Enums.LCType.Transferable => LCType.Transferable,
+            _ => LCType.Irrevocable
+        };
 
         // Issue the Letter of Credit
         var letterOfCredit = LetterOfCredit.Issue(
@@ -57,7 +66,7 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
             request.ExpiryDate,
             request.Terms,
             request.GoodsDescription,
-            request.Type,
+            lcType,
             request.LastShipmentDate,
             request.AdvisingBankId,
             request.IsTransferable);
