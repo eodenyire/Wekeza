@@ -11,7 +11,7 @@ public class CancelCardHandler : IRequestHandler<CancelCardCommand, bool>
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CancelCardHandler(ICardRepository cardRepository, IUnitOfWork unitOfWork)
+    public CancelCardHandler(ICardRepository cardRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _cardRepository = cardRepository;
         _unitOfWork = unitOfWork;

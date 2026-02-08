@@ -4,6 +4,7 @@
 ///
 using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
+using Wekeza.Core.Application.Common.Interfaces;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
 
@@ -15,11 +16,13 @@ public class CloseAccountHandler : IRequestHandler<CloseAccountCommand, bool>
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CloseAccountHandler(IAccountRepository accountRepository, IUnitOfWork unitOfWork)
+    public CloseAccountHandler(IAccountRepository accountRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<bool> Handle(CloseAccountCommand request, CancellationToken ct)

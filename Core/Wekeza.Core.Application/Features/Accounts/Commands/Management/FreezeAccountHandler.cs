@@ -6,6 +6,7 @@
 ///
 using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
+using Wekeza.Core.Application.Common.Interfaces;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
 
@@ -17,11 +18,13 @@ public class FreezeAccountHandler : IRequestHandler<FreezeAccountCommand, bool>
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
-    public FreezeAccountHandler(IAccountRepository accountRepository, IUnitOfWork unitOfWork)
+    public FreezeAccountHandler(IAccountRepository accountRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<bool> Handle(FreezeAccountCommand request, CancellationToken ct)
