@@ -30,7 +30,7 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
         try
         {
             // Validate account exists and has sufficient balance
-            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value, cancellationToken);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
@@ -38,7 +38,7 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
                 return Result<Guid>.Failure("Insufficient account balance");
 
             // Check if deposit number already exists
-            if (await _callDepositRepository.ExistsAsync(request.DepositNumber))
+            if (await _callDepositRepository.ExistsAsync(request.DepositNumber, cancellationToken))
                 return Result<Guid>.Failure("Deposit number already exists");
 
             // Validate minimum deposit requirement
@@ -68,8 +68,8 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
                 request.CreatedBy);
 
             // Save changes
-            await _callDepositRepository.AddAsync(callDeposit);
-            await _accountRepository.UpdateAsync(account);
+            await _callDepositRepository.AddAsync(callDeposit, cancellationToken);
+            await _accountRepository.UpdateAsync(account, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(callDeposit.Id);

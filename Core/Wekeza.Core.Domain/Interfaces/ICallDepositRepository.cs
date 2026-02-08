@@ -8,19 +8,19 @@ namespace Wekeza.Core.Domain.Interfaces;
 /// </summary>
 public interface ICallDepositRepository
 {
-    Task<CallDeposit?> GetByIdAsync(Guid id);
-    Task<CallDeposit?> GetByDepositNumberAsync(string depositNumber);
-    Task<IEnumerable<CallDeposit>> GetByCustomerIdAsync(Guid customerId);
-    Task<IEnumerable<CallDeposit>> GetByAccountIdAsync(Guid accountId);
-    Task<IEnumerable<CallDeposit>> GetByStatusAsync(DepositStatus status);
-    Task<IEnumerable<CallDeposit>> GetByBranchCodeAsync(string branchCode);
-    Task<IEnumerable<CallDeposit>> GetWithPendingNoticesAsync();
-    Task<IEnumerable<CallDeposit>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
-    Task<IEnumerable<CallDeposit>> GetInstantAccessDepositsAsync();
-    Task AddAsync(CallDeposit callDeposit);
-    Task UpdateAsync(CallDeposit callDeposit);
-    Task DeleteAsync(Guid id);
-    Task<bool> ExistsAsync(string depositNumber);
-    Task<decimal> GetTotalBalanceByCustomerAsync(Guid customerId);
-    Task<IEnumerable<CallDeposit>> GetDepositsForInterestAccrualAsync();
+    Task<CallDeposit?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<CallDeposit?> GetByDepositNumberAsync(string depositNumber, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CallDeposit>> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CallDeposit>> GetByAccountIdAsync(Guid accountId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CallDeposit>> GetByStatusAsync(DepositStatus status, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CallDeposit>> GetByBranchCodeAsync(string branchCode, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CallDeposit>> GetWithPendingNoticesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<CallDeposit>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CallDeposit>> GetInstantAccessDepositsAsync(CancellationToken cancellationToken = default);
+    Task AddAsync(CallDeposit callDeposit, CancellationToken cancellationToken = default);
+    Task UpdateAsync(CallDeposit callDeposit, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(string depositNumber, CancellationToken cancellationToken = default);
+    Task<decimal> GetTotalBalanceByCustomerAsync(Guid customerId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CallDeposit>> GetDepositsForInterestAccrualAsync(CancellationToken cancellationToken = default);
 }
