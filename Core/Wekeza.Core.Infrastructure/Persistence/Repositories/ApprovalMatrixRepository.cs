@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Wekeza.Core.Domain.Aggregates;
-using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Interfaces;
+using DomainWorkflowType = Wekeza.Core.Domain.Enums.WorkflowType;
 
 namespace Wekeza.Core.Infrastructure.Persistence.Repositories;
 
@@ -20,7 +20,7 @@ public class ApprovalMatrixRepository : IApprovalMatrixRepository
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<IEnumerable<ApprovalMatrix>> GetByWorkflowTypeAsync(WorkflowType workflowType)
+    public async Task<IEnumerable<ApprovalMatrix>> GetByWorkflowTypeAsync(DomainWorkflowType workflowType)
     {
         return await _context.ApprovalMatrices
             .Where(a => a.WorkflowType == workflowType && a.IsActive)
@@ -28,7 +28,7 @@ public class ApprovalMatrixRepository : IApprovalMatrixRepository
             .ToListAsync();
     }
 
-    public async Task<ApprovalMatrix?> GetApplicableMatrixAsync(WorkflowType workflowType, decimal amount, string currency)
+    public async Task<ApprovalMatrix?> GetApplicableMatrixAsync(DomainWorkflowType workflowType, decimal amount, string currency)
     {
         return await _context.ApprovalMatrices
             .Where(a => a.WorkflowType == workflowType 

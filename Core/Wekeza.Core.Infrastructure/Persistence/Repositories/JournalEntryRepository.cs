@@ -165,6 +165,11 @@ public class JournalEntryRepository : IJournalEntryRepository
         _context.JournalEntries.Add(journalEntry);
     }
 
+    public async Task AddAsync(JournalEntry journalEntry, CancellationToken cancellationToken = default)
+    {
+        await _context.JournalEntries.AddAsync(journalEntry, cancellationToken);
+    }
+
     public void Update(JournalEntry journalEntry)
     {
         _context.JournalEntries.Update(journalEntry);

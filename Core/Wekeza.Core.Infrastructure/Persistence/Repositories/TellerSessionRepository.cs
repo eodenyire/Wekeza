@@ -55,6 +55,14 @@ public class TellerSessionRepository : ITellerSessionRepository
             .FirstOrDefaultAsync(s => s.TellerId == tellerId && s.Status == TellerSessionStatus.Active, ct);
     }
 
+    public async Task<TellerSession?> GetActiveSessionByUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        // Map userId to tellerId or use alternative identifier
+        // For now, assuming userId is the same as tellerId
+        return await _context.TellerSessions
+            .FirstOrDefaultAsync(s => s.TellerId == userId && s.Status == TellerSessionStatus.Active, ct);
+    }
+
     public async Task<IEnumerable<TellerSession>> GetSessionsByTellerIdAsync(Guid tellerId, CancellationToken ct = default)
     {
         return await _context.TellerSessions

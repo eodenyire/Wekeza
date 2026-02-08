@@ -85,4 +85,28 @@ public class TransactionRepository : ITransactionRepository
             .Take(limit)
             .ToListAsync(ct);
     }
+
+    public async Task<IEnumerable<Transaction>> GetByAccountAsync(Guid accountId, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken ct = default)
+    {
+        var query = _context.Transactions
+            .Where(t => t.AccountId == accountId);
+
+        if (fromDate.HasValue)
+            query = query.Where(t => t.Timestamp >= fromDate.Value);
+
+        if (toDate.HasValue)
+            query = query.Where(t => t.Timestamp <= toDate.Value);
+
+        return await query
+            .OrderByDescending(t => t.Timestamp)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<Transaction>> GetTransactionsByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default)
+    {
+        return await _context.Transactions
+            .Where(t => t.Timestamp.Date >= fromDate.Date && t.Timestamp.Date <= toDate.Date)
+            .OrderByDescending(t => t.Timestamp)
+            .ToListAsync(ct);
+    }
 }

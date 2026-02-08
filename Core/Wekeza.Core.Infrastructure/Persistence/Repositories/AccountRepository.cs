@@ -78,4 +78,28 @@ public class AccountRepository : IAccountRepository
         
         return 1;
     }
+
+    public async Task<IEnumerable<Account>> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Accounts
+            .Include(a => a.Customer)
+            .Where(a => a.CustomerId == customerId)
+            .OrderByDescending(a => a.OpeningDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Account>> GetAccountsByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
+    {
+        return await _context.Accounts
+            .Include(a => a.Customer)
+            .Where(a => a.OpeningDate.Date >= fromDate.Date && a.OpeningDate.Date <= toDate.Date)
+            .OrderByDescending(a => a.OpeningDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task UpdateAsync(Account account, CancellationToken cancellationToken = default)
+    {
+        _context.Accounts.Update(account);
+        await Task.CompletedTask;
+    }
 }
