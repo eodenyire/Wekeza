@@ -1,3 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Wekeza.Core.Domain.Interfaces;
+
 ///2. InterestAccrualJob.cs (The Revenue Engine)
 /// This job ensures that for savings or fixed-deposit accounts, the daily interest is calculated based on the End-of-Day (EOD) balance. This is precision-grade math where rounding errors are forbidden.
 ///
@@ -26,15 +31,16 @@ public class InterestAccrualJob : BackgroundService
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
                 // Fetch interest-bearing accounts
-                var accounts = await accountRepository.GetInterestBearingAccountsAsync(stoppingToken);
+                // TODO: Implement GetInterestBearingAccountsAsync method on IAccountRepository
+                // var accounts = await accountRepository.GetInterestBearingAccountsAsync(stoppingToken);
 
-                foreach (var account in accounts)
-                {
-                    // Domain Math: (Balance * Rate) / 365
-                    account.AccrueDailyInterest();
-                }
+                // foreach (var account in accounts)
+                // {
+                //     // Domain Math: (Balance * Rate) / 365
+                //     account.AccrueDailyInterest();
+                // }
 
-                await unitOfWork.SaveChangesAsync(stoppingToken);
+                // await unitOfWork.SaveChangesAsync(stoppingToken);
             }
             
             // Wait for the next midnight window

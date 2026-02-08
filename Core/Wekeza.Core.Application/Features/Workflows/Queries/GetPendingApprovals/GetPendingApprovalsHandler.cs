@@ -19,7 +19,7 @@ public class GetPendingApprovalsHandler : IRequestHandler<GetPendingApprovalsQue
 
     public async Task<List<PendingApprovalDto>> Handle(GetPendingApprovalsQuery request, CancellationToken cancellationToken)
     {
-        var userId = _currentUserService.UserId ?? "System";
+        var userId = _currentUserService.UserId?.ToString() ?? "System";
         
         var workflows = await _workflowRepository.GetPendingForApproverAsync(userId, cancellationToken);
 

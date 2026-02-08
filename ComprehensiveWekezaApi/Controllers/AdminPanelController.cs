@@ -275,7 +275,7 @@ public class AdminPanelController : ControllerBase
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email,
-                Phone = request.Phone,
+                PrimaryPhone = request.Phone,
                 IdentificationNumber = request.IdentificationNumber,
                 DateOfBirth = request.DateOfBirth,
                 Gender = request.Gender,

@@ -28,4 +28,14 @@ public class Transaction : Entity
     }
 }
 
+public enum TransactionType
+{
+    Deposit,
+    Withdrawal,
+    Transfer,
+    Fee,
+    Interest,
+    Reversal
+}
+
 

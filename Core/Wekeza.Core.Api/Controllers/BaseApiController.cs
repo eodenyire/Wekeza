@@ -14,6 +14,17 @@ public abstract class BaseApiController : ControllerBase
 {
     private ISender? _mediator;
 
+    // Default constructor for existing implementation
+    protected BaseApiController()
+    {
+    }
+
+    // Constructor with IMediator for direct injection
+    protected BaseApiController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     // Use Null-coalescing assignment to ensure mediator is only fetched once
     protected ISender Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<ISender>();
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wekeza.Core.Application.Features.DigitalChannels.Commands.CreateDigitalChannel;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Aggregates;
 
 namespace Wekeza.Core.Api.Controllers;
 
@@ -80,7 +81,7 @@ public class DigitalChannelsController : BaseApiController
     [HttpGet]
     [Authorize(Roles = "Manager,Administrator")]
     public async Task<IActionResult> GetDigitalChannels(
-        [FromQuery] ChannelType? channelType = null,
+        [FromQuery] Wekeza.Core.Domain.Enums.ChannelType? channelType = null,
         [FromQuery] ChannelStatus? status = null)
     {
         // This would be implemented with a query handler
