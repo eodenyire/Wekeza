@@ -46,7 +46,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
         var withdrawalAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
         
         // Debit the account (This checks for Insufficient Funds)
-        account.Debit(withdrawalAmount);
+        account.Debit(withdrawalAmount, $"ATM-{request.AtmId}-{Guid.NewGuid()}", $"ATM withdrawal at {request.AtmId}");
 
         // 4. Record withdrawal on card
         card.RecordWithdrawal(request.Amount, Guid.NewGuid().ToString());

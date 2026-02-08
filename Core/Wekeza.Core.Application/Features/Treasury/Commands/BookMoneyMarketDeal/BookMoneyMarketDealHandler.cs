@@ -38,7 +38,7 @@ public class BookMoneyMarketDealHandler : IRequestHandler<BookMoneyMarketDealCom
         }
 
         // Create value objects
-        var principal = new Money(request.Principal, request.Currency);
+        var principal = new Money(request.Principal, Currency.FromCode(request.Currency));
         var interestRate = new InterestRate((decimal)request.InterestRate);
 
         // Book the money market deal

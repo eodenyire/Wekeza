@@ -45,7 +45,7 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
         }
 
         // Create money value object
-        var amount = new Money(request.Amount, request.Currency);
+        var amount = new Money(request.Amount, Currency.FromCode(request.Currency));
 
         // Issue the Letter of Credit
         var letterOfCredit = LetterOfCredit.Issue(
