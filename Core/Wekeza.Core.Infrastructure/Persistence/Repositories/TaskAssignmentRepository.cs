@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
+using DomainTaskStatus = Wekeza.Core.Domain.Enums.TaskStatus;
+using DomainPriority = Wekeza.Core.Domain.Enums.Priority;
 
 namespace Wekeza.Core.Infrastructure.Persistence.Repositories;
 
@@ -36,22 +38,28 @@ public class TaskAssignmentRepository : ITaskAssignmentRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<TaskAssignment>> GetByStatusAsync(TaskStatus status)
+    public async Task<IEnumerable<TaskAssignment>> GetByStatusAsync(DomainTaskStatus status)
     {
+        // Convert Domain.Enums.TaskStatus to Aggregates.TaskStatus
+        var aggregateStatus = (Wekeza.Core.Domain.Aggregates.TaskStatus)(int)status;
+        
         return await _context.TaskAssignments
             .Include(t => t.Comments)
             .Include(t => t.Attachments)
-            .Where(t => t.Status == status)
+            .Where(t => t.Status == aggregateStatus)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<TaskAssignment>> GetByPriorityAsync(Priority priority)
+    public async Task<IEnumerable<TaskAssignment>> GetByPriorityAsync(DomainPriority priority)
     {
+        // Convert Domain.Enums.Priority to Aggregates.Priority
+        var aggregatePriority = (Wekeza.Core.Domain.Aggregates.Priority)(int)priority;
+        
         return await _context.TaskAssignments
             .Include(t => t.Comments)
             .Include(t => t.Attachments)
-            .Where(t => t.Priority == priority)
+            .Where(t => t.Priority == aggregatePriority)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
     }
@@ -64,8 +72,8 @@ public class TaskAssignmentRepository : ITaskAssignmentRepository
             .Include(t => t.Attachments)
             .Where(t => t.DueDate.HasValue && 
                        t.DueDate.Value < now && 
-                       t.Status != TaskStatus.Completed && 
-                       t.Status != TaskStatus.Cancelled)
+                       t.Status != Wekeza.Core.Domain.Aggregates.TaskStatus.Completed && 
+                       t.Status != Wekeza.Core.Domain.Aggregates.TaskStatus.Cancelled)
             .OrderBy(t => t.DueDate)
             .ToListAsync();
     }

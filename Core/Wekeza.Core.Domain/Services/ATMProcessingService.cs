@@ -60,7 +60,7 @@ public class ATMProcessingService
             failedTransaction.Decline("55", "Incorrect PIN", "PIN validation failed");
             
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, amount, TransactionType.ATMWithdrawal, false, null, atmId);
+                card.Id, amount, CardTransactionType.ATMWithdrawal, false, null, atmId);
             
             return failedTransaction;
         }
@@ -87,11 +87,11 @@ public class ATMProcessingService
         atmTransaction.SetPINVerificationResult(true);
 
         // Validate card can process transaction
-        if (!card.CanProcessTransaction(amount, TransactionType.ATMWithdrawal))
+        if (!card.CanProcessTransaction(amount, CardTransactionType.ATMWithdrawal))
         {
             atmTransaction.Decline("61", "Exceeds withdrawal limit", "Daily withdrawal limit exceeded");
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, amount, TransactionType.ATMWithdrawal, false, null, atmId);
+                card.Id, amount, CardTransactionType.ATMWithdrawal, false, null, atmId);
             return atmTransaction;
         }
 
@@ -100,7 +100,7 @@ public class ATMProcessingService
         {
             atmTransaction.Decline("51", "Insufficient funds", "Account balance insufficient");
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, amount, TransactionType.ATMWithdrawal, false, null, atmId);
+                card.Id, amount, CardTransactionType.ATMWithdrawal, false, null, atmId);
             return atmTransaction;
         }
 
@@ -109,7 +109,7 @@ public class ATMProcessingService
         {
             atmTransaction.Decline("62", "Restricted card", "Account is not active");
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, amount, TransactionType.ATMWithdrawal, false, null, atmId);
+                card.Id, amount, CardTransactionType.ATMWithdrawal, false, null, atmId);
             return atmTransaction;
         }
 
@@ -131,7 +131,7 @@ public class ATMProcessingService
             
             // Update card transaction tracking
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, amount, TransactionType.ATMWithdrawal, true, null, atmId);
+                card.Id, amount, CardTransactionType.ATMWithdrawal, true, null, atmId);
             
             // Update repositories
             await _accountRepository.UpdateAsync(account);
@@ -143,7 +143,7 @@ public class ATMProcessingService
         {
             atmTransaction.Decline("96", "System error", ex.Message);
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, amount, TransactionType.ATMWithdrawal, false, null, atmId);
+                card.Id, amount, CardTransactionType.ATMWithdrawal, false, null, atmId);
             return atmTransaction;
         }
     }

@@ -1,5 +1,6 @@
 using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
+using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Workflows.Queries.GetWorkflowDetails;
@@ -19,7 +20,7 @@ public class GetWorkflowDetailsHandler : IRequestHandler<GetWorkflowDetailsQuery
         
         if (workflow == null)
         {
-            throw new NotFoundException($"Workflow with ID {request.WorkflowId} not found.");
+            throw new NotFoundException(nameof(WorkflowInstance), request.WorkflowId);
         }
 
         return new WorkflowDetailsDto
@@ -44,10 +45,10 @@ public class GetWorkflowDetailsHandler : IRequestHandler<GetWorkflowDetailsQuery
             {
                 Level = s.Level,
                 AssignedTo = s.AssignedTo,
-                AssignedDate = s.AssignedDate,
+                AssignedDate = s.AssignedDate ?? DateTime.MinValue,
                 Status = s.Status.ToString(),
                 ApprovedBy = s.ApprovedBy,
-                ApprovedDate = s.ApprovedDate,
+                ApprovedDate = s.ApprovedDate ?? DateTime.MinValue,
                 Comments = s.Comments,
                 ApproverRole = s.ApproverRole
             }).ToList(),

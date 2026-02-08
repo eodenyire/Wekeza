@@ -52,7 +52,7 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
             throw new ArgumentException("Customer not found");
 
         // 3. Check product eligibility
-        var customerAge = DateTime.UtcNow.Year - customer.DateOfBirth?.Year ?? 25; // Default age if not available
+        var customerAge = DateTime.UtcNow.Year - (customer.DateOfBirth?.Year ?? (DateTime.UtcNow.Year - 25)); // Default age if not available
         var customerSegment = CustomerSegment.Retail; // This would come from customer classification
 
         if (!product.IsEligible(request.CustomerId, request.InitialDeposit, customerSegment, customerAge))
@@ -72,7 +72,7 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
             accountNumber,
             currency,
             customerGLCode,
-            _currentUserService.UserId,
+            _currentUserService.UserId?.ToString() ?? "System",
             product);
 
         _accountRepository.Add(account);
@@ -97,9 +97,9 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
                 "Initial deposit on account opening",
                 cashGLCode,
                 journalNumber,
-                _currentUserService.UserId);
+                _currentUserService.UserId?.ToString() ?? "System");
 
-            journalEntry.Post(_currentUserService.UserId);
+            journalEntry.Post(_currentUserService.UserId?.ToString() ?? "System");
             _journalEntryRepository.Add(journalEntry);
 
             // Update GL account balances
@@ -150,7 +150,7 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
             product.Currency,
             3, // Detail level
             true, // Is leaf account
-            _currentUserService.UserId,
+            _currentUserService.UserId?.ToString() ?? "System",
             product.AccountingConfig?.LiabilityGLCode); // Parent GL code from product
 
         _glAccountRepository.Add(customerGLAccount);
@@ -176,7 +176,7 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
                 currency,
                 2,
                 true,
-                _currentUserService.UserId);
+                _currentUserService.UserId?.ToString() ?? "System");
             
             _glAccountRepository.Add(newCashAccount);
             return glCode;

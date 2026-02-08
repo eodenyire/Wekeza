@@ -20,6 +20,12 @@ public class GLAccountRepository : IGLAccountRepository
             .FirstOrDefaultAsync(g => g.GLCode == glCode);
     }
 
+    public async Task<GLAccount?> GetByCodeAsync(string code)
+    {
+        // Alias for GetByGLCodeAsync for compatibility
+        return await GetByGLCodeAsync(code);
+    }
+
     public async Task<GLAccount?> GetByIdAsync(Guid id)
     {
         return await _context.GLAccounts

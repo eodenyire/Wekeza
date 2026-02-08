@@ -32,10 +32,15 @@ public class ApproveWorkflowHandler : IRequestHandler<ApproveWorkflowCommand, bo
         }
 
         var approverId = _currentUserService.UserId?.ToString() ?? "System";
-        var approverRole = _currentUserService.Roles.FirstOrDefault();
+        var approverRoleEnum = _currentUserService.Roles?.FirstOrDefault() ?? UserRole.Supervisor;
+        var approverRole = new Wekeza.Core.Domain.Aggregates.UserRole(
+            approverRoleEnum.ToString(),
+            approverRoleEnum.ToString(),
+            new List<string>(),
+            approverId);
 
         // Approve the workflow
-        workflow.Approve(approverId, request.Comments, approverRole);
+        workflow.Approve(approverId, request.Comments ?? string.Empty, approverRole);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
