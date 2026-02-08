@@ -66,7 +66,7 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
                     IsSuccess = true,
                     PaymentOrderId = paymentOrder.Id,
                     PaymentReference = paymentOrder.PaymentReference,
-                    Status = PaymentStatus.Pending,
+                    Status = DomainEnums.PaymentStatus.Pending,
                     RequiresApproval = true,
                     WorkflowInstanceId = workflowResult.Value
                 };
@@ -101,7 +101,7 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
                 IsSuccess = true,
                 PaymentOrderId = paymentOrder.Id,
                 PaymentReference = paymentOrder.PaymentReference,
-                Status = PaymentStatus.Pending,
+                Status = DomainEnums.PaymentStatus.Pending,
                 RequiresApproval = false
             };
         }
@@ -112,7 +112,7 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
                 IsSuccess = false,
                 ErrorMessage = ex.Message,
                 PaymentOrderId = Guid.Empty,
-                Status = PaymentStatus.Failed
+                Status = DomainEnums.PaymentStatus.Failed
             };
         }
     }
@@ -123,8 +123,8 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
 
         return request.Type switch
         {
-            PaymentType.InternalTransfer => await CreateInternalTransferAsync(request, amount),
-            PaymentType.ExternalTransfer => await CreateExternalPaymentAsync(request, amount),
+            DomainEnums.PaymentType.InternalTransfer => await CreateInternalTransferAsync(request, amount),
+            DomainEnums.PaymentType.ExternalTransfer => await CreateExternalPaymentAsync(request, amount),
             _ => throw new ArgumentException($"Unsupported payment type: {request.Type}")
         };
     }
@@ -203,9 +203,9 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
     {
         return paymentOrder.Type switch
         {
-            PaymentType.InternalTransfer => await _paymentProcessingService.ProcessInternalTransferAsync(
+            DomainEnums.PaymentType.InternalTransfer => await _paymentProcessingService.ProcessInternalTransferAsync(
                 paymentOrder, _currentUserService.UserId?.ToString() ?? ""),
-            PaymentType.ExternalTransfer => await _paymentProcessingService.ProcessExternalPaymentAsync(
+            DomainEnums.PaymentType.ExternalTransfer => await _paymentProcessingService.ProcessExternalPaymentAsync(
                 paymentOrder, _currentUserService.UserId?.ToString() ?? ""),
             _ => PaymentProcessingResult.Failed($"Unsupported payment type: {paymentOrder.Type}")
         };
