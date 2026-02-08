@@ -11,5 +11,6 @@ public record WithdrawFromAtmCommand : ICommand<Guid>
     public Guid CardId { get; init; }
     public decimal Amount { get; init; }
     public string TerminalId { get; init; } = string.Empty; // Location of the ATM
+    public string AtmId { get; init; } = string.Empty; // ATM identifier (alias for TerminalId)
     public string Currency { get; init; } = "KES";
 }

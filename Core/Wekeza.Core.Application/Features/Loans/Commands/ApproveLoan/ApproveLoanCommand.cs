@@ -15,6 +15,7 @@ public record ApproveLoanCommand : IRequest<ApproveLoanResult>
 {
     public Guid LoanId { get; init; }
     public string ApprovedBy { get; init; } = string.Empty;
+    public string OfficerName { get; init; } = string.Empty; // Name of approving officer
     public DateTime? FirstPaymentDate { get; init; }
     public decimal? ApprovedAmount { get; init; } // Can approve for less than requested
     public decimal? ApprovedInterestRate { get; init; } // Can override product rate

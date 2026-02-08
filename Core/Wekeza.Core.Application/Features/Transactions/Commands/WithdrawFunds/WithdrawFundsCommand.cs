@@ -19,4 +19,5 @@ public record WithdrawFundsCommand : ICommand<Guid>
     public string Currency { get; init; } = "KES";
     public string Channel { get; init; } = "ATM"; // ATM, Branch, Agent
     public string TerminalId { get; init; } = string.Empty; // Unique ID of the ATM or POS
+    public string Description { get; init; } = string.Empty; // Transaction description
 }

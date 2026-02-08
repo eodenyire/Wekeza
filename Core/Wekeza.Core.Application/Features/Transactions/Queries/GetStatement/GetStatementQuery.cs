@@ -9,6 +9,7 @@ namespace Wekeza.Core.Application.Features.Transactions.Queries.GetStatement;
 public record GetStatementQuery : IRequest<Result<StatementDto>>
 {
     public Guid AccountId { get; init; }
+    public string AccountNumber { get; init; } = string.Empty; // Account number for validation
     public DateTime FromDate { get; init; }
     public DateTime ToDate { get; init; }
     public int PageNumber { get; init; } = 1;

@@ -19,6 +19,7 @@ public record RegisterBusinessCommand : ICommand<Guid>
     public string KraPin { get; init; } = string.Empty;
     public string BusinessType { get; init; } = "LLC"; // Sole Prop, Partnership, LLC
     public string Email { get; init; } = string.Empty;
+    public string PhoneNumber { get; init; } = string.Empty; // Added missing property
     public string Industry { get; init; } = string.Empty;
     public string PrimaryContactPerson { get; init; } = string.Empty;
 }

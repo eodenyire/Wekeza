@@ -15,5 +15,7 @@ public record BookFixedDepositCommand : ICommand<Guid>
     public string SourceAccountNumber { get; init; } = string.Empty;
     public decimal PrincipalAmount { get; init; }
     public int TermInMonths { get; init; } // e.g., 3, 6, 12
+    public int TermInDays => TermInMonths * 30; // Approximate conversion
+    public decimal InterestRate { get; init; } // The APR (alias for AgreedInterestRate)
     public decimal AgreedInterestRate { get; init; } // The APR
 }
