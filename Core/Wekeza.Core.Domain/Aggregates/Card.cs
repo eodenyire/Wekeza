@@ -467,11 +467,13 @@ public enum CardDeliveryStatus
 
 public enum TransactionType
 {
-    ATMWithdrawal = 1,
-    POSPurchase = 2,
-    OnlinePurchase = 3,
-    BalanceInquiry = 4,
-    PINChange = 5
+    Deposit = 0,          // Account deposit
+    Withdrawal = 1,       // Account withdrawal  
+    ATMWithdrawal = 2,
+    POSPurchase = 3,
+    OnlinePurchase = 4,
+    BalanceInquiry = 5,
+    PINChange = 6
 }
 
 

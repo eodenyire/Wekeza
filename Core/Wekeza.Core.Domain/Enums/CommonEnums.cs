@@ -600,7 +600,9 @@ public enum LCType
     Transferable = 4,
     BackToBack = 5,
     Confirmed = 6,
-    Unconfirmed = 7
+    Unconfirmed = 7,
+    Irrevocable = 8,
+    Revocable = 9
 }
 
 /// <summary>
