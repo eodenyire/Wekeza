@@ -26,7 +26,7 @@ public class GetStatementHandler : IRequestHandler<GetStatementQuery, Result<Sta
                 request.ToDate, 
                 cancellationToken);
 
-            var transactionDtos = _mapper.Map<List<TransactionHistoryDto>>(transactions).ToList();
+            var transactionDtos = _mapper.Map<List<TransactionHistoryDto>>(transactions);
             
             var statement = new StatementDto
             {
@@ -34,10 +34,10 @@ public class GetStatementHandler : IRequestHandler<GetStatementQuery, Result<Sta
                 FromDate = request.FromDate,
                 ToDate = request.ToDate,
                 Transactions = transactionDtos,
-                TotalTransactions = transactionDtos.Count(),
+                TotalTransactions = transactionDtos.Count,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
-                TotalPages = (int)Math.Ceiling(transactionDtos.Count() / (double)request.PageSize)
+                TotalPages = (int)Math.Ceiling((double)transactionDtos.Count / request.PageSize)
             };
 
             return Result<StatementDto>.Success(statement);
