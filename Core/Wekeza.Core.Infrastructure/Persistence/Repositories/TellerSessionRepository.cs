@@ -57,8 +57,9 @@ public class TellerSessionRepository : ITellerSessionRepository
 
     public async Task<TellerSession?> GetActiveSessionByUserAsync(Guid userId, CancellationToken ct = default)
     {
-        // Map userId to tellerId or use alternative identifier
-        // For now, assuming userId is the same as tellerId
+        // TODO: Implement proper userId to tellerId mapping
+        // Currently assuming userId is the same as tellerId
+        // This should be updated when user-teller relationship is clarified
         return await _context.TellerSessions
             .FirstOrDefaultAsync(s => s.TellerId == userId && s.Status == TellerSessionStatus.Active, ct);
     }
