@@ -3,11 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using WekezaERMS.Application.Commands.Risks;
 using WekezaERMS.Application.DTOs;
 using WekezaERMS.Application.Queries.Risks;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace WekezaERMS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class RisksController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -23,6 +27,7 @@ public class RisksController : ControllerBase
     /// Get all risks
     /// </summary>
     [HttpGet]
+    [Authorize(Policy = "RiskViewer")]
     [ProducesResponseType(typeof(List<RiskDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<RiskDto>>> GetAllRisks()
     {
@@ -33,30 +38,131 @@ public class RisksController : ControllerBase
     }
 
     /// <summary>
+    /// Get a single risk by ID
+    /// </summary>
+    [HttpGet("{id}")]
+    [Authorize(Policy = "RiskViewer")]
+    [ProducesResponseType(typeof(RiskDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RiskDto>> GetRiskById(Guid id)
+    {
+        _logger.LogInformation("Getting risk by ID: {Id}", id);
+        var query = new GetRiskByIdQuery { Id = id };
+        var risk = await _mediator.Send(query);
+        
+        if (risk == null)
+        {
+            return NotFound(new { message = $"Risk with ID {id} not found" });
+        }
+        
+        return Ok(risk);
+    }
+
+    /// <summary>
     /// Create a new risk
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = "RiskOfficer")]
     [ProducesResponseType(typeof(RiskDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<RiskDto>> CreateRisk([FromBody] CreateRiskDto createRiskDto)
     {
-        _logger.LogInformation("Creating new risk: {Title}", createRiskDto.Title);
-        
-        var command = new CreateRiskCommand
+        try
         {
-            RiskData = createRiskDto,
-            CreatedBy = Guid.NewGuid() // TODO: Get from authentication context
+            _logger.LogInformation("Creating new risk: {Title}", createRiskDto.Title);
+            
+            var userId = GetCurrentUserId();
+            
+            var command = new CreateRiskCommand
+            {
+                RiskData = createRiskDto,
+                CreatedBy = userId
+            };
+
+            var risk = await _mediator.Send(command);
+            
+            return CreatedAtAction(nameof(GetRiskById), new { id = risk.Id }, risk);
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning("Validation failed for CreateRisk: {Errors}", ex.Errors);
+            return BadRequest(new { errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }) });
+        }
+    }
+
+    /// <summary>
+    /// Update an existing risk
+    /// </summary>
+    [HttpPut("{id}")]
+    [Authorize(Policy = "RiskOfficer")]
+    [ProducesResponseType(typeof(RiskDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<RiskDto>> UpdateRisk(Guid id, [FromBody] UpdateRiskDto updateRiskDto)
+    {
+        try
+        {
+            _logger.LogInformation("Updating risk: {Id}", id);
+            
+            var userId = GetCurrentUserId();
+            
+            var command = new UpdateRiskCommand
+            {
+                Id = id,
+                RiskData = updateRiskDto,
+                UpdatedBy = userId
+            };
+
+            var risk = await _mediator.Send(command);
+            
+            if (risk == null)
+            {
+                return NotFound(new { message = $"Risk with ID {id} not found" });
+            }
+            
+            return Ok(risk);
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning("Validation failed for UpdateRisk: {Errors}", ex.Errors);
+            return BadRequest(new { errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }) });
+        }
+    }
+
+    /// <summary>
+    /// Delete/archive a risk (soft delete)
+    /// </summary>
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "RiskManager")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteRisk(Guid id)
+    {
+        _logger.LogInformation("Deleting risk: {Id}", id);
+        
+        var userId = GetCurrentUserId();
+        
+        var command = new DeleteRiskCommand
+        {
+            Id = id,
+            DeletedBy = userId
         };
 
-        var risk = await _mediator.Send(command);
+        var success = await _mediator.Send(command);
         
-        return CreatedAtAction(nameof(GetAllRisks), new { id = risk.Id }, risk);
+        if (!success)
+        {
+            return NotFound(new { message = $"Risk with ID {id} not found" });
+        }
+        
+        return NoContent();
     }
 
     /// <summary>
     /// Get risk statistics
     /// </summary>
     [HttpGet("statistics")]
+    [Authorize(Policy = "RiskViewer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetStatistics()
     {
@@ -78,6 +184,7 @@ public class RisksController : ControllerBase
     /// Get risk dashboard data
     /// </summary>
     [HttpGet("dashboard")]
+    [Authorize(Policy = "RiskViewer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetDashboard()
     {
@@ -95,5 +202,11 @@ public class RisksController : ControllerBase
         };
         
         return Ok(dashboard);
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
     }
 }
