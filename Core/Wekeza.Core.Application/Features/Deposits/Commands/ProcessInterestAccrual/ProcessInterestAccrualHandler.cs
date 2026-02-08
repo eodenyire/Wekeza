@@ -238,10 +238,10 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
         // 3. Default rate based on account type and balance tier
         
         // For now, return a default rate based on account type
-        var rate = account.AccountType switch
+        var rate = account.AccountType.ToUpper() switch
         {
-            AccountType.Savings => 3.5m,
-            AccountType.Current => 0.0m,
+            "SAVINGS" => 3.5m,
+            "CURRENT" => 0.0m,
             _ => 2.0m
         };
 

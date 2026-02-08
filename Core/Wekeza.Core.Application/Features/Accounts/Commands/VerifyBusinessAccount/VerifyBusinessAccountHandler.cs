@@ -1,5 +1,6 @@
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.ValueObjects;
 using MediatR;
 using Wekeza.Core.Application.Common.Interfaces;
 

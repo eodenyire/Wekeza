@@ -77,7 +77,7 @@ public class GetCustomer360ViewHandler : IRequestHandler<GetCustomer360ViewQuery
         var recentTransactions = await _transactionRepository.GetRecentByCustomerIdAsync(party.Id, 10, cancellationToken);
         var transactionSummaries = recentTransactions.Select(t => new TransactionSummary
         {
-            Date = t.CreatedAt,
+            Date = t.Timestamp,
             Type = t.Type.ToString(),
             Amount = t.Amount.Amount,
             Description = t.Description ?? string.Empty
