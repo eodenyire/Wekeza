@@ -1,6 +1,7 @@
 using MediatR;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.ValueObjects;
 /// 3. The Executioner: RegisterBusinessHandler.cs
 /// This handler registers the business as a Customer in the system but flags it as a Corporate entity. This distinction is critical for your Model Risk engine.
 
@@ -33,6 +34,7 @@ public class RegisterBusinessHandler : IRequestHandler<RegisterBusinessCommand, 
             request.BusinessName,
             request.BusinessType, // Using LastName field to store type/category for now
             request.Email,
+            request.PhoneNumber ?? string.Empty,
             request.RegistrationNumber
         );
 

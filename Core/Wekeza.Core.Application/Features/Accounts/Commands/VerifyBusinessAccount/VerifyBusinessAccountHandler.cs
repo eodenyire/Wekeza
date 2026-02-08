@@ -23,7 +23,7 @@ public class VerifyBusinessAccountHandler : IRequestHandler<VerifyBusinessAccoun
 
         // Business Rule: Update status and set the 'Corporate Mandate'
         account.Verify(request.VerifiedBy); 
-        account.UpdateTransactionLimit(request.DailyLimit);
+        account.UpdateTransactionLimit(request.DailyLimit, request.VerifiedBy);
 
         _repository.Update(account);
         await _unitOfWork.SaveChangesAsync(ct);

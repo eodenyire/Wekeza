@@ -42,8 +42,8 @@ public class GetCustomer360ViewHandler : IRequestHandler<GetCustomer360ViewQuery
         {
             AccountNumber = a.AccountNumber,
             AccountType = a.AccountType.ToString(),
-            Currency = a.Currency,
-            Balance = a.Balance,
+            Currency = a.Currency.Code,
+            Balance = a.Balance.Amount,
             Status = a.Status.ToString()
         }).ToList();
 
@@ -55,8 +55,8 @@ public class GetCustomer360ViewHandler : IRequestHandler<GetCustomer360ViewQuery
         {
             LoanId = l.Id,
             LoanType = l.LoanType.ToString(),
-            Principal = l.PrincipalAmount,
-            Outstanding = l.OutstandingBalance,
+            Principal = l.PrincipalAmount.Amount,
+            Outstanding = l.OutstandingBalance.Amount,
             Status = l.Status.ToString(),
             NextPaymentDate = l.NextPaymentDate
         }).ToList();
@@ -77,9 +77,9 @@ public class GetCustomer360ViewHandler : IRequestHandler<GetCustomer360ViewQuery
         var recentTransactions = await _transactionRepository.GetRecentByCustomerIdAsync(party.Id, 10, cancellationToken);
         var transactionSummaries = recentTransactions.Select(t => new TransactionSummary
         {
-            Date = t.TransactionDate,
-            Type = t.TransactionType.ToString(),
-            Amount = t.Amount,
+            Date = t.CreatedAt,
+            Type = t.Type.ToString(),
+            Amount = t.Amount.Amount,
             Description = t.Description ?? string.Empty
         }).ToList();
 
