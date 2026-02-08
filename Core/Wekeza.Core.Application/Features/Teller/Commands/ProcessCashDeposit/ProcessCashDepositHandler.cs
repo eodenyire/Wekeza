@@ -60,7 +60,7 @@ public class ProcessCashDepositHandler : IRequestHandler<ProcessCashDepositComma
             }
 
             // 4. Create deposit amount
-            var depositAmount = new Money(request.DepositAmount, new Currency(request.Currency));
+            var depositAmount = new Money(request.DepositAmount, Currency.FromCode(request.Currency));
 
             // 5. Validate deposit amount
             if (depositAmount.IsZero() || depositAmount.IsNegative())

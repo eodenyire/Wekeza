@@ -30,7 +30,7 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
         try
         {
             // Validate account exists and has sufficient balance
-            var account = await _accountRepository.GetByIdAsync(request.AccountId);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
@@ -51,11 +51,11 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
                 request.AccountId,
                 request.CustomerId,
                 request.DepositNumber,
-                new Money(request.InitialDeposit, new Currency(request.Currency)),
+                new Money(request.InitialDeposit, Currency.FromCode(request.Currency)),
                 new InterestRate(request.InterestRate),
                 request.NoticePeriodDays,
-                new Money(request.MinimumBalance, new Currency(request.Currency)),
-                new Money(request.MaximumBalance, new Currency(request.Currency)),
+                new Money(request.MinimumBalance, Currency.FromCode(request.Currency)),
+                new Money(request.MaximumBalance, Currency.FromCode(request.Currency)),
                 request.InterestFrequency,
                 request.InstantAccess,
                 request.BranchCode,
@@ -63,7 +63,7 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
 
             // Debit the account
             account.Debit(
-                new Money(request.InitialDeposit, new Currency(request.Currency)),
+                new Money(request.InitialDeposit, Currency.FromCode(request.Currency)),
                 $"Call deposit opening - {request.DepositNumber}",
                 request.CreatedBy);
 

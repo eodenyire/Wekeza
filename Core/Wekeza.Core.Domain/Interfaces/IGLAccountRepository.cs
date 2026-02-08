@@ -15,7 +15,9 @@ public interface IGLAccountRepository
     Task<IEnumerable<GLAccount>> GetLeafAccountsAsync();
     Task<IEnumerable<GLAccount>> GetChartOfAccountsAsync();
     Task<bool> ExistsAsync(string glCode);
+    Task<bool> ExistsByGLCodeAsync(string glCode, CancellationToken cancellationToken = default);
     Task<string> GenerateGLCodeAsync(GLAccountType accountType, GLAccountCategory category);
+    Task AddAsync(GLAccount glAccount, CancellationToken cancellationToken = default);
     void Add(GLAccount glAccount);
     void Update(GLAccount glAccount);
     void Remove(GLAccount glAccount);

@@ -27,7 +27,7 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
         // Validate LC number uniqueness
         if (await _lcRepository.ExistsAsync(request.LCNumber, cancellationToken))
         {
-            throw new ValidationException($"LC with number {request.LCNumber} already exists");
+            throw new ValidationException(new List<FluentValidation.Results.ValidationFailure> { new FluentValidation.Results.ValidationFailure("", $"LC with number {request.LCNumber} already exists") });
         }
 
         // Validate applicant exists

@@ -10,6 +10,7 @@ public interface ICurrentUserService
 {
     Guid? UserId { get; }
     string? Username { get; }
+    string? UserName => Username;
     string? Email { get; }
     IEnumerable<UserRole> Roles { get; }
     bool IsAuthenticated { get; }

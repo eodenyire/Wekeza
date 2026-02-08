@@ -33,7 +33,7 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
         try
         {
             // Validate account exists and is active
-            var account = await _accountRepository.GetByIdAsync(request.AccountId);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
@@ -46,7 +46,7 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
                 return Result<Guid>.Failure("Customer not found");
 
             // Validate sufficient balance for deposit
-            var principalAmount = new Money(request.PrincipalAmount, new Currency(request.Currency));
+            var principalAmount = new Money(request.PrincipalAmount, Currency.FromCode(request.Currency));
             if (account.Balance.Amount < principalAmount.Amount)
                 return Result<Guid>.Failure("Insufficient account balance for deposit");
 

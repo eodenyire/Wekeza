@@ -23,10 +23,13 @@ public interface IAccountRepository
     
     void Update(Account account);
     
-    // Financial systems rarely "Delete". We deactivate or close.
     Task<bool> ExistsAsync(AccountNumber accountNumber, CancellationToken cancellationToken = default);
     
     Task<int> GetNextAccountSequenceAsync(string prefix);
     
     Task<IEnumerable<Account>> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default);
+    
+    Task<IEnumerable<Account>> GetActiveAccountsByTypeAsync(string accountType, CancellationToken cancellationToken = default);
+    
+    Task<IEnumerable<Account>> GetAccountsByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 }

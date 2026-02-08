@@ -45,14 +45,14 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
         try
         {
             // 1. Validate customer exists
-            var customer = await _partyRepository.GetByIdAsync(request.CustomerId);
+            var customer = await _partyRepository.GetByIdAsync(request.CustomerId, cancellationToken);
             if (customer == null)
             {
                 return ApplyForLoanResult.Failed("Customer not found");
             }
 
             // 2. Validate product exists and is active
-            var product = await _productRepository.GetByIdAsync(request.ProductId);
+            var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken);
             if (product == null)
             {
                 return ApplyForLoanResult.Failed("Loan product not found");
@@ -64,7 +64,7 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
             }
 
             // 3. Validate loan amount against product limits
-            var loanAmount = new Money(request.Amount, new Currency(request.Currency));
+            var loanAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
             if (product.LimitConfig != null)
             {
                 if (loanAmount.IsLessThan(product.LimitConfig.MinAmount))
@@ -79,7 +79,7 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
             }
 
             // 4. Create loan application
-            var currentUser = _currentUserService.UserId ?? "System";
+            var currentUser = (_currentUserService.UserId ?? Guid.Empty).ToString();
             var loan = Loan.CreateApplication(
                 request.CustomerId,
                 request.ProductId,
@@ -97,7 +97,7 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
                         Guid.NewGuid(),
                         collateralDto.CollateralType,
                         collateralDto.Description,
-                        new Money(collateralDto.Value, new Currency(collateralDto.Currency)),
+                        new Money(collateralDto.Value, Currency.FromCode(collateralDto.Currency)),
                         collateralDto.ValuationDate,
                         collateralDto.ValuedBy);
 
@@ -113,7 +113,7 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
                     var guarantor = new LoanGuarantor(
                         guarantorDto.GuarantorId,
                         guarantorDto.GuarantorName,
-                        new Money(guarantorDto.GuaranteeAmount, new Currency(guarantorDto.Currency)),
+                        new Money(guarantorDto.GuaranteeAmount, Currency.FromCode(guarantorDto.Currency)),
                         DateTime.UtcNow,
                         guarantorDto.GuaranteeDocument);
 

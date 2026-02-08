@@ -49,7 +49,7 @@ public class CreateGLAccountHandler : IRequestHandler<CreateGLAccountCommand, st
             request.Currency,
             request.Level,
             request.IsLeaf,
-            _currentUserService.UserId ?? "System",
+            (_currentUserService.UserId ?? Guid.Empty).ToString(),
             request.ParentGLCode);
 
         // Update control flags
@@ -57,7 +57,7 @@ public class CreateGLAccountHandler : IRequestHandler<CreateGLAccountCommand, st
             request.AllowManualPosting,
             request.RequiresCostCenter,
             request.RequiresProfitCenter,
-            _currentUserService.UserId ?? "System");
+            (_currentUserService.UserId ?? Guid.Empty).ToString());
 
         // Save
         await _glAccountRepository.AddAsync(glAccount, cancellationToken);

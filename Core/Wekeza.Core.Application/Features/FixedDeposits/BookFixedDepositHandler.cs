@@ -1,4 +1,5 @@
 using MediatR;
+using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
@@ -43,7 +44,7 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
             Guid.NewGuid(),
             sourceAccount.CustomerId,
             amount,
-            request.AgreedInterestRate,
+            request.InterestRate,
             maturityDate
         );
 

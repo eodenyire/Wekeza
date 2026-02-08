@@ -65,14 +65,14 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
         var customerGLCode = await CreateCustomerGLAccount(customer, product, accountNumber);
 
         // 6. Create the account with product configuration
-        var currency = new Currency(request.Currency);
+        var currency = Currency.FromCode(request.Currency);
         var account = Account.OpenAccount(
             request.CustomerId,
             request.ProductId,
             accountNumber,
             currency,
             customerGLCode,
-            _currentUserService.UserId,
+            _currentUserService.UserId?.ToString() ?? "",
             product);
 
         _accountRepository.Add(account);
@@ -97,9 +97,9 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
                 "Initial deposit on account opening",
                 cashGLCode,
                 journalNumber,
-                _currentUserService.UserId);
+                _currentUserService.UserId?.ToString() ?? "");
 
-            journalEntry.Post(_currentUserService.UserId);
+            journalEntry.Post(_currentUserService.UserId?.ToString() ?? "");
             _journalEntryRepository.Add(journalEntry);
 
             // Update GL account balances
@@ -150,7 +150,7 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
             product.Currency,
             3, // Detail level
             true, // Is leaf account
-            _currentUserService.UserId,
+            _currentUserService.UserId?.ToString() ?? "",
             product.AccountingConfig?.LiabilityGLCode); // Parent GL code from product
 
         _glAccountRepository.Add(customerGLAccount);
@@ -176,7 +176,7 @@ public class OpenProductBasedAccountHandler : IRequestHandler<OpenProductBasedAc
                 currency,
                 2,
                 true,
-                _currentUserService.UserId);
+                _currentUserService.UserId?.ToString() ?? "");
             
             _glAccountRepository.Add(newCashAccount);
             return glCode;

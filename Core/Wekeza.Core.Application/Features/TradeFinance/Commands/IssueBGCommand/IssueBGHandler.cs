@@ -27,7 +27,7 @@ public class IssueBGHandler : IRequestHandler<IssueBGCommand, IssueBGResponse>
         // Validate BG number uniqueness
         if (await _bgRepository.ExistsAsync(request.BGNumber, cancellationToken))
         {
-            throw new ValidationException($"Bank Guarantee with number {request.BGNumber} already exists");
+            throw new ValidationException(new List<FluentValidation.Results.ValidationFailure> { new FluentValidation.Results.ValidationFailure("", $"Bank Guarantee with number {request.BGNumber} already exists") });
         }
 
         // Validate principal exists

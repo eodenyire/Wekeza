@@ -44,8 +44,8 @@ public class CreateDigitalChannelHandler : IRequestHandler<CreateDigitalChannelC
                 request.SupportsMFA,
                 request.MaxConcurrentSessions,
                 TimeSpan.FromMinutes(request.SessionTimeoutMinutes),
-                new Money(request.DailyTransactionLimit, new Currency(request.Currency)),
-                new Money(request.SingleTransactionLimit, new Currency(request.Currency)),
+                new Money(request.DailyTransactionLimit, Currency.FromCode(request.Currency)),
+                new Money(request.SingleTransactionLimit, Currency.FromCode(request.Currency)),
                 request.MaxDailyTransactions,
                 request.CreatedBy);
 

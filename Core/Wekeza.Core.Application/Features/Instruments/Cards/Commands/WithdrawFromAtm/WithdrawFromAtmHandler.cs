@@ -49,7 +49,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
         account.Debit(withdrawalAmount);
 
         // 4. Record withdrawal on card
-        card.RecordWithdrawal(request.Amount);
+        card.RecordWithdrawal(request.Amount, Guid.NewGuid().ToString());
 
         // 5. Record Transaction with ATM Metadata
         var transaction = new Transaction(
@@ -57,7 +57,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
             request.CorrelationId,
             account.Id,
             withdrawalAmount,
-            TransactionType.Withdrawal,
+            TransactionType.ATMWithdrawal,
             $"ATM Withdrawal | Terminal: {request.TerminalId}"
         );
 

@@ -30,13 +30,13 @@ public class CreateAMLCaseHandler : IRequestHandler<CreateAMLCaseCommand, Create
         // Validate case number uniqueness
         if (await _amlCaseRepository.ExistsAsync(request.CaseNumber, cancellationToken))
         {
-            throw new ValidationException($"AML Case with number {request.CaseNumber} already exists");
+            throw new ValidationException(new List<FluentValidation.Results.ValidationFailure> { new FluentValidation.Results.ValidationFailure("", $"AML Case with number {request.CaseNumber} already exists") });
         }
 
         // Validate that either PartyId or TransactionId is provided
         if (!request.PartyId.HasValue && !request.TransactionId.HasValue)
         {
-            throw new ValidationException("Either PartyId or TransactionId must be provided");
+            throw new ValidationException(new List<FluentValidation.Results.ValidationFailure> { new FluentValidation.Results.ValidationFailure("", "Either PartyId or TransactionId must be provided") });
         }
 
         // Validate party exists if provided

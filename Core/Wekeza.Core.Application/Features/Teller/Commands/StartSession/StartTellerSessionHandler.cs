@@ -43,7 +43,7 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
 
             // 2. Check if teller already has an active session
             var existingSession = await _tellerSessionRepository.GetActiveSessionByUserAsync(
-                _currentUserService.UserId, cancellationToken);
+                _currentUserService.UserId?.ToString() ?? "", cancellationToken);
             
             if (existingSession != null)
             {
@@ -52,7 +52,7 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
 
             // 3. Create cash drawer
             var cashDrawer = CashDrawer.Create(
-                tellerId: _currentUserService.UserId,
+                tellerId: _currentUserService.UserId?.ToString() ?? "",
                 branchId: request.BranchId,
                 workstationId: request.WorkstationId,
                 openingBalance: new Money(request.OpeningCashBalance, Currency.KES)
@@ -66,7 +66,7 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
 
             // 5. Create teller session
             var tellerSession = TellerSession.Start(
-                tellerId: _currentUserService.UserId,
+                tellerId: _currentUserService.UserId?.ToString() ?? "",
                 branchId: request.BranchId,
                 workstationId: request.WorkstationId,
                 cashDrawerId: cashDrawer.Id,

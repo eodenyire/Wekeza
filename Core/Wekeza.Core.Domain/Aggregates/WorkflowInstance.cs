@@ -48,6 +48,8 @@ public class WorkflowInstance : AggregateRoot
     
     // Request data (JSON)
     public string RequestData { get; private set; } = string.Empty;
+    
+    private readonly Dictionary<string, string> Metadata = new();
 
     private WorkflowInstance() : base(Guid.NewGuid()) { }
 
@@ -210,6 +212,21 @@ public class WorkflowInstance : AggregateRoot
             DueDate = DueDate.Value.AddHours(additionalHours);
             AddComment("System", $"Due date extended by {additionalHours} hours: {reason}");
         }
+    }
+
+    public void AddApprovalStep(ApprovalStep step)
+    {
+        _approvalSteps.Add(step);
+    }
+
+    public void SetPriority(Priority priority)
+    {
+        Metadata["Priority"] = priority.ToString();
+    }
+
+    public void SetDueDate(DateTime dueDate)
+    {
+        DueDate = dueDate;
     }
 }
 

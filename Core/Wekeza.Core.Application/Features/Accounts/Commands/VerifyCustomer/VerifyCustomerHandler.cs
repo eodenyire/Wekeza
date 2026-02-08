@@ -27,7 +27,7 @@ public class VerifyCustomerHandler : IRequestHandler<VerifyCustomerCommand, bool
         // 2. Perform Domain State Change
         // In the aggregate, this could trigger an event: CustomerVerifiedDomainEvent
         // For now, we update the Risk Rating to Low as they are now 'Know Your Customer' compliant.
-        customer.UpdateRiskRating(RiskLevel.Low);
+        customer.UpdateRiskRating(Domain.Enums.RiskLevel.Low);
 
         // 3. Log the Verification (In a real bank, we'd have a separate Audit Table here)
         _customerRepository.Update(customer);

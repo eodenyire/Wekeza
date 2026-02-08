@@ -30,7 +30,7 @@ public class BookTermDepositHandler : IRequestHandler<BookTermDepositCommand, Re
         try
         {
             // Validate account exists and has sufficient balance
-            var account = await _accountRepository.GetByIdAsync(request.AccountId);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
@@ -47,19 +47,19 @@ public class BookTermDepositHandler : IRequestHandler<BookTermDepositCommand, Re
                 request.AccountId,
                 request.CustomerId,
                 request.DepositNumber,
-                new Money(request.PrincipalAmount, new Currency(request.Currency)),
+                new Money(request.PrincipalAmount, Currency.FromCode(request.Currency)),
                 new InterestRate(request.InterestRate),
                 request.TermInMonths,
                 request.InterestFrequency,
                 request.AllowPartialWithdrawal,
-                new Money(request.MinimumBalance, new Currency(request.Currency)),
+                new Money(request.MinimumBalance, Currency.FromCode(request.Currency)),
                 request.AutoRenewal,
                 request.BranchCode,
                 request.CreatedBy);
 
             // Debit the account
             account.Debit(
-                new Money(request.PrincipalAmount, new Currency(request.Currency)),
+                new Money(request.PrincipalAmount, Currency.FromCode(request.Currency)),
                 $"Term deposit booking - {request.DepositNumber}",
                 request.CreatedBy);
 

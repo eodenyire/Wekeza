@@ -43,41 +43,54 @@ public class ScreenTransactionHandler : IRequestHandler<ScreenTransactionCommand
             ScreeningCompletedAt = DateTime.UtcNow
         };
 
+        TransactionMonitoringResult? monitoringResult = null;
+        SanctionsScreeningResult? sanctionsResult = null;
+        FraudScreeningResult? fraudResult = null;
+        var overallResult = ScreeningResult.Clear;
+        var highestSeverity = AlertSeverity.Low;
+
         // 1. AML Transaction Monitoring
         if (request.EnableAMLMonitoring)
         {
-            var monitoringResult = await PerformAMLMonitoring(request, transaction, cancellationToken);
-            response.MonitoringResult = monitoringResult;
-            
-            UpdateOverallResult(response, monitoringResult.Result, monitoringResult.Severity);
+            monitoringResult = await PerformAMLMonitoring(request, transaction, cancellationToken);
+            (overallResult, highestSeverity) = UpdateOverallResult(overallResult, highestSeverity, monitoringResult.Result, monitoringResult.Severity);
         }
 
         // 2. Sanctions Screening
         if (request.EnableSanctionsScreening)
         {
-            var sanctionsResult = await PerformSanctionsScreening(request, cancellationToken);
-            response.SanctionsResult = sanctionsResult;
+            sanctionsResult = await PerformSanctionsScreening(request, cancellationToken);
             
             var sanctionsSeverity = DetermineSanctionsSeverity(sanctionsResult.Status);
             var sanctionsScreeningResult = DetermineSanctionsResult(sanctionsResult.Status);
-            UpdateOverallResult(response, sanctionsScreeningResult, sanctionsSeverity);
+            (overallResult, highestSeverity) = UpdateOverallResult(overallResult, highestSeverity, sanctionsScreeningResult, sanctionsSeverity);
         }
 
         // 3. Fraud Detection (placeholder - would integrate with fraud detection system)
         if (request.EnableFraudDetection)
         {
-            var fraudResult = await PerformFraudDetection(request, transaction, cancellationToken);
-            response.FraudResult = fraudResult;
+            fraudResult = await PerformFraudDetection(request, transaction, cancellationToken);
             
             if (fraudResult.FraudDetected)
             {
-                UpdateOverallResult(response, ScreeningResult.Block, AlertSeverity.High);
+                (overallResult, highestSeverity) = UpdateOverallResult(overallResult, highestSeverity, ScreeningResult.Match, AlertSeverity.High);
             }
         }
 
         // Determine final status
-        response.RequiresReview = response.OverallResult == ScreeningResult.Review || response.OverallResult == ScreeningResult.Alert;
-        response.IsBlocked = response.OverallResult == ScreeningResult.Block;
+        var requiresReview = overallResult == ScreeningResult.PotentialMatch || overallResult == ScreeningResult.PotentialMatch;
+        var isBlocked = overallResult == ScreeningResult.Match;
+        
+        response = response with
+        {
+            MonitoringResult = monitoringResult,
+            SanctionsResult = sanctionsResult,
+            FraudResult = fraudResult,
+            OverallResult = overallResult,
+            HighestSeverity = highestSeverity,
+            RequiresReview = requiresReview,
+            IsBlocked = isBlocked
+        };
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -177,15 +190,15 @@ public class ScreenTransactionHandler : IRequestHandler<ScreenTransactionCommand
         };
     }
 
-    private void UpdateOverallResult(ScreenTransactionResponse response, ScreeningResult result, AlertSeverity severity)
+    private (ScreeningResult, AlertSeverity) UpdateOverallResult(ScreeningResult currentResult, AlertSeverity currentSeverity, ScreeningResult result, AlertSeverity severity)
     {
         // Update overall result to the most restrictive
-        if (result > response.OverallResult)
-            response.OverallResult = result;
+        var newResult = result > currentResult ? result : currentResult;
 
         // Update highest severity
-        if (severity > response.HighestSeverity)
-            response.HighestSeverity = severity;
+        var newSeverity = severity > currentSeverity ? severity : currentSeverity;
+        
+        return (newResult, newSeverity);
     }
 
     private List<string> GetDefaultMonitoringRules(Transaction transaction)
@@ -195,7 +208,7 @@ public class ScreenTransactionHandler : IRequestHandler<ScreenTransactionCommand
         if (transaction.Amount.Amount >= 10000)
             rules.Add("CTR_THRESHOLD");
         
-        if (transaction.TransactionType.ToString().Contains("CASH"))
+        if (transaction.Type.ToString().Contains("CASH"))
             rules.Add("CASH_TRANSACTION");
         
         return rules;
@@ -219,14 +232,14 @@ public class ScreenTransactionHandler : IRequestHandler<ScreenTransactionCommand
                     if (transaction.Amount.Amount >= 10000)
                     {
                         severity = AlertSeverity.Medium;
-                        result = ScreeningResult.Alert;
+                        result = ScreeningResult.PotentialMatch;
                     }
                     break;
                 case "CASH_TRANSACTION":
                     if (transaction.Amount.Amount >= 5000)
                     {
                         severity = AlertSeverity.Medium;
-                        result = ScreeningResult.Review;
+                        result = ScreeningResult.PotentialMatch;
                     }
                     break;
                 case "VELOCITY_CHECK":
@@ -243,7 +256,7 @@ public class ScreenTransactionHandler : IRequestHandler<ScreenTransactionCommand
     {
         return RiskScore.ForTransaction(
             transaction.Amount.Amount, 
-            transaction.TransactionType.ToString(), 
+            transaction.Type.ToString(), 
             false);
     }
 
@@ -282,9 +295,9 @@ public class ScreenTransactionHandler : IRequestHandler<ScreenTransactionCommand
     {
         return status switch
         {
-            ScreeningStatus.Blocked => ScreeningResult.Block,
-            ScreeningStatus.UnderReview => ScreeningResult.Review,
-            ScreeningStatus.Alert => ScreeningResult.Alert,
+            ScreeningStatus.Blocked => ScreeningResult.Match,
+            ScreeningStatus.UnderReview => ScreeningResult.PotentialMatch,
+            ScreeningStatus.Alert => ScreeningResult.PotentialMatch,
             _ => ScreeningResult.Clear
         };
     }
