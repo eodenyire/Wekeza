@@ -14,4 +14,8 @@ public class DateTimeService : IDateTime
 {
     // We use UtcNow to avoid daylight savings or local timezone confusion
     public DateTime Now => DateTime.UtcNow;
+    
+    public DateTime UtcNow => DateTime.UtcNow;
+    
+    public DateOnly Today => DateOnly.FromDateTime(DateTime.UtcNow);
 }

@@ -41,6 +41,7 @@ public interface ILoanRepository
     Task<IEnumerable<Loan>> GetByApplicationDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default);
     Task<IEnumerable<Loan>> GetByDisbursementDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default);
     Task<IEnumerable<Loan>> GetMaturityDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default);
+    Task<IEnumerable<Loan>> GetLoansByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default);
 
     // Interest and servicing queries
     Task<IEnumerable<Loan>> GetLoansForInterestAccrualAsync(DateTime calculationDate, CancellationToken ct = default);

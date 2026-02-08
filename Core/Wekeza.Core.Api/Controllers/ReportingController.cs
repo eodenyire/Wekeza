@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Wekeza.Core.Application.Features.Reporting.Commands.GenerateRegulatoryReport;
 using Wekeza.Core.Application.Features.Reporting.Queries.GetRegulatoryReports;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Aggregates;
 
 namespace Wekeza.Core.Api.Controllers;
 

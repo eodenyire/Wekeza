@@ -1,0 +1,1 @@
+Core/Wekeza.Core.Application/Wekeza.Core.Application.csproj]

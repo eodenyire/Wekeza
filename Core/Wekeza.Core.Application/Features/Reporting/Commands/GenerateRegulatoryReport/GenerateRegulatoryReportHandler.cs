@@ -139,8 +139,8 @@ public class GenerateRegulatoryReportHandler : IRequestHandler<GenerateRegulator
             request.ReportingPeriodEnd);
 
         var totalDeposits = accounts
-            .Where(a => a.AccountType == Domain.Enums.AccountType.Savings || 
-                       a.AccountType == Domain.Enums.AccountType.Current)
+            .Where(a => a.AccountType == "SAVINGS" || 
+                       a.AccountType == "CURRENT")
             .Sum(a => a.Balance.Amount);
 
         report.AddDataItem("DEPOSITS", "Total Customer Deposits", totalDeposits);

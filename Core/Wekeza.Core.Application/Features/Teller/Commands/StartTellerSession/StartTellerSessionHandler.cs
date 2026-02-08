@@ -58,7 +58,7 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
                     maxCashLimit,
                     minCashLimit,
                     requiresDualControl: false,
-                    _currentUserService.UserId ?? "System");
+                    _currentUserService.UserId?.ToString() ?? "System");
 
                 await _cashDrawerRepository.AddAsync(cashDrawer, cancellationToken);
             }
@@ -79,7 +79,7 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
                 new Money(request.CashWithdrawalLimit, new Currency(request.Currency)));
 
             // 6. Start teller session
-            var currentUser = _currentUserService.UserId ?? "System";
+            var currentUser = _currentUserService.UserId?.ToString() ?? "System";
             var session = TellerSession.Start(
                 request.TellerId,
                 request.TellerCode,

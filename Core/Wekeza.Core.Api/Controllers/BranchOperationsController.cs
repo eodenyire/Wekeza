@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wekeza.Core.Application.Features.BranchOperations.Commands.ProcessEOD;
 using Wekeza.Core.Domain.Enums;
+using Wekeza.Core.Domain.Aggregates;
 
 namespace Wekeza.Core.Api.Controllers;
 
