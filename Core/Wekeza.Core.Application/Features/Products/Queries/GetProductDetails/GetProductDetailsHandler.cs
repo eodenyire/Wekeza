@@ -20,7 +20,7 @@ public class GetProductDetailsHandler : IRequestHandler<GetProductDetailsQuery, 
         
         if (product == null)
         {
-            throw new NotFoundException($"Product with code {request.ProductCode} not found.");
+            throw new NotFoundException("Product", request.ProductCode);
         }
 
         return new ProductDetailsDto

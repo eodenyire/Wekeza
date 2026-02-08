@@ -32,21 +32,29 @@ public class IssueCardHandler : IRequestHandler<IssueCardCommand, Guid>
             throw new GenericDomainException("Cannot issue a card to a frozen account.");
 
         // Determine daily withdrawal limit based on card type
-        decimal dailyLimit = request.CardType.ToLower() switch
+        var cardType = request.CardType.ToLower() switch
         {
-            "debit" => 50_000,
-            "credit" => 100_000,
-            "prepaid" => 20_000,
-            _ => 50_000
+            "debit" => Domain.Aggregates.CardType.Debit,
+            "credit" => Domain.Aggregates.CardType.Credit,
+            "prepaid" => Domain.Aggregates.CardType.Prepaid,
+            _ => Domain.Aggregates.CardType.Debit
         };
 
-        // Create the card
-        var card = new Card(
-            Guid.NewGuid(),
+        var currency = account.Currency;
+        var dailyWithdrawalLimit = new Domain.ValueObjects.Money(50_000, currency);
+        var dailyPurchaseLimit = new Domain.ValueObjects.Money(100_000, currency);
+        var monthlyLimit = new Domain.ValueObjects.Money(500_000, currency);
+
+        // Create the card using factory method
+        var card = Card.IssueCard(
+            account.CustomerId,
             account.Id,
-            request.CardType,
+            cardType,
             request.NameOnCard,
-            dailyLimit
+            "Default Address", // TODO: Get from customer
+            dailyWithdrawalLimit,
+            dailyPurchaseLimit,
+            monthlyLimit
         );
 
         await _cardRepository.AddAsync(card, ct);

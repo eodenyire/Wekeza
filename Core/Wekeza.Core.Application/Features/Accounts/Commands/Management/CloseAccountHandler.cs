@@ -29,7 +29,8 @@ public class CloseAccountHandler : IRequestHandler<CloseAccountCommand, bool>
             ?? throw new NotFoundException("Account", request.AccountNumber);
 
         // Domain Logic: Will throw DomainException if Balance > 0
-        account.Close();
+        var reason = "Account closed by customer request";
+        account.Close(reason, "System");
 
         await _unitOfWork.SaveChangesAsync(ct);
         return true;

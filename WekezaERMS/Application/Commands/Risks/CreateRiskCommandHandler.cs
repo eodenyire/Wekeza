@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using WekezaERMS.Application.DTOs;
 using WekezaERMS.Domain.Entities;
@@ -7,10 +8,12 @@ namespace WekezaERMS.Application.Commands.Risks;
 public class CreateRiskCommandHandler : IRequestHandler<CreateRiskCommand, RiskDto>
 {
     private readonly IRiskRepository _riskRepository;
+    private readonly IMapper _mapper;
 
-    public CreateRiskCommandHandler(IRiskRepository riskRepository)
+    public CreateRiskCommandHandler(IRiskRepository riskRepository, IMapper mapper)
     {
         _riskRepository = riskRepository;
+        _mapper = mapper;
     }
 
     public async Task<RiskDto> Handle(CreateRiskCommand request, CancellationToken cancellationToken)
@@ -37,42 +40,13 @@ public class CreateRiskCommandHandler : IRequestHandler<CreateRiskCommand, RiskD
         await _riskRepository.AddAsync(risk);
         await _riskRepository.SaveChangesAsync();
 
-        // Return DTO
-        return MapToDto(risk);
+        // Return DTO using AutoMapper
+        return _mapper.Map<RiskDto>(risk);
     }
 
     private async Task<string> GenerateRiskCode()
     {
         var count = await _riskRepository.GetCountAsync();
         return $"RISK-{DateTime.UtcNow.Year}-{(count + 1):D4}";
-    }
-
-    private RiskDto MapToDto(Risk risk)
-    {
-        return new RiskDto
-        {
-            Id = risk.Id,
-            RiskCode = risk.RiskCode,
-            Title = risk.Title,
-            Description = risk.Description,
-            Category = risk.Category,
-            Status = risk.Status,
-            InherentLikelihood = risk.InherentLikelihood,
-            InherentImpact = risk.InherentImpact,
-            InherentRiskScore = risk.InherentRiskScore,
-            InherentRiskLevel = risk.InherentRiskLevel,
-            ResidualLikelihood = risk.ResidualLikelihood,
-            ResidualImpact = risk.ResidualImpact,
-            ResidualRiskScore = risk.ResidualRiskScore,
-            ResidualRiskLevel = risk.ResidualRiskLevel,
-            TreatmentStrategy = risk.TreatmentStrategy,
-            OwnerId = risk.OwnerId,
-            Department = risk.Department,
-            IdentifiedDate = risk.IdentifiedDate,
-            LastAssessmentDate = risk.LastAssessmentDate,
-            NextReviewDate = risk.NextReviewDate,
-            RiskAppetite = risk.RiskAppetite,
-            CreatedAt = risk.CreatedAt
-        };
     }
 }

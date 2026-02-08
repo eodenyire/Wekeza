@@ -24,7 +24,20 @@ public class WorkflowRepository : IWorkflowRepository
             .FirstOrDefaultAsync(ct);
     }
 
+    public async Task<WorkflowInstance?> GetByEntityIdAsync(Guid entityId, CancellationToken ct = default)
+    {
+        return await _context.WorkflowInstances
+            .Where(w => w.EntityId == entityId)
+            .OrderByDescending(w => w.InitiatedDate)
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task AddAsync(WorkflowInstance workflow, CancellationToken ct = default)
+    {
+        await _context.WorkflowInstances.AddAsync(workflow, ct);
+    }
+
+    public async Task AddWorkflowAsync(WorkflowInstance workflow, CancellationToken ct = default)
     {
         await _context.WorkflowInstances.AddAsync(workflow, ct);
     }
@@ -32,6 +45,12 @@ public class WorkflowRepository : IWorkflowRepository
     public void Update(WorkflowInstance workflow)
     {
         _context.WorkflowInstances.Update(workflow);
+    }
+
+    public async Task UpdateWorkflow(WorkflowInstance workflow, CancellationToken ct = default)
+    {
+        _context.WorkflowInstances.Update(workflow);
+        await Task.CompletedTask;
     }
 
     public async Task<IEnumerable<WorkflowInstance>> GetPendingWorkflowsAsync(CancellationToken ct = default)
@@ -115,51 +134,16 @@ public class WorkflowRepository : IWorkflowRepository
             .Select(g => new { EntityType = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.EntityType, x => x.Count, ct);
     }
-}
 
-public class ApprovalMatrixRepository : IApprovalMatrixRepository
-{
-    private readonly ApplicationDbContext _context;
-
-    public ApprovalMatrixRepository(ApplicationDbContext context) => _context = context;
-
-    public async Task<ApprovalMatrix?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<ApprovalMatrix?> GetApprovalMatrixAsync(string workflowType, decimal? amount = null, CancellationToken ct = default)
     {
-        return await _context.ApprovalMatrices.FirstOrDefaultAsync(m => m.Id == id, ct);
-    }
+        var query = _context.ApprovalMatrices
+            .Where(m => m.EntityType == workflowType && m.Status == MatrixStatus.Active);
 
-    public async Task<ApprovalMatrix?> GetByMatrixCodeAsync(string matrixCode, CancellationToken ct = default)
-    {
-        return await _context.ApprovalMatrices
-            .FirstOrDefaultAsync(m => m.MatrixCode == matrixCode, ct);
-    }
-
-    public async Task<ApprovalMatrix?> GetByEntityTypeAsync(string entityType, CancellationToken ct = default)
-    {
-        return await _context.ApprovalMatrices
-            .Where(m => m.EntityType == entityType && m.Status == MatrixStatus.Active)
-            .FirstOrDefaultAsync(ct);
-    }
-
-    public async Task AddAsync(ApprovalMatrix matrix, CancellationToken ct = default)
-    {
-        await _context.ApprovalMatrices.AddAsync(matrix, ct);
-    }
-
-    public void Update(ApprovalMatrix matrix)
-    {
-        _context.ApprovalMatrices.Update(matrix);
-    }
-
-    public async Task<IEnumerable<ApprovalMatrix>> GetActiveMatricesAsync(CancellationToken ct = default)
-    {
-        return await _context.ApprovalMatrices
-            .Where(m => m.Status == MatrixStatus.Active)
-            .ToListAsync(ct);
-    }
-
-    public async Task<bool> ExistsByMatrixCodeAsync(string matrixCode, CancellationToken ct = default)
-    {
-        return await _context.ApprovalMatrices.AnyAsync(m => m.MatrixCode == matrixCode, ct);
+        // If amount is provided, find the matrix that applies to this amount
+        // This is a simplified implementation - in production, you'd check the approval rules
+        var matrix = await query.FirstOrDefaultAsync(ct);
+        
+        return matrix;
     }
 }

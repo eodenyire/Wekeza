@@ -52,6 +52,7 @@ public class MinimalBankingController : ControllerBase
                 request.FirstName,
                 request.LastName,
                 request.Email,
+                request.PhoneNumber ?? string.Empty,
                 request.IdentificationNumber
             );
 
@@ -89,21 +90,33 @@ public class MinimalBankingController : ControllerBase
     {
         try
         {
-            // Create account using Domain aggregate directly
+            // Create account using Domain aggregate static factory method
             var currency = Currency.FromCode(request.CurrencyCode ?? "KES");
             var accountNumber = new AccountNumber($"WKZ-{Guid.NewGuid().ToString()[..8].ToUpper()}");
             
-            var account = new Account(
-                Guid.NewGuid(),
+            var mockProduct = Product.CreateDepositProduct(
+                $"SAV-{Guid.NewGuid().ToString()[..4]}",
+                "Savings Account",
+                ProductType.SavingsAccount,
+                currency.Code,
+                "System"
+            );
+            
+            var account = Account.OpenAccount(
                 request.CustomerId,
+                mockProduct.Id,
                 accountNumber,
-                currency
+                currency,
+                $"GL-{Guid.NewGuid().ToString()[..8]}",
+                "System",
+                mockProduct,
+                "SAVINGS"
             );
 
             // Add initial deposit if provided
             if (request.InitialDeposit > 0)
             {
-                account.Credit(new Money(request.InitialDeposit, currency));
+                account.Credit(new Money(request.InitialDeposit, currency), $"TXN-{Guid.NewGuid().ToString()[..8]}", "Initial Deposit");
             }
 
             return Ok(new
@@ -142,11 +155,27 @@ public class MinimalBankingController : ControllerBase
             // Create a mock account for demonstration
             var currency = Currency.FromCode("KES");
             var accountNumber = new AccountNumber($"WKZ-{request.AccountNumber}");
-            var account = new Account(Guid.NewGuid(), Guid.NewGuid(), accountNumber, currency);
+            var mockProduct = Product.CreateDepositProduct(
+                $"SAV-{Guid.NewGuid().ToString()[..4]}", 
+                "Savings", 
+                ProductType.SavingsAccount, 
+                currency.Code, 
+                "System"
+            );
+            var account = Account.OpenAccount(
+                Guid.NewGuid(), 
+                mockProduct.Id, 
+                accountNumber, 
+                currency, 
+                $"GL-{Guid.NewGuid().ToString()[..8]}", 
+                "System", 
+                mockProduct
+            );
             
             // Perform deposit
             var depositAmount = new Money(request.Amount, currency);
-            account.Credit(depositAmount);
+            var transactionRef = $"DEP-{Guid.NewGuid().ToString()[..8]}";
+            account.Credit(depositAmount, transactionRef, "Deposit");
 
             return Ok(new
             {
@@ -212,7 +241,8 @@ public record CreateCustomerRequest(
     string FirstName,
     string LastName, 
     string Email,
-    string IdentificationNumber
+    string IdentificationNumber,
+    string? PhoneNumber = null
 );
 
 public record CreateAccountRequest(
