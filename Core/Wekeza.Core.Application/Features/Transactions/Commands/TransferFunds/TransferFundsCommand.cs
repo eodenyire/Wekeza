@@ -2,6 +2,7 @@
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Nexus.Domain.ValueObjects;
 
 namespace Wekeza.Core.Application.Features.Transactions.Commands.TransferFunds;
 
@@ -20,4 +21,11 @@ public record TransferFundsCommand : ICommand<Guid>
     public decimal Amount { get; init; }
     public string Currency { get; init; } = "KES";
     public string Description { get; init; } = "Internal Transfer";
+    
+    // Optional Nexus fraud detection properties
+    public Guid? UserId { get; init; }
+    public DeviceFingerprint? DeviceInfo { get; init; }
+    public BehavioralMetrics? BehavioralData { get; init; }
+    public string? Channel { get; init; }
+    public string? SessionId { get; init; }
 }

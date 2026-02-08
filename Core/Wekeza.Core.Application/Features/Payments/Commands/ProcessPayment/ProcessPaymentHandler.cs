@@ -48,18 +48,18 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
                 // Initiate workflow for approval
                 var workflowCommand = new InitiateWorkflowCommand
                 {
-                    WorkflowType = WorkflowType.PaymentApproval,
+                    WorkflowType = Domain.Enums.WorkflowType.PaymentApproval,
                     EntityId = paymentOrder.Id,
                     EntityType = "PaymentOrder",
                     Amount = request.Amount,
                     Currency = request.Currency,
-                    Description = $"Payment approval required: {request.Description}",
-                    Priority = MapPriorityToWorkflow(request.Priority),
-                    RequestedBy = _currentUserService.UserId
+                    WorkflowName = $"Payment approval required: {request.Description}",
+                    Priority = (Domain.Enums.Priority)MapPriorityToWorkflow(request.Priority),
+                    InitiatorComments = _currentUserService.UserId?.ToString() ?? "System"
                 };
 
                 var workflowResult = await _mediator.Send(workflowCommand, cancellationToken);
-                paymentOrder.SetWorkflowInstance(workflowResult.WorkflowInstanceId);
+                paymentOrder.SetWorkflowInstance(workflowResult.Value);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -70,7 +70,7 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
                     PaymentReference = paymentOrder.PaymentReference,
                     Status = PaymentStatus.Pending,
                     RequiresApproval = true,
-                    WorkflowInstanceId = workflowResult.WorkflowInstanceId
+                    WorkflowInstanceId = workflowResult.Value
                 };
             }
 
@@ -159,7 +159,7 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
             toAccountId.Value,
             amount,
             request.Description,
-            _currentUserService.UserId,
+            _currentUserService.UserId?.ToString() ?? string.Empty,
             request.CustomerReference,
             request.Priority);
     }
@@ -196,7 +196,7 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
             amount,
             request.Description,
             request.Channel,
-            _currentUserService.UserId,
+            _currentUserService.UserId?.ToString() ?? string.Empty,
             request.CustomerReference,
             request.Priority);
     }
@@ -206,9 +206,9 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
         return paymentOrder.Type switch
         {
             PaymentType.InternalTransfer => await _paymentProcessingService.ProcessInternalTransferAsync(
-                paymentOrder, _currentUserService.UserId),
+                paymentOrder, _currentUserService.UserId?.ToString() ?? string.Empty),
             PaymentType.ExternalTransfer => await _paymentProcessingService.ProcessExternalPaymentAsync(
-                paymentOrder, _currentUserService.UserId),
+                paymentOrder, _currentUserService.UserId?.ToString() ?? string.Empty),
             _ => PaymentProcessingResult.Failed($"Unsupported payment type: {paymentOrder.Type}")
         };
     }

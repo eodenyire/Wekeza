@@ -1,6 +1,6 @@
 # Wekeza Bank - Core Banking System
 
-![Wekeza Bank Logo](https://github.com/eodenyire/Wekeza/blob/17a0a5d9f127b4ea78a4df7f17d5a49fa6bf6c8e/Assets/Logos/BCO.453ace3a-d644-4caa-9069-ed2dea368851.png)
+![Wekeza Bank Logo](https://github.com/eodenyire/Wekeza/blob/8d626104a36f66a061a3ef5378407431f905f444/Assets/wekeza_logo.png)
 
 ## Overview
 

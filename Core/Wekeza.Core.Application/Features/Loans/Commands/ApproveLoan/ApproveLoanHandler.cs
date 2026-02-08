@@ -1,4 +1,5 @@
 using MediatR;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.ValueObjects;
@@ -72,7 +73,7 @@ public class ApproveLoanHandler : IRequestHandler<ApproveLoanCommand, ApproveLoa
             }
 
             // 5. Approve the loan
-            var approvedBy = request.ApprovedBy ?? _currentUserService.UserId ?? "System";
+            var approvedBy = request.ApprovedBy ?? _currentUserService.UserId?.ToString() ?? "System";
             loan.Approve(approvedBy, request.FirstPaymentDate, conditions);
 
             // 6. Update any related workflow
@@ -99,14 +100,21 @@ public class ApproveLoanHandler : IRequestHandler<ApproveLoanCommand, ApproveLoa
     private async Task UpdateWorkflowStatusAsync(Guid loanId, string approvedBy, string? comments)
     {
         // Find any pending workflow for this loan
-        var workflows = await _workflowRepository.GetByEntityIdAsync(loanId);
-        var pendingWorkflow = workflows.FirstOrDefault(w => w.Status == WorkflowStatus.Pending);
+        var workflow = await _workflowRepository.GetByEntityIdAsync(loanId);
 
-        if (pendingWorkflow != null)
+        if (workflow != null && workflow.Status == WorkflowStatus.Pending)
         {
+            // Create UserRole instance from enum
+            var approverRoleEnum = Domain.Enums.UserRole.LoanOfficer;
+            var approverRole = new Wekeza.Core.Domain.Aggregates.UserRole(
+                approverRoleEnum.ToString(),
+                approverRoleEnum.ToString(),
+                new List<string>(),
+                approvedBy);
+            
             // Approve the workflow
-            pendingWorkflow.Approve(approvedBy, comments ?? "Loan approved");
-            _workflowRepository.UpdateWorkflow(pendingWorkflow);
+            workflow.Approve(approvedBy, comments ?? "Loan approved", approverRole);
+            await _workflowRepository.UpdateWorkflow(workflow, CancellationToken.None);
         }
     }
 }

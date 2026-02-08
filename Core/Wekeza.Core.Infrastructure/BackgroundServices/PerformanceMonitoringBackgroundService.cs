@@ -24,7 +24,8 @@ public class PerformanceMonitoringBackgroundService : BackgroundService
             try
             {
                 // Monitor performance metrics every 30 seconds
-                await _performanceMonitoringService.LogPerformanceMetricAsync("system.health", 1.0);
+                // TODO: Implement LogPerformanceMetricAsync on IPerformanceMonitoringService
+                // await _performanceMonitoringService.LogPerformanceMetricAsync("system.health", 1.0);
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             }
             catch (Exception ex)

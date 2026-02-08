@@ -17,7 +17,7 @@ public record IssueLCCommand : ICommand<IssueLCResponse>
     public string Currency { get; init; } = "USD";
     public DateTime ExpiryDate { get; init; }
     public DateTime? LastShipmentDate { get; init; }
-    public LCType Type { get; init; } = LCType.Irrevocable;
+    public LCType Type { get; init; } = LCType.Commercial;
     public string Terms { get; init; } = string.Empty;
     public string GoodsDescription { get; init; } = string.Empty;
     public bool IsTransferable { get; init; } = false;
