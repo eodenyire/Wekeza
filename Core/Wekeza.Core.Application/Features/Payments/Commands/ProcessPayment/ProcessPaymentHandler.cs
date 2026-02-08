@@ -3,9 +3,9 @@ using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Domain.Services;
-using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Application.Common.Interfaces;
 using Wekeza.Core.Application.Features.Workflows.Commands.InitiateWorkflow;
+using DomainEnums = Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Application.Features.Payments.Commands.ProcessPayment;
 
@@ -48,13 +48,12 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
                 // Initiate workflow for approval
                 var workflowCommand = new InitiateWorkflowCommand
                 {
-                    WorkflowType = WorkflowType.MakerChecker,
+                    WorkflowType = DomainEnums.WorkflowType.MakerChecker,
                     EntityId = paymentOrder.Id,
                     EntityType = "PaymentOrder",
                     Amount = request.Amount,
                     Currency = request.Currency,
-                    Priority = (Priority)request.Priority,
-                    InitiatedBy = _currentUserService.UserId.ToString()
+                    Priority = (DomainEnums.Priority)request.Priority
                 };
 
                 var workflowResult = await _mediator.Send(workflowCommand, cancellationToken);
@@ -209,19 +208,6 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
             PaymentType.ExternalTransfer => await _paymentProcessingService.ProcessExternalPaymentAsync(
                 paymentOrder, _currentUserService.UserId?.ToString() ?? ""),
             _ => PaymentProcessingResult.Failed($"Unsupported payment type: {paymentOrder.Type}")
-        };
-    }
-
-    private static WorkflowPriority MapPriorityToWorkflow(PaymentPriority paymentPriority)
-    {
-        return paymentPriority switch
-        {
-            PaymentPriority.Low => WorkflowPriority.Low,
-            PaymentPriority.Normal => WorkflowPriority.Normal,
-            PaymentPriority.High => WorkflowPriority.High,
-            PaymentPriority.Urgent => WorkflowPriority.Urgent,
-            PaymentPriority.Emergency => WorkflowPriority.Critical,
-            _ => WorkflowPriority.Normal
         };
     }
 }
