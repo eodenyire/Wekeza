@@ -15,36 +15,36 @@ public class JournalEntryRepository : IJournalEntryRepository
         _context = context;
     }
 
-    public async Task<JournalEntry?> GetByIdAsync(Guid id)
+    public async Task<JournalEntry?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await _context.JournalEntries
-            .FirstOrDefaultAsync(j => j.Id == id);
+            .FirstOrDefaultAsync(j => j.Id == id, ct);
     }
 
-    public async Task<JournalEntry?> GetByJournalNumberAsync(string journalNumber)
+    public async Task<JournalEntry?> GetByJournalNumberAsync(string journalNumber, CancellationToken ct = default)
     {
         return await _context.JournalEntries
-            .FirstOrDefaultAsync(j => j.JournalNumber == journalNumber);
+            .FirstOrDefaultAsync(j => j.JournalNumber == journalNumber, ct);
     }
 
-    public async Task<IEnumerable<JournalEntry>> GetBySourceAsync(string sourceType, Guid sourceId)
+    public async Task<IEnumerable<JournalEntry>> GetBySourceAsync(string sourceType, Guid sourceId, CancellationToken ct = default)
     {
         return await _context.JournalEntries
             .Where(j => j.SourceType == sourceType && j.SourceId == sourceId)
             .OrderByDescending(j => j.PostingDate)
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<JournalEntry>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    public async Task<IEnumerable<JournalEntry>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default)
     {
         return await _context.JournalEntries
             .Where(j => j.PostingDate >= fromDate && j.PostingDate <= toDate)
             .OrderBy(j => j.PostingDate)
             .ThenBy(j => j.JournalNumber)
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<JournalEntry>> GetByGLCodeAsync(string glCode, DateTime? fromDate = null, DateTime? toDate = null)
+    public async Task<IEnumerable<JournalEntry>> GetByGLCodeAsync(string glCode, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken ct = default)
     {
         var query = _context.JournalEntries.AsQueryable();
 
@@ -55,30 +55,30 @@ public class JournalEntryRepository : IJournalEntryRepository
             query = query.Where(j => j.PostingDate <= toDate.Value);
 
         // Filter by GL Code in journal lines (stored as JSON)
-        var entries = await query.ToListAsync();
+        var entries = await query.ToListAsync(ct);
         
         return entries.Where(j => j.Lines.Any(l => l.GLCode == glCode))
             .OrderBy(j => j.PostingDate)
             .ThenBy(j => j.JournalNumber);
     }
 
-    public async Task<IEnumerable<JournalEntry>> GetByStatusAsync(JournalStatus status)
+    public async Task<IEnumerable<JournalEntry>> GetByStatusAsync(JournalStatus status, CancellationToken ct = default)
     {
         return await _context.JournalEntries
             .Where(j => j.Status == status)
             .OrderByDescending(j => j.CreatedDate)
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<JournalEntry>> GetByTypeAsync(JournalType type)
+    public async Task<IEnumerable<JournalEntry>> GetByTypeAsync(JournalType type, CancellationToken ct = default)
     {
         return await _context.JournalEntries
             .Where(j => j.Type == type)
             .OrderByDescending(j => j.PostingDate)
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
-    public async Task<string> GenerateJournalNumberAsync(JournalType type)
+    public async Task<string> GenerateJournalNumberAsync(JournalType type, CancellationToken ct = default)
     {
         var prefix = type switch
         {
@@ -99,7 +99,7 @@ public class JournalEntryRepository : IJournalEntryRepository
         var existingNumbers = await _context.JournalEntries
             .Where(j => j.JournalNumber.StartsWith($"{prefix}{datePrefix}"))
             .Select(j => j.JournalNumber)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         var nextSequence = 1;
         string newNumber;
@@ -113,7 +113,7 @@ public class JournalEntryRepository : IJournalEntryRepository
         return newNumber;
     }
 
-    public async Task<decimal> GetGLAccountBalanceAsync(string glCode, DateTime? asOfDate = null)
+    public async Task<decimal> GetGLAccountBalanceAsync(string glCode, DateTime? asOfDate = null, CancellationToken ct = default)
     {
         var query = _context.JournalEntries
             .Where(j => j.Status == JournalStatus.Posted);
@@ -121,7 +121,7 @@ public class JournalEntryRepository : IJournalEntryRepository
         if (asOfDate.HasValue)
             query = query.Where(j => j.PostingDate <= asOfDate.Value);
 
-        var entries = await query.ToListAsync();
+        var entries = await query.ToListAsync(ct);
         
         decimal debitTotal = 0;
         decimal creditTotal = 0;
@@ -138,11 +138,11 @@ public class JournalEntryRepository : IJournalEntryRepository
         return debitTotal - creditTotal; // Net balance
     }
 
-    public async Task<Dictionary<string, decimal>> GetTrialBalanceAsync(DateTime asOfDate)
+    public async Task<Dictionary<string, decimal>> GetTrialBalanceAsync(DateTime asOfDate, CancellationToken ct = default)
     {
         var entries = await _context.JournalEntries
             .Where(j => j.Status == JournalStatus.Posted && j.PostingDate <= asOfDate)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         var balances = new Dictionary<string, decimal>();
 
@@ -158,6 +158,11 @@ public class JournalEntryRepository : IJournalEntryRepository
         }
 
         return balances;
+    }
+
+    public async Task AddAsync(JournalEntry journalEntry, CancellationToken ct = default)
+    {
+        await _context.JournalEntries.AddAsync(journalEntry, ct);
     }
 
     public void Add(JournalEntry journalEntry)

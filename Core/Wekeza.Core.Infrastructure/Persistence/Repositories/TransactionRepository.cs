@@ -35,10 +35,15 @@ public class TransactionRepository : ITransactionRepository
         _dbConnection = dbConnection;
     }
 
-    // WRITE: Standard EF Core persistence
     public async Task AddAsync(Transaction transaction, CancellationToken ct = default)
     {
         await _context.Transactions.AddAsync(transaction, ct);
+    }
+
+    public async Task<Transaction?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        return await _context.Transactions
+            .FirstOrDefaultAsync(t => t.Id == id, ct);
     }
 
     // READ: High-Performance Dapper Query for Statements
@@ -95,6 +100,31 @@ public class TransactionRepository : ITransactionRepository
             .Where(t => t.AccountId == accountId)
             .OrderByDescending(t => t.Timestamp)
             .Take(limit)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<Transaction>> GetRecentByCustomerIdAsync(Guid customerId, int limit, CancellationToken ct = default)
+    {
+        return await _context.Transactions
+            .Where(t => t.CustomerId == customerId)
+            .OrderByDescending(t => t.Timestamp)
+            .Take(limit)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<Transaction>> GetTransactionsByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        return await _context.Transactions
+            .Where(t => t.Timestamp >= startDate && t.Timestamp <= endDate)
+            .OrderByDescending(t => t.Timestamp)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<Transaction>> GetByAccountAsync(Guid accountId, DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        return await _context.Transactions
+            .Where(t => t.AccountId == accountId && t.Timestamp >= startDate && t.Timestamp <= endDate)
+            .OrderByDescending(t => t.Timestamp)
             .ToListAsync(ct);
     }
 }
