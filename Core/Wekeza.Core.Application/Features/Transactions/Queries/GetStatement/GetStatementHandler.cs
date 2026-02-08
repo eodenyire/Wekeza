@@ -26,8 +26,8 @@ public class GetStatementHandler : IRequestHandler<GetStatementQuery, Result<Sta
                 request.ToDate, 
                 cancellationToken);
 
-            var transactionList = transactions.ToList();
-            var transactionDtos = _mapper.Map<List<TransactionHistoryDto>>(transactionList);
+            // Map transactions to DTOs
+            var transactionDtos = transactions.Select(t => _mapper.Map<TransactionHistoryDto>(t)).ToList();
             
             var statement = new StatementDto
             {

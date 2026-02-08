@@ -3,6 +3,7 @@ using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Application.Features.FixedDeposits;
 
