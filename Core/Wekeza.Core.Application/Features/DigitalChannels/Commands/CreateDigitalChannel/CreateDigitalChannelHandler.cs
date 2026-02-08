@@ -35,7 +35,7 @@ public class CreateDigitalChannelHandler : IRequestHandler<CreateDigitalChannelC
                 request.ChannelId,
                 request.ChannelCode,
                 request.ChannelName,
-                request.ChannelType,
+                (Wekeza.Core.Domain.Aggregates.ChannelType)request.ChannelType,
                 request.Description,
                 request.BaseUrl,
                 request.ApiVersion,

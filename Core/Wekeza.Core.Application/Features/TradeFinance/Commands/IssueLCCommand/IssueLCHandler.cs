@@ -57,7 +57,7 @@ public class IssueLCHandler : IRequestHandler<IssueLCCommand, IssueLCResponse>
             request.ExpiryDate,
             request.Terms,
             request.GoodsDescription,
-            request.Type,
+            (Wekeza.Core.Domain.Aggregates.LCType)request.Type,
             request.LastShipmentDate,
             request.AdvisingBankId,
             request.IsTransferable);

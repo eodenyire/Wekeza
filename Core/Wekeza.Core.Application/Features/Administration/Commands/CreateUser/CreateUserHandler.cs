@@ -88,7 +88,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             // 6. Assign roles
             foreach (var role in request.Roles)
             {
-                user.AssignRole(role, _currentUserService.Username ?? "System");
+                user.AssignRole(role.ToString(), _currentUserService.Username ?? "System");
             }
 
             // 7. Set additional properties
