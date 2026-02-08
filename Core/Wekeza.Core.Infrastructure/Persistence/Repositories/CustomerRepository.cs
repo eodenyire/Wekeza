@@ -1,6 +1,11 @@
 ///4. CustomerRepository.cs
 ///The KYC hub. This handles the complex retrieval of corporate customers and their directors.
 ///
+using Microsoft.EntityFrameworkCore;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Infrastructure.Persistence;
+
 namespace Wekeza.Core.Infrastructure.Persistence.Repositories;
 
 public class CustomerRepository : ICustomerRepository

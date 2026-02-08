@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Infrastructure.Persistence.Repositories;
 

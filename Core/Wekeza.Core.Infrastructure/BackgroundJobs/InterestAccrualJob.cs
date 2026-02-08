@@ -2,6 +2,11 @@
 /// This job ensures that for savings or fixed-deposit accounts, the daily interest is calculated based on the End-of-Day (EOD) balance. This is precision-grade math where rounding errors are forbidden.
 ///
 ///
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Wekeza.Core.Domain.Interfaces;
+
 namespace Wekeza.Core.Infrastructure.BackgroundJobs;
 
 public class InterestAccrualJob : BackgroundService

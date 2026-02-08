@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
-using Wekeza.Core.Application.Features.Transactions.Queries.GetHistory;
+//using Wekeza.Core.Application.Features.Transactions.Queries.GetHistory; // Removed - namespace doesn't exist
 ///<summary>
 /// 📂 Wekeza.Core.Infrastructure/Persistence/Repositories
 /// TransactionRepository.cs (The High-Performance Ledger)
@@ -11,6 +11,18 @@ using Wekeza.Core.Application.Features.Transactions.Queries.GetHistory;
 ///</summary>
 
 namespace Wekeza.Core.Infrastructure.Persistence.Repositories;
+
+// DTO for transaction history - defined here since GetHistory namespace doesn't exist
+public class TransactionHistoryDto
+{
+    public Guid Id { get; set; }
+    public DateTime TransactionDate { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public decimal DebitAmount { get; set; }
+    public decimal CreditAmount { get; set; }
+    public decimal RunningBalance { get; set; }
+}
 
 public class TransactionRepository : ITransactionRepository
 {
