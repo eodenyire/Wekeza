@@ -8,6 +8,8 @@ public record GetTransactionTrendsQuery : IRequest<Result<TransactionTrendsDto>>
 {
     public DateTime? FromDate { get; init; }
     public DateTime? ToDate { get; init; }
+    public string Period { get; init; } = "daily";
+    public int Days { get; init; } = 30;
 }
 
 public class TransactionTrendsDto

@@ -18,6 +18,11 @@ using Wekeza.Core.Application.Features.CustomerPortal.Commands.DownloadStatement
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.RequestVirtualCard;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetProfile;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetAccounts;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetOnboardingStatus;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetCustomerProfile;
+using Wekeza.Core.Application.Features.Teller.Queries.GetCustomerAccounts;
+using Wekeza.Core.Application.Features.Teller.Queries.GetAccountBalance;
+using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetAccountTransactions;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetTransactions;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetCards;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetLoans;

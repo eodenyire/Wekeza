@@ -8,6 +8,7 @@ public record DownloadStatementCommand : ICommand<Result<byte[]>>
 {
     public Guid CorrelationId { get; init; } = Guid.NewGuid();
     public string AccountNumber { get; init; } = string.Empty;
+    public Guid AccountId { get; init; }
     public DateTime StartDate { get; init; }
     public DateTime EndDate { get; init; }
     public string Format { get; init; } = "PDF";

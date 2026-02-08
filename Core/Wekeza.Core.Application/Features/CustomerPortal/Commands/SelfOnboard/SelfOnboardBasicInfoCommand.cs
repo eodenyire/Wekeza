@@ -18,6 +18,10 @@ public class SelfOnboardResponse
 {
     public Guid OnboardingId { get; set; }
     public string Status { get; set; } = string.Empty;
+    public Guid CustomerId { get; set; }
+    public string CIFNumber { get; set; } = string.Empty;
+    public string AccountNumber { get; set; } = string.Empty;
+    public string TempPassword { get; set; } = string.Empty;
 }
 
 public class SelfOnboardBasicInfoHandler : IRequestHandler<SelfOnboardBasicInfoCommand, Result<SelfOnboardResponse>>

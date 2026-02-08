@@ -116,10 +116,7 @@ public class TellerPortalController : BaseApiController
         if (result.IsSuccess)
         {
             return Ok(new {
-                TransactionId = result.Value.TransactionId,
-                TransactionReference = result.Value.TransactionReference,
-                Amount = result.Value.Amount,
-                NewBalance = result.Value.NewBalance,
+                TransactionId = result.Value,
                 Message = "Cash withdrawal processed successfully"
             });
         }
@@ -150,8 +147,7 @@ public class TellerPortalController : BaseApiController
         if (result.IsSuccess)
         {
             return Ok(new {
-                CustomerId = result.Value.CustomerId,
-                CIFNumber = result.Value.CIFNumber,
+                CustomerId = result.Value,
                 Message = "Customer onboarded successfully"
             });
         }
@@ -168,8 +164,7 @@ public class TellerPortalController : BaseApiController
         if (result.IsSuccess)
         {
             return Ok(new {
-                AccountId = result.Value.AccountId,
-                AccountNumber = result.Value.AccountNumber,
+                AccountId = result.Value,
                 Message = "Account opened successfully"
             });
         }

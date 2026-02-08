@@ -13,6 +13,11 @@ using Wekeza.Core.Application.Features.Dashboard.Queries.GetCardStatistics;
 using Wekeza.Core.Application.Features.Dashboard.Queries.GetBranchComparison;
 using Wekeza.Core.Application.Features.Dashboard.Queries.GetSystemHealth;
 using Wekeza.Core.Application.Features.Dashboard.Queries.GetPendingApprovalsSummary;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetTransactionStatistics;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetHighActivityAccounts;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetRestrictedAccounts;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetOnboardingTrends;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetLoanPerformance;
 
 namespace Wekeza.Core.Api.Controllers;
 
@@ -73,15 +78,15 @@ public class DashboardController : BaseApiController
         var result = await Mediator.Send(query);
         return Ok(new
         {
-            TotalAccounts = result.TotalAccounts,
-            ActiveAccounts = result.ActiveAccounts,
-            InactiveAccounts = result.InactiveAccounts,
-            FrozenAccounts = result.FrozenAccounts,
-            AccountsByType = result.AccountsByType,
-            AccountsByBranch = result.AccountsByBranch,
-            TotalBalance = result.TotalBalance,
-            AverageBalance = result.AverageBalance,
-            TopAccountsByBalance = result.TopAccountsByBalance
+            TotalAccounts = result.Value.TotalAccounts,
+            ActiveAccounts = result.Value.ActiveAccounts,
+            InactiveAccounts = result.Value.InactiveAccounts,
+            FrozenAccounts = result.Value.FrozenAccounts,
+            AccountsByType = result.Value.AccountsByType,
+            AccountsByBranch = result.Value.AccountsByBranch,
+            TotalBalance = result.Value.TotalBalance,
+            AverageBalance = result.Value.AverageBalance,
+            TopAccountsByBalance = result.Value.TopAccountsByBalance
         });
     }
 
@@ -121,14 +126,14 @@ public class DashboardController : BaseApiController
         var result = await Mediator.Send(query);
         return Ok(new
         {
-            TotalCustomers = result.TotalCustomers,
-            NewCustomersThisMonth = result.NewCustomersThisMonth,
-            CustomersBySegment = result.CustomersBySegment,
-            CustomersByBranch = result.CustomersByBranch,
-            CustomersWithMultipleAccounts = result.CustomersWithMultipleAccounts,
-            CIFsWithoutAccounts = result.CIFsWithoutAccounts,
-            KYCPendingCustomers = result.KYCPendingCustomers,
-            HighRiskCustomers = result.HighRiskCustomers
+            TotalCustomers = result.Value.TotalCustomers,
+            NewCustomersThisMonth = result.Value.NewCustomersThisMonth,
+            CustomersBySegment = result.Value.CustomersBySegment,
+            CustomersByBranch = result.Value.CustomersByBranch,
+            CustomersWithMultipleAccounts = result.Value.CustomersWithMultipleAccounts,
+            CIFsWithoutAccounts = result.Value.CIFsWithoutAccounts,
+            KYCPendingCustomers = result.Value.KYCPendingCustomers,
+            HighRiskCustomers = result.Value.HighRiskCustomers
         });
     }
 
@@ -157,14 +162,14 @@ public class DashboardController : BaseApiController
         var result = await Mediator.Send(query);
         return Ok(new
         {
-            TotalLoans = result.TotalLoans,
-            TotalLoanAmount = result.TotalLoanAmount,
-            OutstandingAmount = result.OutstandingAmount,
-            LoansByStatus = result.LoansByStatus,
-            LoansByProduct = result.LoansByProduct,
-            NPLRatio = result.NPLRatio,
-            ProvisionCoverage = result.ProvisionCoverage,
-            AverageInterestRate = result.AverageInterestRate
+            TotalLoans = result.Value.TotalLoans,
+            TotalLoanAmount = result.Value.TotalLoanAmount,
+            OutstandingAmount = result.Value.OutstandingAmount,
+            LoansByStatus = result.Value.LoansByStatus,
+            LoansByProduct = result.Value.LoansByProduct,
+            NPLRatio = result.Value.NPLRatio,
+            ProvisionCoverage = result.Value.ProvisionCoverage,
+            AverageInterestRate = result.Value.AverageInterestRate
         });
     }
 
