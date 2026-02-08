@@ -84,7 +84,7 @@ public class OpenAccountHandler : IRequestHandler<OpenAccountCommand, Result<Ope
             AccountId = account.Id,
             AccountNumber = account.AccountNumber.Value,
             CustomerId = customer.Id,
-            CIFNumber = customer.CustomerNumber ?? "CIF-" + customer.Id.ToString()[..8],
+            CIFNumber = customer.IdentificationNumber ?? "CIF-" + customer.Id.ToString()[..8],
             Status = "PENDING_APPROVAL",
             Message = "Account opening request submitted successfully",
             RequiresApproval = request.RequiresApproval

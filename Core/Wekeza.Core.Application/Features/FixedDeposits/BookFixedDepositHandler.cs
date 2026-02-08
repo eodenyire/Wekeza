@@ -36,16 +36,22 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
         sourceAccount.Debit(amount, $"FD-{Guid.NewGuid()}", "Fixed Deposit booking"); // This will throw InsufficientFunds if they don't have it
 
         // 3. Create Fixed Deposit Aggregate
-        // We calculate maturity date: Today + Term
-        var maturityDate = DateTime.UtcNow.AddMonths(request.TermInMonths);
+        var depositNumber = $"FD-{Guid.NewGuid().ToString()[..8]}";
+        var interestRate = new InterestRate(request.InterestRate);
         
         // This represents a new 'Account' type in the system
         var fdAccount = new FixedDeposit(
             Guid.NewGuid(),
+            sourceAccount.Id,
             sourceAccount.CustomerId,
+            depositNumber,
             amount,
-            request.InterestRate,
-            maturityDate
+            interestRate,
+            request.TermInDays,
+            InterestPaymentFrequency.Maturity,
+            false, // autoRenewal
+            "HQ", // branchCode
+            "SYSTEM" // createdBy
         );
 
         await _fdRepository.AddAsync(fdAccount, ct);

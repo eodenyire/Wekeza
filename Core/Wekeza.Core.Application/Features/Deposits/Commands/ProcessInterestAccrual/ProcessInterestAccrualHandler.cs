@@ -82,10 +82,8 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
             AccountType.Savings.ToString(), 
             cancellationToken);
         
-        // Filter by branch code if specified
-        var savingsAccounts = string.IsNullOrEmpty(request.BranchCodeFilter) 
-            ? allSavingsAccounts 
-            : allSavingsAccounts.Where(a => a.BranchCode == request.BranchCodeFilter);
+        // Process all savings accounts (BranchCode filter not supported by Account aggregate)
+        var savingsAccounts = allSavingsAccounts;
 
         foreach (var account in savingsAccounts)
         {

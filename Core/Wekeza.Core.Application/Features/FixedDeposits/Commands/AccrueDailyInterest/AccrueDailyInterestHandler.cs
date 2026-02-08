@@ -22,8 +22,8 @@ public class AccrueDailyInterestHandler : IRequestHandler<AccrueDailyInterestCom
         var fd = await _repository.GetByIdAsync(request.FixedDepositId, ct);
         
         // Formula: (Principal * Rate) / 365
-        var dailyRate = fd.InterestRate / 365 / 100;
-        var interestAmount = fd.Principal.Amount * dailyRate;
+        var dailyRate = fd.InterestRate.Rate / 365 / 100;
+        var interestAmount = fd.PrincipalAmount.Amount * dailyRate;
 
         // fd.Accrue(interestAmount); // Domain logic updates the AccruedBalance
         
