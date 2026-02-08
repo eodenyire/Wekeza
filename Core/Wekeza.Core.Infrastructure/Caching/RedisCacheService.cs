@@ -712,18 +712,3 @@ public class RedisCacheService : ICacheService, IDisposable
         _redis?.Dispose();
     }
 }
-
-/// <summary>
-/// Redis cache configuration options
-/// </summary>
-public class RedisCacheOptions
-{
-    public string ConnectionString { get; set; } = "localhost:6379";
-    public int DatabaseId { get; set; } = 0;
-    public string KeyPrefix { get; set; } = "wekeza:";
-    public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromHours(1);
-    public bool EnableLogging { get; set; } = true;
-    public int CommandTimeout { get; set; } = 5000;
-    public int ConnectTimeout { get; set; } = 5000;
-    public int ConnectRetry { get; set; } = 3;
-}
