@@ -2,6 +2,7 @@ using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
+using RiskLevel = Wekeza.Core.Domain.ValueObjects.RiskLevel;
 /// 3. The Executioner: VerifyCustomerHandler.cs
 /// This is where we update the Risk Profile and the status. Notice how we use the Customer Aggregate.
 

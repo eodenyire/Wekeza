@@ -7,8 +7,22 @@ using Wekeza.Core.Application.Features.CustomerPortal.Commands.ChangePassword;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.RequestCard;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.TransferFunds;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.PayBill;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.EnrollMobileBanking;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.EnrollInternetBanking;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.EnrollUSSD;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.BlockCard;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.ApplyForLoan;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.RepayLoan;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.BuyAirtime;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.DownloadStatement;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.RequestVirtualCard;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetProfile;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetAccounts;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetOnboardingStatus;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetCustomerProfile;
+using Wekeza.Core.Application.Features.Teller.Queries.GetCustomerAccounts;
+using Wekeza.Core.Application.Features.Teller.Queries.GetAccountBalance;
+using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetAccountTransactions;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetTransactions;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetCards;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetLoans;
@@ -191,8 +205,8 @@ public class CustomerPortalController : BaseApiController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> DownloadStatement(Guid accountId, [FromBody] DownloadStatementCommand command)
     {
-        command.AccountId = accountId;
-        var result = await Mediator.Send(command);
+        var updatedCommand = command with { AccountId = accountId };
+        var result = await Mediator.Send(updatedCommand);
         return Ok(result);
     }
 
@@ -212,9 +226,7 @@ public class CustomerPortalController : BaseApiController
         {
             return Ok(new
             {
-                TransactionId = result.Value.TransactionId,
-                TransactionReference = result.Value.TransactionReference,
-                Status = result.Value.Status,
+                TransactionId = result.Value,
                 Message = "Transfer initiated successfully"
             });
         }
@@ -295,11 +307,10 @@ public class CustomerPortalController : BaseApiController
     /// <summary>
     /// Block/Unblock card
     /// </summary>
-    [HttpPost("cards/{cardId:guid}/block")]
+    [HttpPost("cards/block")]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> BlockCard(Guid cardId, [FromBody] BlockCardCommand command)
+    public async Task<IActionResult> BlockCard([FromBody] BlockCardCommand command)
     {
-        command.CardId = cardId;
         var result = await Mediator.Send(command);
         return Ok(result);
     }
@@ -315,7 +326,7 @@ public class CustomerPortalController : BaseApiController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> GetLoans()
     {
-        var query = new GetCustomerLoansQuery();
+        var query = new GetLoansQuery();
         var result = await Mediator.Send(query);
         return Ok(result);
     }
@@ -334,11 +345,10 @@ public class CustomerPortalController : BaseApiController
     /// <summary>
     /// Make loan repayment
     /// </summary>
-    [HttpPost("loans/{loanId:guid}/repay")]
+    [HttpPost("loans/repay")]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> RepayLoan(Guid loanId, [FromBody] RepayLoanCommand command)
+    public async Task<IActionResult> RepayLoan([FromBody] RepayLoanCommand command)
     {
-        command.LoanId = loanId;
         var result = await Mediator.Send(command);
         return Ok(result);
     }

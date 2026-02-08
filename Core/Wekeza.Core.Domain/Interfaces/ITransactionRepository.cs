@@ -29,4 +29,14 @@ public interface ITransactionRepository
     /// In the infrastructure implementation, this is often optimized with Dapper.
     /// </summary>
     Task<IEnumerable<Transaction>> GetRecentTransactionsAsync(Guid accountId, int limit, CancellationToken ct);
+
+    /// <summary>
+    /// Gets transactions by account ID with optional filtering
+    /// </summary>
+    Task<IEnumerable<Transaction>> GetByAccountAsync(Guid accountId, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets transactions within a date range
+    /// </summary>
+    Task<IEnumerable<Transaction>> GetTransactionsByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default);
 }

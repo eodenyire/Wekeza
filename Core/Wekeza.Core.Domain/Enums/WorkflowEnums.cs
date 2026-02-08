@@ -9,7 +9,10 @@ public enum WorkflowType
     MultiLevel,         // Multi-level approval
     Sequential,         // Sequential approval chain
     Parallel,           // Parallel approval (all must approve)
-    Conditional         // Conditional routing
+    Conditional,        // Conditional routing
+    PaymentApproval,    // Payment approval workflow
+    LoanApproval,       // Loan approval workflow
+    AccountOpening      // Account opening workflow
 }
 
 /// <summary>

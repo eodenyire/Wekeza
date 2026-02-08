@@ -21,7 +21,7 @@ public class DeactivateAccountHandler : IRequestHandler<DeactivateAccountCommand
         var account = await _repository.GetByAccountNumberAsync(new AccountNumber(request.AccountNumber), ct)
             ?? throw new NotFoundException("Account", request.AccountNumber);
 
-        account.Deactivate(request.Reason); // Domain logic sets IsActive = false
+        account.Close(request.Reason, "System"); // Domain logic sets IsActive = false
 
         _repository.Update(account);
         await _unitOfWork.SaveChangesAsync(ct);

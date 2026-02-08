@@ -27,7 +27,7 @@ public class PostJournalEntryHandler : IRequestHandler<PostJournalEntryCommand, 
     public async Task<string> Handle(PostJournalEntryCommand request, CancellationToken cancellationToken)
     {
         // Generate journal number
-        var journalNumber = await _journalRepository.GenerateJournalNumberAsync(cancellationToken);
+        var journalNumber = await _journalRepository.GenerateJournalNumberAsync(request.Type);
 
         // Create journal entry
         var journal = JournalEntry.Create(
@@ -39,14 +39,14 @@ public class PostJournalEntryHandler : IRequestHandler<PostJournalEntryCommand, 
             request.SourceId,
             request.SourceReference,
             request.Currency,
-            _currentUserService.UserId ?? "System",
+            _currentUserService.UserId?.ToString() ?? "System",
             request.Description);
 
         // Add lines
         foreach (var lineDto in request.Lines)
         {
             // Validate GL account exists
-            var glAccount = await _glAccountRepository.GetByGLCodeAsync(lineDto.GLCode, cancellationToken);
+            var glAccount = await _glAccountRepository.GetByGLCodeAsync(lineDto.GLCode);
             if (glAccount == null)
             {
                 throw new InvalidOperationException($"GL account {lineDto.GLCode} not found.");
@@ -68,12 +68,12 @@ public class PostJournalEntryHandler : IRequestHandler<PostJournalEntryCommand, 
         }
 
         // Post journal entry
-        journal.Post(_currentUserService.UserId ?? "System");
+        journal.Post(_currentUserService.UserId?.ToString() ?? "System");
 
         // Update GL account balances
         foreach (var line in journal.Lines)
         {
-            var glAccount = await _glAccountRepository.GetByGLCodeAsync(line.GLCode, cancellationToken);
+            var glAccount = await _glAccountRepository.GetByGLCodeAsync(line.GLCode);
             if (glAccount != null)
             {
                 if (line.DebitAmount > 0)

@@ -1,5 +1,6 @@
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.ValueObjects;
 using MediatR;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.VerifyBusinessAccount;
@@ -22,7 +23,7 @@ public class VerifyBusinessAccountHandler : IRequestHandler<VerifyBusinessAccoun
 
         // Business Rule: Update status and set the 'Corporate Mandate'
         account.Verify(request.VerifiedBy); 
-        account.UpdateTransactionLimit(request.DailyLimit);
+        account.UpdateTransactionLimit(new Money(request.DailyLimit, account.Balance.Currency), request.VerifiedBy);
 
         _repository.Update(account);
         await _unitOfWork.SaveChangesAsync(ct);

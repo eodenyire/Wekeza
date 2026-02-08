@@ -12,8 +12,11 @@ public interface IWorkflowRepository
     // Basic CRUD
     Task<WorkflowInstance?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<WorkflowInstance?> GetByEntityAsync(string entityType, Guid entityId, CancellationToken cancellationToken = default);
+    Task<WorkflowInstance?> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default);
     Task AddAsync(WorkflowInstance workflow, CancellationToken cancellationToken = default);
+    Task AddWorkflowAsync(WorkflowInstance workflow, CancellationToken cancellationToken = default);
     void Update(WorkflowInstance workflow);
+    Task UpdateWorkflow(WorkflowInstance workflow, CancellationToken cancellationToken = default);
     
     // Query by status
     Task<IEnumerable<WorkflowInstance>> GetPendingWorkflowsAsync(CancellationToken cancellationToken = default);
@@ -25,6 +28,9 @@ public interface IWorkflowRepository
     
     // Query by entity
     Task<IEnumerable<WorkflowInstance>> GetByEntityTypeAsync(string entityType, CancellationToken cancellationToken = default);
+    
+    // Approval matrix
+    Task<ApprovalMatrix?> GetApprovalMatrixAsync(string workflowType, decimal? amount = null, CancellationToken cancellationToken = default);
     
     // SLA monitoring
     Task<IEnumerable<WorkflowInstance>> GetOverdueWorkflowsAsync(CancellationToken cancellationToken = default);

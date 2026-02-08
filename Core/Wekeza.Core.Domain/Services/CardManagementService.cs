@@ -85,7 +85,7 @@ public class CardManagementService
     public async Task<bool> ValidateCardForTransactionAsync(
         Guid cardId,
         decimal amount,
-        TransactionType transactionType,
+        CardTransactionType transactionType,
         string? merchantCategory = null)
     {
         var card = await _cardRepository.GetByIdAsync(cardId);
@@ -99,13 +99,13 @@ public class CardManagementService
         // Additional business rules based on transaction type
         switch (transactionType)
         {
-            case TransactionType.ATMWithdrawal:
+            case CardTransactionType.ATMWithdrawal:
                 return ValidateATMTransaction(card, amount);
             
-            case TransactionType.POSPurchase:
+            case CardTransactionType.POSPurchase:
                 return ValidatePOSTransaction(card, amount, merchantCategory);
             
-            case TransactionType.OnlinePurchase:
+            case CardTransactionType.OnlinePurchase:
                 return ValidateOnlineTransaction(card, amount, merchantCategory);
             
             default:
@@ -116,7 +116,7 @@ public class CardManagementService
     public async Task ProcessCardTransactionAsync(
         Guid cardId,
         decimal amount,
-        TransactionType transactionType,
+        CardTransactionType transactionType,
         bool isSuccessful,
         string? merchantId = null,
         string? atmId = null)
@@ -327,7 +327,7 @@ public class CardManagementService
     private async Task PostTransactionFeesAsync(
         Card card,
         decimal amount,
-        TransactionType transactionType,
+        CardTransactionType transactionType,
         string? merchantId,
         string? atmId)
     {
@@ -386,14 +386,14 @@ public class CardManagementService
         };
     }
 
-    private Money GetTransactionFee(CardType cardType, TransactionType transactionType, decimal amount)
+    private Money GetTransactionFee(CardType cardType, CardTransactionType transactionType, decimal amount)
     {
         // This would typically come from product configuration
         return transactionType switch
         {
-            TransactionType.ATMWithdrawal when amount > 10000 => new Money(50, Currency.KES), // KES 50 for large withdrawals
-            TransactionType.POSPurchase => Money.Zero(Currency.KES), // No POS fees
-            TransactionType.OnlinePurchase => new Money(20, Currency.KES), // KES 20 for online purchases
+            CardTransactionType.ATMWithdrawal when amount > 10000 => new Money(50, Currency.KES), // KES 50 for large withdrawals
+            CardTransactionType.POSPurchase => Money.Zero(Currency.KES), // No POS fees
+            CardTransactionType.OnlinePurchase => new Money(20, Currency.KES), // KES 20 for online purchases
             _ => Money.Zero(Currency.KES)
         };
     }

@@ -69,7 +69,7 @@ public class POSProcessingService
                 failedTransaction.Decline("55", "Incorrect PIN", "PIN validation failed");
                 
                 await _cardManagementService.ProcessCardTransactionAsync(
-                    card.Id, amount + (tipAmount ?? 0), TransactionType.POSPurchase, false, merchantId);
+                    card.Id, amount + (tipAmount ?? 0), CardTransactionType.POSPurchase, false, merchantId);
                 
                 return failedTransaction;
             }
@@ -104,11 +104,11 @@ public class POSProcessingService
             posTransaction.SetPINVerificationResult(true);
 
         // Validate card can process transaction
-        if (!card.CanProcessTransaction(totalAmount.Amount, TransactionType.POSPurchase))
+        if (!card.CanProcessTransaction(totalAmount.Amount, CardTransactionType.POSPurchase))
         {
             posTransaction.Decline("61", "Exceeds purchase limit", "Daily purchase limit exceeded");
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, totalAmount.Amount, TransactionType.POSPurchase, false, merchantId);
+                card.Id, totalAmount.Amount, CardTransactionType.POSPurchase, false, merchantId);
             return posTransaction;
         }
 
@@ -117,7 +117,7 @@ public class POSProcessingService
         {
             posTransaction.Decline("51", "Insufficient funds", "Account balance insufficient");
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, totalAmount.Amount, TransactionType.POSPurchase, false, merchantId);
+                card.Id, totalAmount.Amount, CardTransactionType.POSPurchase, false, merchantId);
             return posTransaction;
         }
 
@@ -126,7 +126,7 @@ public class POSProcessingService
         {
             posTransaction.Decline("62", "Restricted card", "Account is not active");
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, totalAmount.Amount, TransactionType.POSPurchase, false, merchantId);
+                card.Id, totalAmount.Amount, CardTransactionType.POSPurchase, false, merchantId);
             return posTransaction;
         }
 
@@ -135,7 +135,7 @@ public class POSProcessingService
         {
             posTransaction.Decline("57", "Transaction not permitted", "Merchant category restricted");
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, totalAmount.Amount, TransactionType.POSPurchase, false, merchantId);
+                card.Id, totalAmount.Amount, CardTransactionType.POSPurchase, false, merchantId);
             return posTransaction;
         }
 
@@ -158,7 +158,7 @@ public class POSProcessingService
             
             // Update card transaction tracking
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, totalAmount.Amount, TransactionType.POSPurchase, true, merchantId);
+                card.Id, totalAmount.Amount, CardTransactionType.POSPurchase, true, merchantId);
             
             // Update repositories
             await _accountRepository.UpdateAsync(account);
@@ -170,7 +170,7 @@ public class POSProcessingService
         {
             posTransaction.Decline("96", "System error", ex.Message);
             await _cardManagementService.ProcessCardTransactionAsync(
-                card.Id, totalAmount.Amount, TransactionType.POSPurchase, false, merchantId);
+                card.Id, totalAmount.Amount, CardTransactionType.POSPurchase, false, merchantId);
             return posTransaction;
         }
     }
@@ -254,7 +254,7 @@ public class POSProcessingService
             return false;
 
         // Check transaction limits
-        if (!card.CanProcessTransaction(amount, TransactionType.POSPurchase))
+        if (!card.CanProcessTransaction(amount, CardTransactionType.POSPurchase))
             return false;
 
         // Check merchant category restrictions

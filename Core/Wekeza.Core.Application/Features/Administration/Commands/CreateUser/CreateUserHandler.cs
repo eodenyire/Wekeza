@@ -53,7 +53,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             // 2. Validate branch if specified
             if (request.BranchId.HasValue)
             {
-                var branch = await _branchRepository.GetByIdAsync(request.BranchId.Value, cancellationToken);
+                var branch = await _branchRepository.GetByIdAsync(request.BranchId.Value);
                 if (branch == null)
                 {
                     return Result<Guid>.Failure("Branch not found");
@@ -78,39 +78,40 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             );
 
             // 5. Set password and security settings
-            user.SetPassword(passwordHash, request.MustChangePassword);
+            var currentUsername = _currentUserService.Username ?? "System";
+            user.SetPassword(passwordHash, currentUsername);
             
             if (request.MfaEnabled)
             {
-                user.EnableMfa(MfaMethod.TOTP);
+                user.EnableMfa(MfaMethod.TOTP, GenerateMfaSecret(), currentUsername);
             }
 
             // 6. Assign roles
             foreach (var role in request.Roles)
             {
-                user.AssignRole(role);
+                user.AssignRole(role.ToString(), $"Role_{role}", currentUsername);
             }
 
             // 7. Set additional properties
             if (!string.IsNullOrEmpty(request.PhoneNumber))
-                user.UpdatePhoneNumber(request.PhoneNumber);
+                user.UpdatePhoneNumber(request.PhoneNumber, currentUsername);
             
             if (!string.IsNullOrEmpty(request.Department))
-                user.UpdateDepartment(request.Department);
+                user.UpdateDepartment(request.Department, currentUsername);
             
             if (!string.IsNullOrEmpty(request.JobTitle))
-                user.UpdateJobTitle(request.JobTitle);
+                user.UpdateJobTitle(request.JobTitle, currentUsername);
 
             if (request.BranchId.HasValue)
-                user.AssignToBranch(request.BranchId.Value);
+                user.AssignToBranch(request.BranchId.Value.ToString(), currentUsername);
 
             // 8. Save user
             await _userRepository.AddAsync(user, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // 9. Send welcome email with temporary password
-            // This would be handled by a domain event handler
-            user.AddDomainEvent(new UserCreatedDomainEvent(user.Id, user.Username, user.Email, _currentUserService.Username ?? "System"));
+            // Domain events are now raised automatically by the aggregate
+            // user.AddDomainEvent is protected, domain events are added inside User methods
 
             return Result<Guid>.Success(user.Id);
         }
@@ -126,6 +127,15 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
         var random = new Random();
         return new string(Enumerable.Repeat(chars, 12)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    private static string GenerateMfaSecret()
+    {
+        // Generate a random MFA secret for TOTP
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        var random = new Random();
+        return new string(Enumerable.Repeat(chars, 32)
             .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 }

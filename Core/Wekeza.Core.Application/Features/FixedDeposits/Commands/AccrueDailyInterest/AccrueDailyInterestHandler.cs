@@ -19,11 +19,11 @@ public class AccrueDailyInterestHandler : IRequestHandler<AccrueDailyInterestCom
 
     public async Task<bool> Handle(AccrueDailyInterestCommand request, CancellationToken ct)
     {
-        var fd = await _repository.GetByIdAsync(request.FixedDepositId, ct);
+        var fd = await _repository.GetByIdAsync(request.FixedDepositId);
         
         // Formula: (Principal * Rate) / 365
-        var dailyRate = fd.InterestRate / 365 / 100;
-        var interestAmount = fd.Principal.Amount * dailyRate;
+        var dailyRate = fd.InterestRate.Value / 365m / 100m;
+        var interestAmount = fd.PrincipalAmount.Amount * dailyRate;
 
         // fd.Accrue(interestAmount); // Domain logic updates the AccruedBalance
         

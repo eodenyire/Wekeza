@@ -308,7 +308,7 @@ public class WorkflowsController : BaseApiController
     [Authorize(Roles = "Employee,Manager,Administrator")]
     public async Task<IActionResult> GetUserTasks(
         string userId, 
-        [FromQuery] TaskStatus? status = null)
+        [FromQuery] Wekeza.Core.Domain.Enums.TaskStatus? status = null)
     {
         // This would be implemented with a query handler
         return Ok(new { 

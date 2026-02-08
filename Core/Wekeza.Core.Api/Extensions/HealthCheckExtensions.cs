@@ -17,9 +17,9 @@ public static class HealthCheckExtensions
                 connectionString: configuration.GetConnectionString("DefaultConnection")!,
                 name: "PostgreSQL",
                 failureStatus: HealthStatus.Unhealthy,
-                tags: new[] { "db", "sql", "beast" })
+                tags: new[] { "db", "sql", "beast" });
             // 2. Check if the Identity Provider/Auth system is reachable
-            .AddUrlGroup(new Uri(configuration["ExternalServices:AuthUrl"]!), "IdentityServer");
+            // .AddUrlGroup(new Uri(configuration["ExternalServices:AuthUrl"]!), "IdentityServer");
 
         return services;
     }

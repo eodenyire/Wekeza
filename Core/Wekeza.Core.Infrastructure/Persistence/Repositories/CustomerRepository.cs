@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Infrastructure.Persistence;
+
 ///4. CustomerRepository.cs
 ///The KYC hub. This handles the complex retrieval of corporate customers and their directors.
 ///

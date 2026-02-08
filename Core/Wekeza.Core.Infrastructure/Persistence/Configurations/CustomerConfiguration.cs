@@ -1,18 +1,21 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Wekeza.Core.Domain.Aggregates;
+
+namespace Wekeza.Core.Infrastructure.Persistence.Configurations;
+
 public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 {
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
         builder.HasKey(c => c.Id);
         
-        builder.Property(c => c.Name).HasMaxLength(200).IsRequired();
-        builder.Property(c => c.KraPin).HasMaxLength(11);
-        builder.Property(c => c.RegistrationNumber).HasMaxLength(50);
-
-        // Store Directors as a JSON column (2026 Modern PostgreSQL approach)
-        builder.OwnsMany(c => c.Directors, d =>
-        {
-            d.ToJson();
-            d.Property(x => x.FullName).IsRequired();
-        });
+        builder.Property(c => c.FirstName).HasMaxLength(100).IsRequired();
+        builder.Property(c => c.LastName).HasMaxLength(100).IsRequired();
+        builder.Property(c => c.Email).HasMaxLength(255).IsRequired();
+        builder.Property(c => c.PhoneNumber).HasMaxLength(20).IsRequired();
+        builder.Property(c => c.IdentificationNumber).HasMaxLength(50).IsRequired();
+        builder.Property(c => c.RiskRating).IsRequired();
+        builder.Property(c => c.IsActive).IsRequired();
     }
 }

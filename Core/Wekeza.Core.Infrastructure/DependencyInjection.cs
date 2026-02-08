@@ -88,8 +88,16 @@ public static class DependencyInjection
     /// </summary>
     private static void AddWeek14Services(IServiceCollection services, IConfiguration configuration)
     {
-        // Redis Caching
-        services.Configure<RedisCacheOptions>(configuration.GetSection("Redis"));
+        // Redis Caching - Configure options from configuration section
+        var redisSection = configuration.GetSection("Redis");
+        services.Configure<RedisCacheOptions>(options =>
+        {
+            options.ConnectionString = redisSection["ConnectionString"] ?? "localhost:6379";
+            options.Database = int.TryParse(redisSection["Database"], out var db) ? db : 0;
+            options.KeyPrefix = redisSection["KeyPrefix"] ?? "wekeza:";
+            if (TimeSpan.TryParse(redisSection["DefaultExpiration"], out var expiration))
+                options.DefaultExpiration = expiration;
+        });
         services.AddSingleton<IConnectionMultiplexer>(provider =>
         {
             var connectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
@@ -102,12 +110,13 @@ public static class DependencyInjection
 
         // Real-time Notifications
         services.AddScoped<INotificationService, NotificationService>();
-        services.AddSignalR(options =>
-        {
-            options.EnableDetailedErrors = true;
-            options.KeepAliveInterval = TimeSpan.FromSeconds(15);
-            options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
-        });
+        // SignalR is optional - comment out if not needed
+        // services.AddSignalR(options =>
+        // {
+        //     options.EnableDetailedErrors = true;
+        //     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+        //     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+        // });
 
         // API Gateway
         services.AddScoped<IApiGatewayService, ApiGatewayService>();
@@ -117,7 +126,6 @@ public static class DependencyInjection
 
         // Health Checks
         services.AddHealthChecks()
-            .AddDbContext<ApplicationDbContext>()
             .AddCheck<RedisHealthCheck>("redis")
             .AddCheck<DatabaseHealthCheck>("database")
             .AddCheck<ApiGatewayHealthCheck>("api-gateway");

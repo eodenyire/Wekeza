@@ -40,6 +40,7 @@ public class WorkflowInstance : AggregateRoot
     // SLA tracking
     public DateTime? DueDate { get; private set; }
     public bool IsOverdue => DueDate.HasValue && DateTime.UtcNow > DueDate && Status == WorkflowStatus.Pending;
+    public int Priority { get; private set; }
     
     // Escalation
     public bool IsEscalated { get; private set; }
@@ -79,7 +80,8 @@ public class WorkflowInstance : AggregateRoot
             InitiatedBy = initiatedBy,
             RequestData = requestData,
             DueDate = DateTime.UtcNow.AddHours(slaHours),
-            IsEscalated = false
+            IsEscalated = false,
+            Priority = 1
         };
 
         // Create initial approval step
@@ -210,6 +212,30 @@ public class WorkflowInstance : AggregateRoot
             DueDate = DueDate.Value.AddHours(additionalHours);
             AddComment("System", $"Due date extended by {additionalHours} hours: {reason}");
         }
+    }
+
+    public void AddApprovalStep(int level, string approverRole, string? specificApprover = null, bool isRequired = true)
+    {
+        _approvalSteps.Add(new ApprovalStep(
+            Guid.NewGuid(),
+            Id,
+            level,
+            approverRole,
+            specificApprover,
+            isRequired,
+            null,
+            null,
+            DateTime.UtcNow));
+    }
+
+    public void SetPriority(int priority)
+    {
+        Priority = priority;
+    }
+
+    public void SetDueDate(DateTime dueDate)
+    {
+        DueDate = dueDate;
     }
 }
 

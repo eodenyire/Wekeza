@@ -211,6 +211,16 @@ public class LoanRepository : ILoanRepository
             .ToListAsync(ct);
     }
 
+    public async Task<IEnumerable<Loan>> GetLoansByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default)
+    {
+        return await _context.Loans
+            .Include(l => l.Customer)
+            .Include(l => l.Product)
+            .Where(l => l.ApplicationDate.Date >= fromDate.Date && l.ApplicationDate.Date <= toDate.Date)
+            .OrderByDescending(l => l.ApplicationDate)
+            .ToListAsync(ct);
+    }
+
     // Interest and servicing queries
     public async Task<IEnumerable<Loan>> GetLoansForInterestAccrualAsync(DateTime calculationDate, CancellationToken ct = default)
     {

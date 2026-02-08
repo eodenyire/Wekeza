@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Wekeza.Core.Application.Features.Accounts.Commands.OpenAccount;
 using Wekeza.Core.Application.Features.Accounts.Commands.OpenProductBasedAccount;
 using Wekeza.Core.Application.Features.Accounts.Commands.RegisterBusiness;
-using Wekeza.Core.Application.Features.Accounts.Commands.Management.FreezeAccount;
-using Wekeza.Core.Application.Features.Accounts.Commands.Management.CloseAccount;
+using Wekeza.Core.Application.Features.Accounts.Commands.Management;
 using Wekeza.Core.Application.Features.Accounts.Queries.GetAccountSummary;
+using Wekeza.Core.Application.Features.Accounts.Queries.GetAccount;
 
 namespace Wekeza.Core.Api.Controllers;
 
@@ -47,7 +47,7 @@ public class AccountsController : BaseApiController
     public async Task<ActionResult<AccountDto>> RegisterBusiness(RegisterBusinessCommand command)
     {
         var result = await Mediator.Send(command);
-        return CreatedAtAction(nameof(RegisterBusiness), new { id = result.Id }, result);
+        return CreatedAtAction(nameof(RegisterBusiness), new { id = result }, result);
     }
 
     /// <summary>
@@ -74,6 +74,6 @@ public class AccountsController : BaseApiController
     [HttpGet("{accountNumber}/summary")]
     public async Task<ActionResult<AccountSummaryDto>> GetSummary(string accountNumber)
     {
-        return Ok(await Mediator.Send(new GetAccountSummaryQuery(accountNumber)));
+        return Ok(await Mediator.Send(new GetAccountSummaryQuery { AccountNumber = accountNumber }));
     }
 }

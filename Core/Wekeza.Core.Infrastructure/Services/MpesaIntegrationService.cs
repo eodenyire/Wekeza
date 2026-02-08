@@ -3,6 +3,8 @@
 ///
 ///
 using Wekeza.Core.Application.Common.Interfaces;
+using Wekeza.Core.Application.DTOs;
+using Wekeza.Core.Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Wekeza.Core.Infrastructure.Services;

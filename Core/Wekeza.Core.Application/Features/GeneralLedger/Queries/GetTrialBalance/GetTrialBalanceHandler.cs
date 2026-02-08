@@ -15,7 +15,7 @@ public class GetTrialBalanceHandler : IRequestHandler<GetTrialBalanceQuery, Tria
     public async Task<TrialBalanceDto> Handle(GetTrialBalanceQuery request, CancellationToken cancellationToken)
     {
         // Get all leaf accounts (only leaf accounts have balances)
-        var accounts = await _glAccountRepository.GetLeafAccountsAsync(cancellationToken);
+        var accounts = await _glAccountRepository.GetLeafAccountsAsync();
 
         var lines = accounts.Select(a => new TrialBalanceLineDto
         {

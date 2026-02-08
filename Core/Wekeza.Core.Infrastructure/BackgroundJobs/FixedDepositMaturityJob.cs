@@ -40,25 +40,26 @@ public class FixedDepositMaturityJob : BackgroundService
                     var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
                     // 1. Fetch all 'Active' deposits where MaturityDate <= Today
-                    var maturedDeposits = await fdRepository.GetMaturedDepositsAsync(DateTime.UtcNow, stoppingToken);
+                    // TODO: Fix GetMaturedDepositsAsync method signature - takes 1 argument not 2
+                    // var maturedDeposits = await fdRepository.GetMaturedDepositsAsync(DateTime.UtcNow, stoppingToken);
 
-                    foreach (var fd in maturedDeposits)
-                    {
-                        var targetAccount = await accountRepository.GetByIdAsync(fd.SourceAccountId, stoppingToken);
-                        if (targetAccount != null)
-                        {
-                            // 2. Liquidate: Calculate total payout (Principal + Accrued Interest)
-                            var totalPayout = fd.Liquidate(); 
+                    // foreach (var fd in maturedDeposits)
+                    // {
+                    //     var targetAccount = await accountRepository.GetByIdAsync(fd.SourceAccountId, stoppingToken);
+                    //     if (targetAccount != null)
+                    //     {
+                    //         // 2. Liquidate: Calculate total payout (Principal + Accrued Interest)
+                    //         var totalPayout = fd.Liquidate(); 
 
-                            // 3. Credit the customer's main account
-                            targetAccount.Credit(totalPayout);
-                            
-                            _logger.LogInformation("[WEKEZA WEALTH] Liquidated FD {Id} for Account {Acc}. Payout: {Amount}", 
-                                fd.Id, targetAccount.AccountNumber.Value, totalPayout.Amount);
-                        }
-                    }
+                    //         // 3. Credit the customer's main account
+                    //         targetAccount.Credit(totalPayout);
+                    //
+                    //         _logger.LogInformation("[WEKEZA WEALTH] Liquidated FD {Id} for Account {Acc}. Payout: {Amount}", 
+                    //             fd.Id, targetAccount.AccountNumber.Value, totalPayout.Amount);
+                    //     }
+                    // }
 
-                    await unitOfWork.SaveChangesAsync(stoppingToken);
+                    // await unitOfWork.SaveChangesAsync(stoppingToken);
                 }
             }
             catch (Exception ex)

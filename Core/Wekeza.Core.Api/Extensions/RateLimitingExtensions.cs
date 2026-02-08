@@ -57,7 +57,7 @@ public static class RateLimitingExtensions
                     error = "Too many requests",
                     message = "Rate limit exceeded. Please try again later.",
                     retryAfter = context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter) 
-                        ? retryAfter.TotalSeconds 
+                        ? (retryAfter as TimeSpan?)?.TotalSeconds 
                         : null
                 }, cancellationToken: token);
             };

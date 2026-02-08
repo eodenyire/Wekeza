@@ -24,7 +24,7 @@ public class CreateGLAccountHandler : IRequestHandler<CreateGLAccountCommand, st
     public async Task<string> Handle(CreateGLAccountCommand request, CancellationToken cancellationToken)
     {
         // Check for duplicate GL code
-        var exists = await _glAccountRepository.ExistsByGLCodeAsync(request.GLCode, cancellationToken);
+        var exists = await _glAccountRepository.ExistsAsync(request.GLCode);
         if (exists)
         {
             throw new InvalidOperationException($"GL account with code {request.GLCode} already exists.");
@@ -33,7 +33,7 @@ public class CreateGLAccountHandler : IRequestHandler<CreateGLAccountCommand, st
         // Validate parent if specified
         if (!string.IsNullOrEmpty(request.ParentGLCode))
         {
-            var parent = await _glAccountRepository.GetByGLCodeAsync(request.ParentGLCode, cancellationToken);
+            var parent = await _glAccountRepository.GetByGLCodeAsync(request.ParentGLCode);
             if (parent == null)
             {
                 throw new InvalidOperationException($"Parent GL account {request.ParentGLCode} not found.");
@@ -49,7 +49,7 @@ public class CreateGLAccountHandler : IRequestHandler<CreateGLAccountCommand, st
             request.Currency,
             request.Level,
             request.IsLeaf,
-            _currentUserService.UserId ?? "System",
+            _currentUserService.UserId?.ToString() ?? "System",
             request.ParentGLCode);
 
         // Update control flags
@@ -57,10 +57,10 @@ public class CreateGLAccountHandler : IRequestHandler<CreateGLAccountCommand, st
             request.AllowManualPosting,
             request.RequiresCostCenter,
             request.RequiresProfitCenter,
-            _currentUserService.UserId ?? "System");
+            _currentUserService.UserId?.ToString() ?? "System");
 
         // Save
-        await _glAccountRepository.AddAsync(glAccount, cancellationToken);
+        _glAccountRepository.Add(glAccount);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return glAccount.GLCode;

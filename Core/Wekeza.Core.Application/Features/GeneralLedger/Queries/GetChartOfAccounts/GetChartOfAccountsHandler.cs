@@ -14,7 +14,7 @@ public class GetChartOfAccountsHandler : IRequestHandler<GetChartOfAccountsQuery
 
     public async Task<List<GLAccountDto>> Handle(GetChartOfAccountsQuery request, CancellationToken cancellationToken)
     {
-        var accounts = await _glAccountRepository.GetChartOfAccountsAsync(cancellationToken);
+        var accounts = await _glAccountRepository.GetChartOfAccountsAsync();
 
         return accounts.Select(a => new GLAccountDto
         {

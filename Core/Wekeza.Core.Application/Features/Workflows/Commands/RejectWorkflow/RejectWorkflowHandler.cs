@@ -1,6 +1,7 @@
 using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Application.Common.Interfaces;
+using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Workflows.Commands.RejectWorkflow;
@@ -27,10 +28,10 @@ public class RejectWorkflowHandler : IRequestHandler<RejectWorkflowCommand, bool
         
         if (workflow == null)
         {
-            throw new NotFoundException($"Workflow with ID {request.WorkflowId} not found.");
+            throw new NotFoundException(nameof(WorkflowInstance), request.WorkflowId);
         }
 
-        var rejectedBy = _currentUserService.UserId ?? "System";
+        var rejectedBy = _currentUserService.UserId?.ToString() ?? "System";
 
         workflow.Reject(rejectedBy, request.Reason);
 

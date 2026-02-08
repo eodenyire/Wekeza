@@ -28,7 +28,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        var userId = _currentUser.UserId ?? "Anonymous";
+        var userId = _currentUser.UserId?.ToString() ?? "Anonymous";
         
         // Log the start of the process
         _logger.LogInformation("[WEKEZA CORE] Handling {RequestName} for User: {UserId}", 

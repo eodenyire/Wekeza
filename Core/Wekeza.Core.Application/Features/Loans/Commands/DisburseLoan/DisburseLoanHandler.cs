@@ -57,7 +57,7 @@ public class DisburseLoanHandler : IRequestHandler<DisburseLoanCommand, Disburse
             }
 
             // 4. Use loan servicing service for disbursement
-            var disbursedBy = request.DisbursedBy ?? _currentUserService.UserId ?? "System";
+            var disbursedBy = request.DisbursedBy ?? _currentUserService.UserId?.ToString() ?? "System";
             var servicingResult = await _loanServicingService.DisburseLoanAsync(
                 loan, request.DisbursementAccountId, disbursedBy);
 

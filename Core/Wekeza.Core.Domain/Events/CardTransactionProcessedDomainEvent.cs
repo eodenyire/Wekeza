@@ -11,7 +11,7 @@ public record CardTransactionProcessedDomainEvent(
     Guid CustomerId,
     Guid AccountId,
     decimal Amount,
-    TransactionType TransactionType,
+    CardTransactionType TransactionType,
     string TransactionReference) : IDomainEvent
 {
     public Guid EventId { get; init; } = Guid.NewGuid();

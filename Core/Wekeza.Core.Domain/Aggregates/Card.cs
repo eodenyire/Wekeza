@@ -28,7 +28,7 @@ public class Card : AggregateRoot
     // Computed properties for compatibility
     public string MaskedCardNumber => $"****-****-****-{CardNumber.Substring(CardNumber.Length - 4)}";
     public bool IsCancelled => Status == CardStatus.Cancelled;
-    public bool CanWithdraw(decimal amount) => CanProcessTransaction(amount, TransactionType.ATMWithdrawal);
+    public bool CanWithdraw(decimal amount) => CanProcessTransaction(amount, CardTransactionType.ATMWithdrawal);
     
     // Limits and Controls
     public Money DailyWithdrawalLimit { get; private set; }
@@ -253,7 +253,7 @@ public class Card : AggregateRoot
         return newCard;
     }
 
-    public bool CanProcessTransaction(decimal amount, TransactionType transactionType)
+    public bool CanProcessTransaction(decimal amount, CardTransactionType transactionType)
     {
         if (Status != CardStatus.Active)
             return false;
@@ -288,13 +288,13 @@ public class Card : AggregateRoot
         // Check limits based on transaction type
         return transactionType switch
         {
-            TransactionType.ATMWithdrawal => 
+            CardTransactionType.ATMWithdrawal => 
                 ATMEnabled && (DailyWithdrawnToday + transactionAmount) <= DailyWithdrawalLimit &&
                 (MonthlySpent + transactionAmount) <= MonthlyLimit,
-            TransactionType.POSPurchase => 
+            CardTransactionType.POSPurchase => 
                 POSEnabled && (DailyPurchasedToday + transactionAmount) <= DailyPurchaseLimit &&
                 (MonthlySpent + transactionAmount) <= MonthlyLimit,
-            TransactionType.OnlinePurchase => 
+            CardTransactionType.OnlinePurchase => 
                 OnlineEnabled && (DailyPurchasedToday + transactionAmount) <= DailyPurchaseLimit &&
                 (MonthlySpent + transactionAmount) <= MonthlyLimit,
             _ => false
@@ -303,11 +303,11 @@ public class Card : AggregateRoot
 
     public void RecordWithdrawal(decimal amount, string transactionReference)
     {
-        RecordTransaction(amount, TransactionType.ATMWithdrawal, true);
-        AddDomainEvent(new CardTransactionProcessedDomainEvent(Id, CustomerId, AccountId, amount, TransactionType.ATMWithdrawal, transactionReference));
+        RecordTransaction(amount, CardTransactionType.ATMWithdrawal, true);
+        AddDomainEvent(new CardTransactionProcessedDomainEvent(Id, CustomerId, AccountId, amount, CardTransactionType.ATMWithdrawal, transactionReference));
     }
 
-    public void RecordTransaction(decimal amount, TransactionType transactionType, bool isSuccessful)
+    public void RecordTransaction(decimal amount, CardTransactionType transactionType, bool isSuccessful)
     {
         var transactionAmount = new Money(amount, DailyWithdrawalLimit.Currency);
         
@@ -331,11 +331,11 @@ public class Card : AggregateRoot
             // Update counters
             switch (transactionType)
             {
-                case TransactionType.ATMWithdrawal:
+                case CardTransactionType.ATMWithdrawal:
                     DailyWithdrawnToday += transactionAmount;
                     break;
-                case TransactionType.POSPurchase:
-                case TransactionType.OnlinePurchase:
+                case CardTransactionType.POSPurchase:
+                case CardTransactionType.OnlinePurchase:
                     DailyPurchasedToday += transactionAmount;
                     break;
             }
@@ -465,7 +465,7 @@ public enum CardDeliveryStatus
     Returned = 5
 }
 
-public enum TransactionType
+public enum CardTransactionType
 {
     ATMWithdrawal = 1,
     POSPurchase = 2,

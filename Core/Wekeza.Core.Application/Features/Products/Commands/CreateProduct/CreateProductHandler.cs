@@ -37,13 +37,13 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, string
                 request.ProductName,
                 request.Type,
                 request.Currency,
-                _currentUserService.UserId ?? "System")
+                _currentUserService.UserId?.ToString() ?? "System")
             : Product.CreateLoanProduct(
                 request.ProductCode,
                 request.ProductName,
                 request.Type,
                 request.Currency,
-                _currentUserService.UserId ?? "System");
+                _currentUserService.UserId?.ToString() ?? "System");
 
         // Set description
         product.UpdateDescription(request.Description, request.MarketingDescription);

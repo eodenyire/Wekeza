@@ -29,7 +29,7 @@ public class ATMTransactionRepository : IATMTransactionRepository
     {
         return await _context.ATMTransactions
             .Where(t => t.CardId == cardId)
-            .OrderByDescending(t => t.TransactionDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -37,7 +37,7 @@ public class ATMTransactionRepository : IATMTransactionRepository
     {
         return await _context.ATMTransactions
             .Where(t => t.AccountId == accountId)
-            .OrderByDescending(t => t.TransactionDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -45,7 +45,7 @@ public class ATMTransactionRepository : IATMTransactionRepository
     {
         return await _context.ATMTransactions
             .Where(t => t.CustomerId == customerId)
-            .OrderByDescending(t => t.TransactionDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -53,7 +53,7 @@ public class ATMTransactionRepository : IATMTransactionRepository
     {
         return await _context.ATMTransactions
             .Where(t => t.ATMId == atmId)
-            .OrderByDescending(t => t.TransactionDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -61,7 +61,7 @@ public class ATMTransactionRepository : IATMTransactionRepository
     {
         return await _context.ATMTransactions
             .Where(t => t.Status == status)
-            .OrderByDescending(t => t.TransactionDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -69,15 +69,15 @@ public class ATMTransactionRepository : IATMTransactionRepository
     {
         return await _context.ATMTransactions
             .Where(t => t.TransactionType == transactionType)
-            .OrderByDescending(t => t.TransactionDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<ATMTransaction>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
     {
         return await _context.ATMTransactions
-            .Where(t => t.TransactionDate >= fromDate && t.TransactionDate <= toDate)
-            .OrderByDescending(t => t.TransactionDate)
+            .Where(t => t.TransactionDateTime >= fromDate && t.TransactionDateTime <= toDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -85,7 +85,7 @@ public class ATMTransactionRepository : IATMTransactionRepository
     {
         return await _context.ATMTransactions
             .Where(t => t.Status == ATMTransactionStatus.Failed)
-            .OrderByDescending(t => t.TransactionDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -93,15 +93,15 @@ public class ATMTransactionRepository : IATMTransactionRepository
     {
         return await _context.ATMTransactions
             .Where(t => t.IsSuspicious == true)
-            .OrderByDescending(t => t.TransactionDate)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<ATMTransaction>> GetTransactionsForReversalAsync(CancellationToken cancellationToken = default)
     {
         return await _context.ATMTransactions
-            .Where(t => t.Status == ATMTransactionStatus.PendingReversal)
-            .OrderBy(t => t.TransactionDate)
+            .Where(t => t.Status == ATMTransactionStatus.Reversed)
+            .OrderBy(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -111,8 +111,8 @@ public class ATMTransactionRepository : IATMTransactionRepository
         var endOfDay = startOfDay.AddDays(1);
 
         return await _context.ATMTransactions
-            .Where(t => t.CardId == cardId && t.TransactionDate >= startOfDay && t.TransactionDate < endOfDay)
-            .OrderByDescending(t => t.TransactionDate)
+            .Where(t => t.CardId == cardId && t.TransactionDateTime >= startOfDay && t.TransactionDateTime < endOfDay)
+            .OrderByDescending(t => t.TransactionDateTime)
             .ToListAsync(cancellationToken);
     }
 
@@ -123,11 +123,11 @@ public class ATMTransactionRepository : IATMTransactionRepository
 
         return await _context.ATMTransactions
             .Where(t => t.CardId == cardId 
-                && t.TransactionDate >= startOfDay 
-                && t.TransactionDate < endOfDay
-                && t.TransactionType == ATMTransactionType.Withdrawal
+                && t.TransactionDateTime >= startOfDay 
+                && t.TransactionDateTime < endOfDay
+                && t.TransactionType == ATMTransactionType.CashWithdrawal
                 && t.Status == ATMTransactionStatus.Completed)
-            .SumAsync(t => t.Amount, cancellationToken);
+            .SumAsync(t => t.Amount.Amount, cancellationToken);
     }
 
     public async Task<int> GetDailyTransactionCountAsync(Guid cardId, DateTime date, CancellationToken cancellationToken = default)
@@ -137,8 +137,8 @@ public class ATMTransactionRepository : IATMTransactionRepository
 
         return await _context.ATMTransactions
             .CountAsync(t => t.CardId == cardId 
-                && t.TransactionDate >= startOfDay 
-                && t.TransactionDate < endOfDay, cancellationToken);
+                && t.TransactionDateTime >= startOfDay 
+                && t.TransactionDateTime < endOfDay, cancellationToken);
     }
 
     public async Task AddAsync(ATMTransaction transaction, CancellationToken cancellationToken = default)

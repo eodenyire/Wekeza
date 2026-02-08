@@ -20,7 +20,7 @@ public class CardsController : BaseApiController
     [HttpPatch("{cardId}/activate")]
     public async Task<ActionResult<bool>> Activate(Guid cardId, [FromBody] string code)
     {
-        return Ok(await Mediator.Send(new ActivateCardCommand(cardId, code)));
+        return Ok(await Mediator.Send(new ActivateCardCommand { CardNumber = cardId.ToString(), Pin = code }));
     }
 
     [HttpDelete("{cardId}/cancel")]

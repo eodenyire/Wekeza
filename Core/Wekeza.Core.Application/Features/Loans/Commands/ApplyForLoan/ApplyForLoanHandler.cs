@@ -67,19 +67,19 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
             var loanAmount = new Money(request.Amount, new Currency(request.Currency));
             if (product.LimitConfig != null)
             {
-                if (loanAmount.IsLessThan(product.LimitConfig.MinAmount))
+                if (product.LimitConfig.MinTransactionAmount.HasValue && request.Amount < product.LimitConfig.MinTransactionAmount.Value)
                 {
-                    return ApplyForLoanResult.Failed($"Loan amount below minimum limit of {product.LimitConfig.MinAmount.Amount}");
+                    return ApplyForLoanResult.Failed($"Loan amount below minimum limit of {product.LimitConfig.MinTransactionAmount.Value}");
                 }
 
-                if (loanAmount.IsGreaterThan(product.LimitConfig.MaxAmount))
+                if (product.LimitConfig.MaxTransactionAmount.HasValue && request.Amount > product.LimitConfig.MaxTransactionAmount.Value)
                 {
-                    return ApplyForLoanResult.Failed($"Loan amount exceeds maximum limit of {product.LimitConfig.MaxAmount.Amount}");
+                    return ApplyForLoanResult.Failed($"Loan amount exceeds maximum limit of {product.LimitConfig.MaxTransactionAmount.Value}");
                 }
             }
 
             // 4. Create loan application
-            var currentUser = _currentUserService.UserId ?? "System";
+            var currentUser = _currentUserService.UserId?.ToString() ?? "System";
             var loan = Loan.CreateApplication(
                 request.CustomerId,
                 request.ProductId,
@@ -186,19 +186,23 @@ public class ApplyForLoanHandler : IRequestHandler<ApplyForLoanCommand, ApplyFor
         // Determine approval level based on loan amount and risk
         var approvalLevel = DetermineApprovalLevel(loan.Principal, creditScore.RiskGrade);
         
-        // Get approval matrix for loan approval
-        var approvalMatrix = await _workflowRepository.GetApprovalMatrixAsync("LoanApproval", approvalLevel);
+        // Get approval matrix for loan approval (pass loan amount for matrix matching)
+        var approvalMatrix = await _workflowRepository.GetApprovalMatrixAsync("LoanApproval", loan.Principal.Amount);
         
         if (approvalMatrix != null)
         {
             // Create workflow instance
             var workflow = WorkflowInstance.Create(
                 "LoanApproval",
+                "Loan Approval Workflow",
+                Wekeza.Core.Domain.Aggregates.WorkflowType.LoanApproval,
+                "Loan",
                 loan.Id,
                 loan.LoanNumber,
-                approvalMatrix,
+                approvalMatrix.GetRequiredLevels(loan.Principal.Amount, "Approval"),
                 initiatedBy,
-                $"Loan approval request for {loan.LoanNumber} - Amount: {loan.Principal.Amount}, Risk Grade: {creditScore.RiskGrade}");
+                $"Loan approval request for {loan.LoanNumber} - Amount: {loan.Principal.Amount}, Risk Grade: {creditScore.RiskGrade}",
+                24);
 
             await _workflowRepository.AddWorkflowAsync(workflow);
         }
