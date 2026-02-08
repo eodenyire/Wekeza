@@ -139,7 +139,7 @@ public class RedisCacheService : ICacheService, IDisposable
     {
         try
         {
-            var cacheKeys = keys.Select(GetCacheKey).ToArray().Cast<RedisKey>().ToArray();
+            var cacheKeys = keys.Select(k => (RedisKey)GetCacheKey(k)).ToArray();
             var values = await _database.StringGetAsync(cacheKeys);
             
             var result = new Dictionary<string, T?>();

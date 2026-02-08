@@ -89,7 +89,15 @@ public static class DependencyInjection
     private static void AddWeek14Services(IServiceCollection services, IConfiguration configuration)
     {
         // Redis Caching - Configure options from configuration section
-        services.Configure<RedisCacheOptions>(redisCacheSection => {});
+        var redisSection = configuration.GetSection("Redis");
+        services.Configure<RedisCacheOptions>(options =>
+        {
+            options.ConnectionString = redisSection["ConnectionString"] ?? "localhost:6379";
+            options.Database = int.TryParse(redisSection["Database"], out var db) ? db : 0;
+            options.KeyPrefix = redisSection["KeyPrefix"] ?? "wekeza:";
+            if (TimeSpan.TryParse(redisSection["DefaultExpiration"], out var expiration))
+                options.DefaultExpiration = expiration;
+        });
         services.AddSingleton<IConnectionMultiplexer>(provider =>
         {
             var connectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
