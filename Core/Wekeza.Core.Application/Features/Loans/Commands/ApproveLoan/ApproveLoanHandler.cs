@@ -1,6 +1,7 @@
 using MediatR;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.ValueObjects;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Application.Common.Interfaces;

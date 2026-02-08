@@ -48,14 +48,13 @@ public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, Proc
                 // Initiate workflow for approval
                 var workflowCommand = new InitiateWorkflowCommand
                 {
-                    WorkflowType = Domain.Enums.Domain.Aggregates.WorkflowType.Transaction,
+                    WorkflowType = WorkflowType.MakerChecker,
                     EntityId = paymentOrder.Id,
                     EntityType = "PaymentOrder",
                     Amount = request.Amount,
                     Currency = request.Currency,
-                    Description = $"Payment approval required: {request.Description}",
-                    Priority = MapPriorityToWorkflow(request.Priority),
-                    RequestedBy = _currentUserService.UserId
+                    Priority = (Priority)request.Priority,
+                    InitiatedBy = _currentUserService.UserId.ToString()
                 };
 
                 var workflowResult = await _mediator.Send(workflowCommand, cancellationToken);
