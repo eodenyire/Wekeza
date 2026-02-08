@@ -9,12 +9,13 @@ public class NotificationService : INotificationService
 {
     private readonly IHubContext<NotificationHub> _hubContext;
     private readonly ILogger<NotificationService> _logger;
-    private readonly ConcurrentDictionary<string, List<string>> _userGroups = new();
+    private readonly ConcurrentDictionary<string, ConcurrentBag<string>> _userGroups = new();
     private readonly ConcurrentDictionary<string, bool> _connectedUsers = new();
     private readonly ConcurrentDictionary<string, NotificationTemplate> _templates = new();
-    private readonly ConcurrentDictionary<string, List<NotificationHistory>> _notificationHistory = new();
+    private readonly ConcurrentDictionary<string, ConcurrentBag<NotificationHistory>> _notificationHistory = new();
     private readonly ConcurrentDictionary<string, NotificationPreferences> _userPreferences = new();
     private readonly ConcurrentDictionary<Guid, ScheduledNotification> _scheduledNotifications = new();
+    private readonly object _groupLock = new();
 
     public NotificationService(
         IHubContext<NotificationHub> hubContext,
@@ -115,10 +116,13 @@ public class NotificationService : INotificationService
         {
             _logger.LogInformation("Adding user {UserId} to group {GroupName}", userId, groupName);
             
-            var groups = _userGroups.GetOrAdd(userId, _ => new List<string>());
-            if (!groups.Contains(groupName))
+            lock (_groupLock)
             {
-                groups.Add(groupName);
+                var groups = _userGroups.GetOrAdd(userId, _ => new ConcurrentBag<string>());
+                if (!groups.Contains(groupName))
+                {
+                    groups.Add(groupName);
+                }
             }
 
             await Task.CompletedTask;
@@ -136,9 +140,14 @@ public class NotificationService : INotificationService
         {
             _logger.LogInformation("Removing user {UserId} from group {GroupName}", userId, groupName);
             
-            if (_userGroups.TryGetValue(userId, out var groups))
+            lock (_groupLock)
             {
-                groups.Remove(groupName);
+                if (_userGroups.TryGetValue(userId, out var groups))
+                {
+                    // Note: ConcurrentBag doesn't support Remove, so we recreate without the group
+                    var newGroups = new ConcurrentBag<string>(groups.Where(g => g != groupName));
+                    _userGroups.TryUpdate(userId, newGroups, groups);
+                }
             }
 
             await Task.CompletedTask;
@@ -154,7 +163,11 @@ public class NotificationService : INotificationService
     {
         try
         {
-            return await Task.FromResult(_userGroups.GetValueOrDefault(userId) ?? new List<string>());
+            if (_userGroups.TryGetValue(userId, out var groups))
+            {
+                return await Task.FromResult(groups.ToList());
+            }
+            return await Task.FromResult(new List<string>());
         }
         catch (Exception ex)
         {
@@ -367,7 +380,8 @@ public class NotificationService : INotificationService
             }
 
             var skip = (pageNumber - 1) * pageSize;
-            return await Task.FromResult(history
+            var historyList = history.ToList();
+            return await Task.FromResult(historyList
                 .OrderByDescending(h => h.SentAt)
                 .Skip(skip)
                 .Take(pageSize)
@@ -386,7 +400,8 @@ public class NotificationService : INotificationService
         {
             if (_notificationHistory.TryGetValue(userId, out var history))
             {
-                var notification = history.FirstOrDefault(h => h.Id == notificationId);
+                var historyList = history.ToList();
+                var notification = historyList.FirstOrDefault(h => h.Id == notificationId);
                 if (notification != null)
                 {
                     notification.IsRead = true;
@@ -412,7 +427,8 @@ public class NotificationService : INotificationService
         {
             if (_notificationHistory.TryGetValue(userId, out var history))
             {
-                foreach (var notification in history.Where(h => !h.IsRead))
+                var historyList = history.ToList();
+                foreach (var notification in historyList.Where(h => !h.IsRead))
                 {
                     notification.IsRead = true;
                     notification.ReadAt = DateTime.UtcNow;
@@ -438,7 +454,8 @@ public class NotificationService : INotificationService
                 return await Task.FromResult(0);
             }
 
-            return await Task.FromResult(history.Count(h => !h.IsRead));
+            var historyList = history.ToList();
+            return await Task.FromResult(historyList.Count(h => !h.IsRead));
         }
         catch (Exception ex)
         {
@@ -531,16 +548,18 @@ public class NotificationService : INotificationService
                     return false;
                 }
 
+                // Quiet hours: block notifications during the specified period (start inclusive, end exclusive)
                 if (preferences.QuietHoursStart < preferences.QuietHoursEnd)
                 {
-                    if (currentTime >= preferences.QuietHoursStart && currentTime <= preferences.QuietHoursEnd)
+                    if (currentTime >= preferences.QuietHoursStart && currentTime < preferences.QuietHoursEnd)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if (currentTime >= preferences.QuietHoursStart || currentTime <= preferences.QuietHoursEnd)
+                    // Quiet hours span midnight
+                    if (currentTime >= preferences.QuietHoursStart || currentTime < preferences.QuietHoursEnd)
                     {
                         return false;
                     }
@@ -698,14 +717,26 @@ public class NotificationService : INotificationService
                 DeliveryRate = 100.0
             };
 
-            // Calculate analytics from history
+            // Calculate analytics from history with optimization for large datasets
+            const int maxNotificationsToAnalyze = 10000;
+            var notificationCount = 0;
+
             foreach (var userHistory in _notificationHistory.Values)
             {
-                var periodNotifications = userHistory
+                if (notificationCount >= maxNotificationsToAnalyze)
+                {
+                    _logger.LogWarning("Analytics calculation stopped at {Count} notifications to prevent performance degradation", 
+                        maxNotificationsToAnalyze);
+                    break;
+                }
+
+                var historyList = userHistory.ToList();
+                var periodNotifications = historyList
                     .Where(h => h.SentAt >= startDate && h.SentAt <= endDate)
                     .ToList();
 
                 analytics.TotalNotificationsSent += periodNotifications.Count;
+                notificationCount += periodNotifications.Count;
 
                 foreach (var notification in periodNotifications)
                 {
@@ -762,7 +793,8 @@ public class NotificationService : INotificationService
 
             foreach (var userHistory in _notificationHistory.Values)
             {
-                var periodNotifications = userHistory
+                var historyList = userHistory.ToList();
+                var periodNotifications = historyList
                     .Where(h => h.SentAt >= startDate && h.SentAt <= endDate);
 
                 foreach (var notification in periodNotifications)
@@ -797,12 +829,16 @@ public class NotificationService : INotificationService
             {
                 var userId = kvp.Key;
                 var userHistory = kvp.Value;
+                var historyList = userHistory.ToList();
 
-                var periodNotifications = userHistory
+                var periodNotifications = historyList
                     .Where(h => h.SentAt >= startDate && h.SentAt <= endDate);
 
                 foreach (var notification in periodNotifications)
                 {
+                    // For now, assume DeliveredAt is the same as when status is "Delivered"
+                    var deliveredAt = notification.Status == "Delivered" ? notification.SentAt : (DateTime?)null;
+                    
                     reports.Add(new NotificationDeliveryReport
                     {
                         NotificationId = notification.Id,
@@ -811,11 +847,11 @@ public class NotificationService : INotificationService
                         Channel = notification.Channel,
                         Status = notification.Status,
                         SentAt = notification.SentAt,
-                        DeliveredAt = notification.ReadAt,
+                        DeliveredAt = deliveredAt,
                         ReadAt = notification.ReadAt,
                         RetryCount = 0,
-                        DeliveryTime = notification.ReadAt.HasValue 
-                            ? notification.ReadAt.Value - notification.SentAt 
+                        DeliveryTime = deliveredAt.HasValue 
+                            ? deliveredAt.Value - notification.SentAt 
                             : null
                     });
                 }
@@ -833,7 +869,7 @@ public class NotificationService : INotificationService
     // Helper method to add notifications to history
     private Task AddToHistoryAsync(string userId, string message, NotificationType type, NotificationChannel channel, object? data)
     {
-        var history = _notificationHistory.GetOrAdd(userId, _ => new List<NotificationHistory>());
+        var history = _notificationHistory.GetOrAdd(userId, _ => new ConcurrentBag<NotificationHistory>());
         
         history.Add(new NotificationHistory
         {
