@@ -2,6 +2,7 @@ using MediatR;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.ValueObjects;
 /// 3. The Executioner: VerifyCustomerHandler.cs
 /// This is where we update the Risk Profile and the status. Notice how we use the Customer Aggregate.
 
@@ -27,7 +28,7 @@ public class VerifyCustomerHandler : IRequestHandler<VerifyCustomerCommand, bool
         // 2. Perform Domain State Change
         // In the aggregate, this could trigger an event: CustomerVerifiedDomainEvent
         // For now, we update the Risk Rating to Low as they are now 'Know Your Customer' compliant.
-        customer.UpdateRiskRating(new Wekeza.Core.Domain.ValueObjects.RiskLevel(Domain.Enums.RiskLevel.Low));
+        customer.UpdateRiskRating(RiskLevel.Low);
 
         // 3. Log the Verification (In a real bank, we'd have a separate Audit Table here)
         _customerRepository.Update(customer);

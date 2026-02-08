@@ -78,10 +78,14 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
         CancellationToken cancellationToken)
     {
         // Get all active savings accounts
-        var savingsAccounts = await _accountRepository.GetActiveAccountsByTypeAsync(
-            AccountType.Savings, 
-            request.BranchCodeFilter,
+        var allSavingsAccounts = await _accountRepository.GetActiveAccountsByTypeAsync(
+            AccountType.Savings.ToString(), 
             cancellationToken);
+        
+        // Filter by branch code if specified
+        var savingsAccounts = string.IsNullOrEmpty(request.BranchCodeFilter) 
+            ? allSavingsAccounts 
+            : allSavingsAccounts.Where(a => a.BranchCode == request.BranchCodeFilter);
 
         foreach (var account in savingsAccounts)
         {

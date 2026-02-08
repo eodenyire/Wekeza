@@ -44,7 +44,7 @@ public class GetWorkflowDetailsHandler : IRequestHandler<GetWorkflowDetailsQuery
             {
                 Level = s.Level,
                 AssignedTo = s.AssignedTo,
-                AssignedDate = s.AssignedDate,
+                AssignedDate = s.AssignedDate ?? DateTime.MinValue,
                 Status = s.Status.ToString(),
                 ApprovedBy = s.ApprovedBy,
                 ApprovedDate = s.ApprovedDate,
