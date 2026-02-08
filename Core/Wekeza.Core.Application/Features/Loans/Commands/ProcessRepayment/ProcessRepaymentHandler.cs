@@ -1,4 +1,5 @@
 using MediatR;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Services;
 using Wekeza.Core.Domain.ValueObjects;
@@ -55,7 +56,7 @@ public class ProcessRepaymentHandler : IRequestHandler<ProcessRepaymentCommand, 
             var paymentDate = request.PaymentDate ?? DateTime.UtcNow;
 
             // 4. Use loan servicing service for repayment processing
-            var processedBy = request.ProcessedBy ?? _currentUserService.UserId ?? "System";
+            var processedBy = request.ProcessedBy ?? _currentUserService.UserId?.ToString() ?? "System";
             var servicingResult = await _loanServicingService.ProcessRepaymentAsync(
                 loan,
                 paymentAmount,

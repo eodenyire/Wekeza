@@ -32,22 +32,30 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
 
         // 2. Validate Funds Availability
         var amount = new Money(request.PrincipalAmount, sourceAccount.Balance.Currency);
-        sourceAccount.Debit(amount); // This will throw InsufficientFunds if they don't have it
+        var transactionReference = Guid.NewGuid().ToString();
+        sourceAccount.Debit(amount, transactionReference); // This will throw InsufficientFunds if they don't have it
 
         // 3. Create Fixed Deposit Aggregate
         // We calculate maturity date: Today + Term
-        var maturityDate = DateTime.UtcNow.AddMonths(request.TermInMonths);
+        var maturityDate = DateTime.UtcNow.AddDays(request.TermInDays);
+        var depositNumber = $"FD-{Guid.NewGuid().ToString()[..8].ToUpper()}";
         
         // This represents a new 'Account' type in the system
-        var fdAccount = new FixedDeposit(
+        var fdAccount = new Domain.Aggregates.FixedDeposit(
             Guid.NewGuid(),
+            sourceAccount.Id,
             sourceAccount.CustomerId,
+            depositNumber,
             amount,
-            request.AgreedInterestRate,
-            maturityDate
+            new InterestRate(request.InterestRate),
+            request.TermInDays,
+            Domain.Enums.InterestPaymentFrequency.OnMaturity,
+            false,
+            "HEAD",
+            "System"
         );
 
-        await _fdRepository.AddAsync(fdAccount, ct);
+        await _fdRepository.AddAsync(fdAccount);
         
         // 4. Update the source account state
         _accountRepository.Update(sourceAccount);

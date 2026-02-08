@@ -46,10 +46,11 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
         var withdrawalAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
         
         // Debit the account (This checks for Insufficient Funds)
-        account.Debit(withdrawalAmount);
+        var transactionReference = Guid.NewGuid().ToString();
+        account.Debit(withdrawalAmount, transactionReference);
 
         // 4. Record withdrawal on card
-        card.RecordWithdrawal(request.Amount);
+        card.RecordWithdrawal(request.Amount, transactionReference);
 
         // 5. Record Transaction with ATM Metadata
         var transaction = new Transaction(
@@ -57,7 +58,7 @@ public class WithdrawFromAtmHandler : IRequestHandler<WithdrawFromAtmCommand, Gu
             request.CorrelationId,
             account.Id,
             withdrawalAmount,
-            TransactionType.Withdrawal,
+            Domain.Aggregates.TransactionType.Withdrawal,
             $"ATM Withdrawal | Terminal: {request.TerminalId}"
         );
 

@@ -1,0 +1,192 @@
+@page
+@model Wekeza.MVP4._0.Pages.BackOffice.IndexModel
+@{
+    ViewData["Title"] = "Back Office Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Back Office Staff";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/BackOffice" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BackOffice/BatchProcessing" class="sidebar-menu-link">
+            <i class="fas fa-layer-group"></i>
+            <span>Batch Processing</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BackOffice/Reconciliation" class="sidebar-menu-link">
+            <i class="fas fa-balance-scale"></i>
+            <span>Reconciliation</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BackOffice/Operations" class="sidebar-menu-link">
+            <i class="fas fa-cogs"></i>
+            <span>Operations</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>Back office operations and processing</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>PENDING TASKS</h6>
+                <div class="stat-value">@Model.PendingTasks</div>
+                <div class="stat-change">
+                    <i class="fas fa-tasks"></i> To complete
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>PROCESSED TODAY</h6>
+                <div class="stat-value">@Model.ProcessedToday</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i> Completed
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>RECONCILIATION STATUS</h6>
+                <div class="stat-value">@Model.ReconciliationStatus</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-balance-scale"></i> In progress
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-sync"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>EXCEPTIONS</h6>
+                <div class="stat-value">@Model.Exceptions</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-exclamation-triangle"></i> Review needed
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/BackOffice/BatchProcessing" class="action-btn">
+            <i class="fas fa-layer-group"></i>
+            <span>Batch Processing</span>
+        </a>
+        <a href="/BackOffice/Reconciliation" class="action-btn">
+            <i class="fas fa-balance-scale"></i>
+            <span>Reconciliation</span>
+        </a>
+        <a href="/BackOffice/Reports" class="action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>Generate Report</span>
+        </a>
+        <a href="/BackOffice/Exceptions" class="action-btn">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Review Exceptions</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-tasks"></i> Processing Queue</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>End of Day Processing</td>
+                        <td><span class="badge bg-danger">High</span></td>
+                        <td><span class="badge bg-warning">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>Transaction Reconciliation</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                        <td><span class="badge bg-info">In Progress</span></td>
+                    </tr>
+                    <tr>
+                        <td>Statement Generation</td>
+                        <td><span class="badge bg-info">Low</span></td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Activities</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Batch File Upload</td>
+                        <td>10:30 AM</td>
+                        <td><span class="badge bg-success">Success</span></td>
+                    </tr>
+                    <tr>
+                        <td>Account Reconciliation</td>
+                        <td>11:00 AM</td>
+                        <td><span class="badge bg-success">Success</span></td>
+                    </tr>
+                    <tr>
+                        <td>Report Generation</td>
+                        <td>11:30 AM</td>
+                        <td><span class="badge bg-success">Success</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

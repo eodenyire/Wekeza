@@ -46,7 +46,7 @@ public class GetLCDetailsHandler : IRequestHandler<GetLCDetailsQuery, LCDetailsD
             IssuingBankName = issuingBank?.Name ?? "Unknown",
             AdvisingBankName = advisingBank?.Name,
             Amount = letterOfCredit.Amount.Amount,
-            Currency = letterOfCredit.Amount.Currency,
+            Currency = letterOfCredit.Amount.Currency.Code,
             IssueDate = letterOfCredit.IssueDate,
             ExpiryDate = letterOfCredit.ExpiryDate,
             LastShipmentDate = letterOfCredit.LastShipmentDate,
