@@ -1,0 +1,195 @@
+@page
+@model Wekeza.MVP4._0.Pages.Supervisor.IndexModel
+@{
+    ViewData["Title"] = "Supervisor Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Supervisor";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Supervisor" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Supervisor/Approvals" class="sidebar-menu-link">
+            <i class="fas fa-check-circle"></i>
+            <span>Approvals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Supervisor/Team" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>Team Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Supervisor/Cases" class="sidebar-menu-link">
+            <i class="fas fa-folder-open"></i>
+            <span>Review Cases</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Supervisor/Reports" class="sidebar-menu-link">
+            <i class="fas fa-chart-line"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Supervisor/Profile" class="sidebar-menu-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>Supervisor overview and team performance</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>PENDING APPROVALS</h6>
+                <div class="stat-value">@Model.PendingApprovals</div>
+                <div class="stat-change">
+                    <i class="fas fa-clock"></i> Requires attention
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TEAM PERFORMANCE</h6>
+                <div class="stat-value">@Model.TeamPerformance</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> Above target
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-chart-line"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>ACTIVE CASES</h6>
+                <div class="stat-value">@Model.ActiveCases</div>
+                <div class="stat-change">
+                    <i class="fas fa-folder-open"></i> Under review
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-briefcase"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>EXCEPTIONS TODAY</h6>
+                <div class="stat-value">@Model.Exceptions</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-exclamation-triangle"></i> Needs review
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/Supervisor/Approvals" class="action-btn">
+            <i class="fas fa-check-circle"></i>
+            <span>Approve Transactions</span>
+        </a>
+        <a href="/Supervisor/Cases" class="action-btn">
+            <i class="fas fa-folder-open"></i>
+            <span>Review Cases</span>
+        </a>
+        <a href="/Supervisor/Team" class="action-btn">
+            <i class="fas fa-users"></i>
+            <span>Team Performance</span>
+        </a>
+        <a href="/Supervisor/Reports" class="action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>Generate Report</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-clipboard-list"></i> Pending Approvals</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Teller</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var approval in Model.PendingApprovalsList)
+                    {
+                        <tr>
+                            <td>@approval.Type</td>
+                            <td>@approval.Teller</td>
+                            <td>@approval.Amount</td>
+                            <td>
+                                <button class="btn btn-sm btn-success">Approve</button>
+                                <button class="btn btn-sm btn-danger">Reject</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-users"></i> Team Activity Summary</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Teller</th>
+                        <th>Transactions</th>
+                        <th>Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var member in Model.TeamMembers)
+                    {
+                        <tr>
+                            <td>@member.Name</td>
+                            <td>@member.Transactions</td>
+                            <td><span class="badge bg-@member.PerformanceClass">@member.Performance</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

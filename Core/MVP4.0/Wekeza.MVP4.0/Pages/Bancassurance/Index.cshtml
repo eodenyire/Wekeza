@@ -1,0 +1,184 @@
+@page
+@model Wekeza.MVP4._0.Pages.Bancassurance.IndexModel
+@{
+    ViewData["Title"] = "Bancassurance Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Bancassurance Agent";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Bancassurance" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Bancassurance/Policies" class="sidebar-menu-link">
+            <i class="fas fa-shield-alt"></i>
+            <span>Policies</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Bancassurance/Products" class="sidebar-menu-link">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Bancassurance/Sales" class="sidebar-menu-link">
+            <i class="fas fa-chart-line"></i>
+            <span>Sales</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>Insurance products and policy management</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>ACTIVE POLICIES</h6>
+                <div class="stat-value">@Model.ActivePolicies</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 8% this month
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>SALES THIS MONTH</h6>
+                <div class="stat-value">@Model.SalesThisMonth</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-dollar-sign"></i> Above target
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>RENEWALS DUE</h6>
+                <div class="stat-value">@Model.RenewalsDue</div>
+                <div class="stat-change">
+                    <i class="fas fa-clock"></i> Next 30 days
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>PENDING CLAIMS</h6>
+                <div class="stat-value">@Model.PendingClaims</div>
+                <div class="stat-change">
+                    <i class="fas fa-file-invoice"></i> Under review
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-file-medical"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/Bancassurance/Policies/New" class="action-btn">
+            <i class="fas fa-plus"></i>
+            <span>New Policy</span>
+        </a>
+        <a href="/Bancassurance/Policies" class="action-btn">
+            <i class="fas fa-shield-alt"></i>
+            <span>View Policies</span>
+        </a>
+        <a href="/Bancassurance/Products" class="action-btn">
+            <i class="fas fa-box"></i>
+            <span>Products Catalog</span>
+        </a>
+        <a href="/Bancassurance/Reports" class="action-btn">
+            <i class="fas fa-chart-bar"></i>
+            <span>Sales Report</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-calendar-alt"></i> Upcoming Renewals</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Policy Type</th>
+                        <th>Renewal Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Doe</td>
+                        <td>Life Insurance</td>
+                        <td>Mar 15, 2025</td>
+                    </tr>
+                    <tr>
+                        <td>Jane Smith</td>
+                        <td>Health Insurance</td>
+                        <td>Mar 20, 2025</td>
+                    </tr>
+                    <tr>
+                        <td>Mike Johnson</td>
+                        <td>Auto Insurance</td>
+                        <td>Mar 25, 2025</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-chart-pie"></i> Sales Performance</h5>
+            <canvas id="salesChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Life', 'Health', 'Auto', 'Property', 'Travel'],
+                datasets: [{
+                    label: 'Policies Sold',
+                    data: [45, 32, 28, 15, 12],
+                    backgroundColor: ['#667eea', '#27ae60', '#f39c12', '#e74c3c', '#3498db']
+                }]
+            }
+        });
+    </script>
+}

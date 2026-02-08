@@ -1,0 +1,199 @@
+@page
+@model Wekeza.MVP4._0.Pages.Auditor.IndexModel
+@{
+    ViewData["Title"] = "Auditor Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Auditor";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Auditor" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Auditor/AuditTrail" class="sidebar-menu-link">
+            <i class="fas fa-file-invoice"></i>
+            <span>Audit Trail</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Auditor/SystemLogs" class="sidebar-menu-link">
+            <i class="fas fa-clipboard-list"></i>
+            <span>System Logs</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Auditor/UserActivity" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>User Activity</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Auditor/Reports" class="sidebar-menu-link">
+            <i class="fas fa-file-alt"></i>
+            <span>Audit Reports</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>System audit and activity monitoring</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TOTAL AUDIT ENTRIES</h6>
+                <div class="stat-value">@Model.TotalAuditEntries</div>
+                <div class="stat-change">
+                    <i class="fas fa-database"></i> All time
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-database"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TODAY'S ACTIVITIES</h6>
+                <div class="stat-value">@Model.TodayActivities</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i> Normal activity
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>FLAGGED ACTIVITIES</h6>
+                <div class="stat-value">@Model.FlaggedActivities</div>
+                <div class="stat-change">
+                    <i class="fas fa-flag"></i> Needs review
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>CRITICAL CHANGES</h6>
+                <div class="stat-value">@Model.CriticalChanges</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-exclamation-circle"></i> Last 24 hours
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/Auditor/AuditTrail" class="action-btn">
+            <i class="fas fa-search"></i>
+            <span>View Audit Trail</span>
+        </a>
+        <a href="/Auditor/SystemLogs" class="action-btn">
+            <i class="fas fa-clipboard-list"></i>
+            <span>System Logs</span>
+        </a>
+        <a href="/Auditor/Reports" class="action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>Generate Report</span>
+        </a>
+        <a href="/Auditor/Export" class="action-btn">
+            <i class="fas fa-download"></i>
+            <span>Export Data</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Changes Log</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Entity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model.RecentChanges)
+                    {
+                        <tr>
+                            <td>@log.Time</td>
+                            <td>@log.User</td>
+                            <td>@log.Action</td>
+                            <td>@log.Entity</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-flag"></i> Flagged Activities</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Activity</th>
+                        <th>Severity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>john.doe</td>
+                        <td>Multiple login attempts</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>jane.smith</td>
+                        <td>Bulk data export</td>
+                        <td><span class="badge bg-danger">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>system</td>
+                        <td>Configuration change</td>
+                        <td><span class="badge bg-info">Low</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        console.log('Auditor Dashboard loaded');
+    </script>
+}

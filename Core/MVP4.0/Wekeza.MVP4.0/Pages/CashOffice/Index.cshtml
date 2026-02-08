@@ -1,0 +1,186 @@
+@page
+@model Wekeza.MVP4._0.Pages.CashOffice.IndexModel
+@{
+    ViewData["Title"] = "Cash Office Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Cash Officer";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/CashOffice" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CashOffice/Vault" class="sidebar-menu-link">
+            <i class="fas fa-vault"></i>
+            <span>Vault Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CashOffice/TellerFloat" class="sidebar-menu-link">
+            <i class="fas fa-cash-register"></i>
+            <span>Teller Float</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CashOffice/CashMovements" class="sidebar-menu-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Cash Movements</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CashOffice/Reconciliation" class="sidebar-menu-link">
+            <i class="fas fa-balance-scale"></i>
+            <span>Reconciliation</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>Cash and vault operations management</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>VAULT BALANCE</h6>
+                <div class="stat-value">@Model.VaultBalance</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i> Balanced
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-vault"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TELLER FLOAT ISSUED</h6>
+                <div class="stat-value">@Model.TellerFloat</div>
+                <div class="stat-change">
+                    <i class="fas fa-cash-register"></i> To 8 tellers
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-donate"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>MOVEMENTS TODAY</h6>
+                <div class="stat-value">@Model.MovementsToday</div>
+                <div class="stat-change">
+                    <i class="fas fa-exchange-alt"></i> Transactions
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-arrows-alt-h"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>PENDING REQUESTS</h6>
+                <div class="stat-value">@Model.PendingRequests</div>
+                <div class="stat-change">
+                    <i class="fas fa-clock"></i> To process
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/CashOffice/Vault/Deposit" class="action-btn">
+            <i class="fas fa-arrow-down"></i>
+            <span>Cash Deposit</span>
+        </a>
+        <a href="/CashOffice/Vault/Withdrawal" class="action-btn">
+            <i class="fas fa-arrow-up"></i>
+            <span>Cash Withdrawal</span>
+        </a>
+        <a href="/CashOffice/TellerFloat" class="action-btn">
+            <i class="fas fa-cash-register"></i>
+            <span>Issue Teller Float</span>
+        </a>
+        <a href="/CashOffice/Reconciliation" class="action-btn">
+            <i class="fas fa-balance-scale"></i>
+            <span>Daily Reconciliation</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-exchange-alt"></i> Today's Cash Movements</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Teller</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var movement in Model.CashMovements)
+                    {
+                        <tr>
+                            <td>@movement.Time</td>
+                            <td>@movement.Type</td>
+                            <td>@movement.Amount</td>
+                            <td>@movement.Teller</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-cash-register"></i> Teller Float Status</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Teller</th>
+                        <th>Float Issued</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var teller in Model.TellerFloatStatus)
+                    {
+                        <tr>
+                            <td>@teller.Name</td>
+                            <td>@teller.Amount</td>
+                            <td><span class="badge bg-@teller.StatusClass">@teller.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
