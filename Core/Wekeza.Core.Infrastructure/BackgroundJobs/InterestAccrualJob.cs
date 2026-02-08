@@ -1,3 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Wekeza.Core.Domain.Interfaces;
+
 ///2. InterestAccrualJob.cs (The Revenue Engine)
 /// This job ensures that for savings or fixed-deposit accounts, the daily interest is calculated based on the End-of-Day (EOD) balance. This is precision-grade math where rounding errors are forbidden.
 ///

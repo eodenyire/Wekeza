@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
-using Wekeza.Core.Application.Features.Transactions.Queries.GetHistory;
+using Wekeza.Core.Application.Features.Transactions.Queries.GetStatement;
 ///<summary>
 /// 📂 Wekeza.Core.Infrastructure/Persistence/Repositories
 /// TransactionRepository.cs (The High-Performance Ledger)
