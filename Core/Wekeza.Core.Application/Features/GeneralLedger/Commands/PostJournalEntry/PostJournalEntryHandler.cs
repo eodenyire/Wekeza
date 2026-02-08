@@ -2,6 +2,7 @@ using MediatR;
 using Wekeza.Core.Application.Common.Interfaces;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Application.Features.GeneralLedger.Commands.PostJournalEntry;
 
@@ -27,7 +28,7 @@ public class PostJournalEntryHandler : IRequestHandler<PostJournalEntryCommand, 
     public async Task<string> Handle(PostJournalEntryCommand request, CancellationToken cancellationToken)
     {
         // Generate journal number
-        var journalNumber = await _journalRepository.GenerateJournalNumberAsync(cancellationToken);
+        var journalNumber = await _journalRepository.GenerateJournalNumberAsync(JournalType.Standard, cancellationToken);
 
         // Create journal entry
         var journal = JournalEntry.Create(

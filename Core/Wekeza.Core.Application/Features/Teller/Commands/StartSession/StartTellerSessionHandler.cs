@@ -35,15 +35,16 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
         try
         {
             // 1. Validate branch exists
-            var branch = await _branchRepository.GetByIdAsync(request.BranchId, cancellationToken);
+            var branch = await _branchRepository.GetByIdAsync(request.BranchId);
             if (branch == null)
             {
                 return Result<Guid>.Failure("Branch not found");
             }
 
             // 2. Check if teller already has an active session
+            var tellerId = _currentUserService.UserId ?? Guid.Empty;
             var existingSession = await _tellerSessionRepository.GetActiveSessionByUserAsync(
-                _currentUserService.UserId?.ToString() ?? "", cancellationToken);
+                tellerId, cancellationToken);
             
             if (existingSession != null)
             {
@@ -52,26 +53,35 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
 
             // 3. Create cash drawer
             var cashDrawer = CashDrawer.Create(
-                tellerId: _currentUserService.UserId?.ToString() ?? "",
+                drawerId: $"DRAWER-{request.BranchId}-{DateTime.UtcNow:yyyyMMdd}",
+                tellerId: tellerId,
+                tellerCode: _currentUserService.Username ?? "TELLER",
                 branchId: request.BranchId,
-                workstationId: request.WorkstationId,
-                openingBalance: new Money(request.OpeningCashBalance, Currency.KES)
+                branchCode: branch?.BranchCode ?? "HQ",
+                maxCashLimit: new Money(1_000_000, Currency.KES),
+                minCashLimit: new Money(10_000, Currency.KES),
+                requiresDualControl: false,
+                createdBy: _currentUserService.Username ?? "System"
             );
 
-            // 4. Set cash denominations
-            foreach (var denomination in request.CashDenominations)
-            {
-                cashDrawer.SetDenomination(denomination.Key, denomination.Value);
-            }
+            // 4. Cash denominations are handled internally by CashDrawer
 
             // 5. Create teller session
+            var tellerLimits = new TellerLimits(
+                DailyTransactionLimit: new Money(100_000, Currency.KES),
+                SingleTransactionLimit: new Money(50_000, Currency.KES),
+                CashWithdrawalLimit: new Money(50_000, Currency.KES)
+            );
+            
             var tellerSession = TellerSession.Start(
-                tellerId: _currentUserService.UserId?.ToString() ?? "",
+                tellerId: tellerId,
+                tellerCode: _currentUserService.Username ?? "TELLER",
+                tellerName: _currentUserService.Username ?? "Teller",
                 branchId: request.BranchId,
-                workstationId: request.WorkstationId,
-                cashDrawerId: cashDrawer.Id,
-                openingBalance: new Money(request.OpeningCashBalance, Currency.KES),
-                notes: request.Notes
+                branchCode: branch?.BranchCode ?? "HQ",
+                openingCashBalance: new Money(request.OpeningCashBalance, Currency.KES),
+                limits: tellerLimits,
+                createdBy: _currentUserService.Username ?? "System"
             );
 
             // 6. Save entities

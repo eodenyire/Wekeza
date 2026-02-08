@@ -3,6 +3,8 @@ using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Exceptions;
+using Wekeza.Core.Domain.ValueObjects;
+using Wekeza.Core.Domain.Enums;
 
 namespace Wekeza.Core.Application.Features.Instruments.Cards.Commands.IssueCard;
 
@@ -32,7 +34,15 @@ public class IssueCardHandler : IRequestHandler<IssueCardCommand, Guid>
             throw new GenericDomainException("Cannot issue a card to a frozen account.");
 
         // Determine daily withdrawal limit based on card type
-        decimal dailyLimit = request.CardType.ToLower() switch
+        var cardTypeEnum = request.CardType.ToLower() switch
+        {
+            "debit" => CardType.Debit,
+            "credit" => CardType.Credit,
+            "prepaid" => CardType.Prepaid,
+            _ => CardType.Debit
+        };
+        
+        decimal dailyWithdrawalLimit = request.CardType.ToLower() switch
         {
             "debit" => 50_000,
             "credit" => 100_000,
@@ -40,13 +50,17 @@ public class IssueCardHandler : IRequestHandler<IssueCardCommand, Guid>
             _ => 50_000
         };
 
-        // Create the card
-        var card = new Card(
-            Guid.NewGuid(),
-            account.Id,
-            request.CardType,
-            request.NameOnCard,
-            dailyLimit
+        // Create the card using IssueCard factory method
+        var card = Card.IssueCard(
+            customerId: account.CustomerId,
+            accountId: account.Id,
+            cardType: cardTypeEnum,
+            nameOnCard: request.NameOnCard,
+            deliveryAddress: "Default Address", // TODO: Get from customer profile
+            dailyWithdrawalLimit: new Money(dailyWithdrawalLimit, account.Currency),
+            dailyPurchaseLimit: new Money(dailyWithdrawalLimit * 2, account.Currency),
+            monthlyLimit: new Money(dailyWithdrawalLimit * 30, account.Currency),
+            maxMonthlyTransactions: 100
         );
 
         await _cardRepository.AddAsync(card, ct);

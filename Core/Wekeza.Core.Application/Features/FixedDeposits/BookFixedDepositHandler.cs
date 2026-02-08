@@ -49,7 +49,7 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
             amount,
             interestRate,
             request.TermInDays,
-            InterestPaymentFrequency.Maturity,
+            InterestPaymentFrequency.OnMaturity,
             false, // autoRenewal
             "HQ", // branchCode
             "SYSTEM" // createdBy

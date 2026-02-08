@@ -105,7 +105,7 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
                     // Process interest accrual
                     accrualEngine.ProcessAccountInterest(
                         account.Id,
-                        account.AccountType,
+                        Enum.Parse<AccountType>(account.AccountType),
                         account.Balance,
                         interestRate,
                         daysSinceLastAccrual,

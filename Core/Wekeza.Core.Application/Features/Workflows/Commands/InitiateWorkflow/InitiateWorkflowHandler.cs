@@ -95,12 +95,18 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
             // 6. Add approval steps to workflow
             foreach (var step in approvalSteps)
             {
-                workflow.AddApprovalStep(
+                var approvalStep = new Wekeza.Core.Domain.Aggregates.ApprovalStep(
+                    id: Guid.NewGuid(),
+                    workflowId: workflow.Id,
+                    level: step.Level,
                     approverRole: step.RequiredRole.ToString(),
                     specificApprover: step.SpecificApprover,
                     isRequired: step.IsRequired,
-                    timeoutHours: step.TimeoutHours
+                    minimumAmount: null,
+                    maximumAmount: null,
+                    createdAt: DateTime.UtcNow
                 );
+                workflow.AddApprovalStep(approvalStep);
             }
 
             // 7. Add initiator comments if provided
@@ -149,8 +155,8 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
     {
         // Create default approval matrix based on workflow type and amount
         var matrix = ApprovalMatrix.Create(
-            workflowCode: request.WorkflowCode,
-            workflowName: request.WorkflowName,
+            matrixCode: request.WorkflowCode,
+            matrixName: request.WorkflowName,
             entityType: request.EntityType,
             createdBy: _currentUserService.Username ?? "System"
         );
@@ -191,8 +197,8 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
     private ApprovalMatrix CreateCustomApprovalMatrix(InitiateWorkflowCommand request)
     {
         var matrix = ApprovalMatrix.Create(
-            workflowCode: request.WorkflowCode,
-            workflowName: request.WorkflowName,
+            matrixCode: request.WorkflowCode,
+            matrixName: request.WorkflowName,
             entityType: request.EntityType,
             createdBy: _currentUserService.Username ?? "System"
         );
@@ -222,11 +228,7 @@ public class InitiateWorkflowHandler : IRequestHandler<InitiateWorkflowCommand, 
         var approvers = await _approvalRoutingService.GetApproversForLevelAsync(
             workflow.Id, level, cancellationToken);
 
-        foreach (var approver in approvers)
-        {
-            // Send notification (email, SMS, in-app notification)
-            workflow.AddDomainEvent(new ApprovalRequiredDomainEvent(
-                workflow.Id, approver.Id, level, workflow.EntityType, workflow.EntityReference));
-        }
+        // Note: Domain events are raised internally by the WorkflowInstance aggregate
+        // Notifications will be handled by domain event handlers
     }
 }

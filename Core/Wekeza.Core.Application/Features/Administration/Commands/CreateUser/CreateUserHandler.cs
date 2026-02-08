@@ -53,7 +53,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             // 2. Validate branch if specified
             if (request.BranchId.HasValue)
             {
-                var branch = await _branchRepository.GetByIdAsync(request.BranchId ?? Guid.Empty, cancellationToken);
+                var branch = await _branchRepository.GetByIdAsync(request.BranchId ?? Guid.Empty);
                 if (branch == null)
                 {
                     return Result<Guid>.Failure("Branch not found");
