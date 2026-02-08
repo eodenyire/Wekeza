@@ -26,7 +26,7 @@ public class RedisCacheService : ICacheService, IDisposable
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options.Value ?? throw new ArgumentNullException(nameof(options));
         
-        _database = _redis.GetDatabase(_options.DatabaseId);
+        _database = _redis.GetDatabase(_options.Database);
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -139,7 +139,7 @@ public class RedisCacheService : ICacheService, IDisposable
     {
         try
         {
-            var cacheKeys = keys.Select(GetCacheKey).ToArray();
+            var cacheKeys = keys.Select(GetCacheKey).ToArray().Cast<RedisKey>().ToArray();
             var values = await _database.StringGetAsync(cacheKeys);
             
             var result = new Dictionary<string, T?>();
@@ -190,7 +190,7 @@ public class RedisCacheService : ICacheService, IDisposable
     {
         try
         {
-            var cacheKeys = keys.Select(GetCacheKey).ToArray();
+            var cacheKeys = keys.Select(GetCacheKey).ToArray().Cast<RedisKey>().ToArray();
             await _database.KeyDeleteAsync(cacheKeys);
             _logger.LogDebug("Cache removed for {Count} keys", cacheKeys.Length);
         }
@@ -206,7 +206,7 @@ public class RedisCacheService : ICacheService, IDisposable
         try
         {
             var server = _redis.GetServer(_redis.GetEndPoints().First());
-            var keys = server.Keys(_options.DatabaseId, GetCacheKey(pattern));
+            var keys = server.Keys(_options.Database, GetCacheKey(pattern));
             return keys.Select(k => k.ToString().Replace(_options.KeyPrefix, ""));
         }
         catch (Exception ex)
@@ -650,7 +650,7 @@ public class RedisCacheService : ICacheService, IDisposable
         try
         {
             var server = _redis.GetServer(_redis.GetEndPoints().First());
-            return await server.DatabaseSizeAsync(_options.DatabaseId);
+            return await server.DatabaseSizeAsync(_options.Database);
         }
         catch (Exception ex)
         {
@@ -664,7 +664,7 @@ public class RedisCacheService : ICacheService, IDisposable
         try
         {
             var server = _redis.GetServer(_redis.GetEndPoints().First());
-            await server.FlushDatabaseAsync(_options.DatabaseId);
+            await server.FlushDatabaseAsync(_options.Database);
             _logger.LogWarning("Cache database flushed");
         }
         catch (Exception ex)

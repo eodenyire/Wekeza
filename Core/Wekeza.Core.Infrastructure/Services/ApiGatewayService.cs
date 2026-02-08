@@ -797,7 +797,10 @@ public class ApiGatewayService : IApiGatewayService
             _cache[cacheKey] = response;
             
             // In a real implementation, you would use a proper cache with expiration
-            _ = Task.Delay(expiration).ContinueWith(_ => _cache.TryRemove(cacheKey, out _));
+            _ = Task.Delay(expiration).ContinueWith(task => 
+            {
+                _cache.TryRemove(cacheKey, out var removed);
+            });
             
             return Task.CompletedTask;
         }

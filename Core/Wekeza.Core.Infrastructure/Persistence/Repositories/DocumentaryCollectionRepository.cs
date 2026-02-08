@@ -86,7 +86,7 @@ public class DocumentaryCollectionRepository : IDocumentaryCollectionRepository
     {
         var today = DateTime.UtcNow.Date;
         return await _context.DocumentaryCollections
-            .Where(dc => dc.MaturityDate.HasValue && dc.MaturityDate.Value.Date <= today && dc.Status == CollectionStatus.Outstanding)
+            .Where(dc => dc.MaturityDate.HasValue && dc.MaturityDate.Value.Date <= today && dc.Status == CollectionStatus.PresentedToDrawee)
             .OrderBy(dc => dc.MaturityDate)
             .ToListAsync(cancellationToken);
     }
@@ -94,7 +94,7 @@ public class DocumentaryCollectionRepository : IDocumentaryCollectionRepository
     public async Task<IEnumerable<DocumentaryCollection>> GetOutstandingCollectionsAsync(CancellationToken cancellationToken = default)
     {
         return await _context.DocumentaryCollections
-            .Where(dc => dc.Status == CollectionStatus.Outstanding)
+            .Where(dc => dc.Status == CollectionStatus.PresentedToDrawee)
             .OrderBy(dc => dc.MaturityDate)
             .ToListAsync(cancellationToken);
     }
@@ -105,7 +105,7 @@ public class DocumentaryCollectionRepository : IDocumentaryCollectionRepository
         return await _context.DocumentaryCollections
             .Where(dc => dc.MaturityDate.HasValue && 
                         dc.MaturityDate.Value.Date <= cutoffDate && 
-                        dc.Status == CollectionStatus.Outstanding)
+                        dc.Status == CollectionStatus.PresentedToDrawee)
             .OrderBy(dc => dc.MaturityDate)
             .ToListAsync(cancellationToken);
     }
@@ -113,7 +113,7 @@ public class DocumentaryCollectionRepository : IDocumentaryCollectionRepository
     public async Task<decimal> GetTotalCollectionAmountAsync(Guid drawerId, CancellationToken cancellationToken = default)
     {
         var collections = await _context.DocumentaryCollections
-            .Where(dc => dc.DrawerId == drawerId && dc.Status == CollectionStatus.Outstanding)
+            .Where(dc => dc.DrawerId == drawerId && dc.Status == CollectionStatus.PresentedToDrawee)
             .ToListAsync(cancellationToken);
         
         return collections.Sum(dc => dc.Amount.Amount);

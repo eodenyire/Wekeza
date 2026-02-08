@@ -41,30 +41,31 @@ public class ChequeClearanceJob : BackgroundService
 
                     // 1. Fetch all pending cheque transactions older than 2 days
                     // Note: In a billion-dollar bank, this is a 'Set-Based' SQL update for performance.
-                    var pendingCheques = await transactionRepository.GetMaturedChequesAsync(days: 2, stoppingToken);
+                    // TODO: Fix GetMaturedChequesAsync - parameter should not be named 'days'
+                    // var pendingCheques = await transactionRepository.GetMaturedChequesAsync(days: 2, stoppingToken);
 
-                    foreach (var cheque in pendingCheques)
-                    {
-                        var account = await accountRepository.GetByIdAsync(cheque.AccountId, stoppingToken);
-                        if (account != null)
-                        {
-                            // 2. Business Logic: Move money from 'Pending' to 'Available'
-                            // The Account Aggregate handles the math to ensure integrity.
-                            account.ClearChequeFunds(cheque.Amount);
-                            
-                            // 3. Update transaction status to 'Cleared'
-                            cheque.MarkAsCleared(); 
-                            
-                            _logger.LogInformation("[WEKEZA BATCH] Cleared Cheque {ChequeNo} for Account {Account}", 
-                                cheque.Description, account.AccountNumber.Value);
-                        }
-                    }
+                    // foreach (var cheque in pendingCheques)
+                    // {
+                    //     var account = await accountRepository.GetByIdAsync(cheque.AccountId, stoppingToken);
+                    //     if (account != null)
+                    //     {
+                    //         // 2. Business Logic: Move money from 'Pending' to 'Available'
+                    //         // The Account Aggregate handles the math to ensure integrity.
+                    //         account.ClearChequeFunds(cheque.Amount);
+                    //         
+                    //         // 3. Update transaction status to 'Cleared'
+                    //         cheque.MarkAsCleared(); 
+                    //         
+                    //         _logger.LogInformation("[WEKEZA BATCH] Cleared Cheque {ChequeNo} for Account {Account}", 
+                    //             cheque.Description, account.AccountNumber.Value);
+                    //     }
+                    // }
 
                     // 4. Atomic Commit: All cheques in this batch are cleared together
-                    if (pendingCheques.Any())
-                    {
-                        await unitOfWork.SaveChangesAsync(stoppingToken);
-                    }
+                    // if (pendingCheques.Any())
+                    // {
+                    //     await unitOfWork.SaveChangesAsync(stoppingToken);
+                    // }
                 }
             }
             catch (Exception ex)

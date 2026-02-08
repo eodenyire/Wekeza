@@ -84,7 +84,7 @@ public class AccountRepository : IAccountRepository
         return await _context.Accounts
             .Include(a => a.Customer)
             .Where(a => a.CustomerId == customerId)
-            .OrderByDescending(a => a.OpeningDate)
+            .OrderByDescending(a => a.OpenedDate)
             .ToListAsync(cancellationToken);
     }
 
@@ -92,8 +92,8 @@ public class AccountRepository : IAccountRepository
     {
         return await _context.Accounts
             .Include(a => a.Customer)
-            .Where(a => a.OpeningDate.Date >= fromDate.Date && a.OpeningDate.Date <= toDate.Date)
-            .OrderByDescending(a => a.OpeningDate)
+            .Where(a => a.OpenedDate.Date >= fromDate.Date && a.OpenedDate.Date <= toDate.Date)
+            .OrderByDescending(a => a.OpenedDate)
             .ToListAsync(cancellationToken);
     }
 

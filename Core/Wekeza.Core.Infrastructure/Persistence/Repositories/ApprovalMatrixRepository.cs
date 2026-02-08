@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
+using Wekeza.Core.Domain.Enums;
 using DomainWorkflowType = Wekeza.Core.Domain.Enums.WorkflowType;
 
 namespace Wekeza.Core.Infrastructure.Persistence.Repositories;
@@ -22,30 +23,36 @@ public class ApprovalMatrixRepository : IApprovalMatrixRepository
 
     public async Task<IEnumerable<ApprovalMatrix>> GetByWorkflowTypeAsync(DomainWorkflowType workflowType)
     {
+        // Note: ApprovalMatrix uses EntityType, not WorkflowType
+        // This filters by EntityType matching the workflow type's string representation
+        var entityType = workflowType.ToString();
         return await _context.ApprovalMatrices
-            .Where(a => a.WorkflowType == workflowType && a.IsActive)
-            .OrderBy(a => a.MinAmount)
+            .Where(a => a.EntityType == entityType && a.Status == MatrixStatus.Active)
+            .OrderBy(a => a.MatrixCode)
             .ToListAsync();
     }
 
     public async Task<ApprovalMatrix?> GetApplicableMatrixAsync(DomainWorkflowType workflowType, decimal amount, string currency)
     {
-        return await _context.ApprovalMatrices
-            .Where(a => a.WorkflowType == workflowType 
-                       && a.IsActive 
-                       && a.Currency == currency
-                       && amount >= a.MinAmount 
-                       && amount <= a.MaxAmount)
-            .OrderBy(a => a.MinAmount)
-            .FirstOrDefaultAsync();
+        // Note: ApprovalMatrix uses EntityType, not WorkflowType
+        // Rules contain MinAmount/MaxAmount/Currency information
+        var entityType = workflowType.ToString();
+        var matrices = await _context.ApprovalMatrices
+            .Where(a => a.EntityType == entityType && a.Status == MatrixStatus.Active)
+            .ToListAsync();
+        
+        // Filter in memory by checking rules
+        return matrices.FirstOrDefault(a => a.Rules.Any(r => 
+            r.MinAmount.HasValue && r.MaxAmount.HasValue &&
+            amount >= r.MinAmount.Value && amount <= r.MaxAmount.Value));
     }
 
     public async Task<IEnumerable<ApprovalMatrix>> GetAllActiveAsync()
     {
         return await _context.ApprovalMatrices
-            .Where(a => a.IsActive)
-            .OrderBy(a => a.WorkflowType)
-            .ThenBy(a => a.MinAmount)
+            .Where(a => a.Status == MatrixStatus.Active)
+            .OrderBy(a => a.EntityType)
+            .ThenBy(a => a.MatrixCode)
             .ToListAsync();
     }
 
