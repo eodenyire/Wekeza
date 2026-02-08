@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Wekeza.Core.Application.Features.Accounts.Commands.OpenAccount;
 using Wekeza.Core.Application.Features.Accounts.Commands.OpenProductBasedAccount;
 using Wekeza.Core.Application.Features.Accounts.Commands.RegisterBusiness;
-using Wekeza.Core.Application.Features.Accounts.Commands.Management.FreezeAccount;
-using Wekeza.Core.Application.Features.Accounts.Commands.Management.CloseAccount;
+using Wekeza.Core.Application.Features.Accounts.Commands.Management;
 using Wekeza.Core.Application.Features.Accounts.Queries.GetAccountSummary;
+using Wekeza.Core.Application.Features.Accounts.Queries.GetAccount;
 
 namespace Wekeza.Core.Api.Controllers;
 

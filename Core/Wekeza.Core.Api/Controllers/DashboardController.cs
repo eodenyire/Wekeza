@@ -9,6 +9,10 @@ using Wekeza.Core.Application.Features.Dashboard.Queries.GetRiskMetrics;
 using Wekeza.Core.Application.Features.Dashboard.Queries.GetChannelStatistics;
 using Wekeza.Core.Application.Features.Dashboard.Queries.GetBranchPerformance;
 using Wekeza.Core.Application.Features.Dashboard.Queries.GetComplianceMetrics;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetCardStatistics;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetBranchComparison;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetSystemHealth;
+using Wekeza.Core.Application.Features.Dashboard.Queries.GetPendingApprovalsSummary;
 
 namespace Wekeza.Core.Api.Controllers;
 
@@ -188,15 +192,11 @@ public class DashboardController : BaseApiController
     {
         var query = new GetRiskMetricsQuery();
         var result = await Mediator.Send(query);
-        return Ok(new
-        {
-            HighRiskCustomers = result.HighRiskCustomers,
-            FlaggedTransactions = result.FlaggedTransactions,
-            PendingAMLCases = result.PendingAMLCases,
-            SanctionsMatches = result.SanctionsMatches,
-            LargeTransactions = result.LargeTransactions,
-            UnusualActivityAlerts = result.UnusualActivityAlerts
-        });
+        
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+            
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -223,15 +223,11 @@ public class DashboardController : BaseApiController
     {
         var query = new GetChannelStatisticsQuery();
         var result = await Mediator.Send(query);
-        return Ok(new
-        {
-            OnlineBankingUsers = result.OnlineBankingUsers,
-            MobileBankingUsers = result.MobileBankingUsers,
-            USSDUsers = result.USSDUsers,
-            ATMTransactions = result.ATMTransactions,
-            POSTransactions = result.POSTransactions,
-            ChannelTransactionVolumes = result.ChannelTransactionVolumes
-        });
+        
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+            
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -242,17 +238,11 @@ public class DashboardController : BaseApiController
     {
         var query = new GetCardStatisticsQuery();
         var result = await Mediator.Send(query);
-        return Ok(new
-        {
-            TotalCards = result.TotalCards,
-            ActiveCards = result.ActiveCards,
-            VirtualCards = result.VirtualCards,
-            PhysicalCards = result.PhysicalCards,
-            CardsByType = result.CardsByType,
-            CardTransactionVolume = result.CardTransactionVolume,
-            ATMWithdrawals = result.ATMWithdrawals,
-            POSTransactions = result.POSTransactions
-        });
+        
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+            
+        return Ok(result.Value);
     }
 
     #endregion

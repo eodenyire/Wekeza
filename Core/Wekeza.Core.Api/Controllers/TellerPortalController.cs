@@ -8,6 +8,9 @@ using Wekeza.Core.Application.Features.Teller.Commands.ProcessCashWithdrawal;
 using Wekeza.Core.Application.Features.Teller.Commands.ProcessChequeDeposit;
 using Wekeza.Core.Application.Features.Teller.Commands.ProcessAccountOpening;
 using Wekeza.Core.Application.Features.Teller.Commands.ProcessCustomerOnboarding;
+using Wekeza.Core.Application.Features.Teller.Commands.VerifyCustomer;
+using Wekeza.Core.Application.Features.Teller.Commands.PrintStatement;
+using Wekeza.Core.Application.Features.Teller.Commands.BlockAccount;
 using Wekeza.Core.Application.Features.Teller.Queries.GetTellerSession;
 using Wekeza.Core.Application.Features.Teller.Queries.GetCashDrawerBalance;
 using Wekeza.Core.Application.Features.Teller.Queries.GetCustomerAccounts;
@@ -51,7 +54,7 @@ public class TellerPortalController : BaseApiController
     /// End teller session
     /// </summary>
     [HttpPost("session/end")]
-    public async Task<IActionResult> EndSession([FromBody] EndTellerSessionCommand command)
+    public async Task<IActionResult> EndSession([FromBody] EndSessionCommand command)
     {
         var result = await Mediator.Send(command);
         return Ok(result);
@@ -255,10 +258,9 @@ public class TellerPortalController : BaseApiController
     /// <summary>
     /// Block/Unblock account
     /// </summary>
-    [HttpPost("accounts/{accountId:guid}/block")]
-    public async Task<IActionResult> BlockAccount(Guid accountId, [FromBody] BlockAccountCommand command)
+    [HttpPost("accounts/block")]
+    public async Task<IActionResult> BlockAccount([FromBody] BlockAccountCommand command)
     {
-        command.AccountId = accountId;
         var result = await Mediator.Send(command);
         return Ok(result);
     }

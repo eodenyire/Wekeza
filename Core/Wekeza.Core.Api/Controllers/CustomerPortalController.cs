@@ -7,6 +7,15 @@ using Wekeza.Core.Application.Features.CustomerPortal.Commands.ChangePassword;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.RequestCard;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.TransferFunds;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.PayBill;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.EnrollMobileBanking;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.EnrollInternetBanking;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.EnrollUSSD;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.BlockCard;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.ApplyForLoan;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.RepayLoan;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.BuyAirtime;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.DownloadStatement;
+using Wekeza.Core.Application.Features.CustomerPortal.Commands.RequestVirtualCard;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetProfile;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetAccounts;
 using Wekeza.Core.Application.Features.CustomerPortal.Queries.GetTransactions;
@@ -295,11 +304,10 @@ public class CustomerPortalController : BaseApiController
     /// <summary>
     /// Block/Unblock card
     /// </summary>
-    [HttpPost("cards/{cardId:guid}/block")]
+    [HttpPost("cards/block")]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> BlockCard(Guid cardId, [FromBody] BlockCardCommand command)
+    public async Task<IActionResult> BlockCard([FromBody] BlockCardCommand command)
     {
-        command.CardId = cardId;
         var result = await Mediator.Send(command);
         return Ok(result);
     }
@@ -315,7 +323,7 @@ public class CustomerPortalController : BaseApiController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> GetLoans()
     {
-        var query = new GetCustomerLoansQuery();
+        var query = new GetLoansQuery();
         var result = await Mediator.Send(query);
         return Ok(result);
     }
@@ -334,11 +342,10 @@ public class CustomerPortalController : BaseApiController
     /// <summary>
     /// Make loan repayment
     /// </summary>
-    [HttpPost("loans/{loanId:guid}/repay")]
+    [HttpPost("loans/repay")]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> RepayLoan(Guid loanId, [FromBody] RepayLoanCommand command)
+    public async Task<IActionResult> RepayLoan([FromBody] RepayLoanCommand command)
     {
-        command.LoanId = loanId;
         var result = await Mediator.Send(command);
         return Ok(result);
     }
