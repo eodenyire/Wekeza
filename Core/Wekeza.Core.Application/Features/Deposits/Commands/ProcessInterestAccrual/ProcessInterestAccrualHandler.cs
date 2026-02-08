@@ -60,7 +60,7 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
             // Save the accrual engine (unless dry run)
             if (!request.DryRun)
             {
-                await _accrualEngineRepository.AddAsync(accrualEngine);
+                await _accrualEngineRepository.AddAsync(accrualEngine, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
 
@@ -80,7 +80,8 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
         // Get all active savings accounts
         var savingsAccounts = await _accountRepository.GetActiveAccountsByTypeAsync(
             AccountType.Savings, 
-            request.BranchCodeFilter);
+            request.BranchCodeFilter,
+            cancellationToken);
 
         foreach (var account in savingsAccounts)
         {
@@ -118,7 +119,7 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
                             request.CalculationMethod);
 
                         account.Credit(interestAmount, "Interest accrual");
-                        await _accountRepository.UpdateAsync(account);
+                        await _accountRepository.UpdateAsync(account, cancellationToken);
                     }
                 }
             }
@@ -136,7 +137,7 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
         CancellationToken cancellationToken)
     {
         // Get all active fixed deposits
-        var fixedDeposits = await _fixedDepositRepository.GetActiveDepositsAsync(request.BranchCodeFilter);
+        var fixedDeposits = await _fixedDepositRepository.GetActiveDepositsAsync(request.BranchCodeFilter, cancellationToken);
 
         foreach (var deposit in fixedDeposits)
         {
@@ -166,7 +167,7 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
                             request.CalculationMethod);
 
                         deposit.AccrueInterest(interestAmount, request.ProcessingDate);
-                        await _fixedDepositRepository.UpdateAsync(deposit);
+                        await _fixedDepositRepository.UpdateAsync(deposit, cancellationToken);
                     }
                 }
             }
@@ -183,7 +184,7 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
         CancellationToken cancellationToken)
     {
         // Get all active recurring deposits
-        var recurringDeposits = await _recurringDepositRepository.GetActiveDepositsAsync(request.BranchCodeFilter);
+        var recurringDeposits = await _recurringDepositRepository.GetActiveDepositsAsync(request.BranchCodeFilter, cancellationToken);
 
         foreach (var deposit in recurringDeposits)
         {
@@ -214,7 +215,7 @@ public class ProcessInterestAccrualHandler : IRequestHandler<ProcessInterestAccr
 
                         // Note: RD interest accrual would be handled differently in practice
                         // This is a simplified implementation
-                        await _recurringDepositRepository.UpdateAsync(deposit);
+                        await _recurringDepositRepository.UpdateAsync(deposit, cancellationToken);
                     }
                 }
             }

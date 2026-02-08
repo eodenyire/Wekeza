@@ -32,7 +32,7 @@ public class DepositFundsHandler : IRequestHandler<DepositFundsCommand, Guid>
 
         // 3. Domain Logic: Execute Credit
         // This validates if the account is frozen and updates the balance
-        account.Credit(depositAmount);
+        account.Credit(depositAmount, request.CorrelationId.ToString(), $"[{request.Channel}] {request.Description}");
 
         // 4. Record the specific Transaction entity (The Ledger entry)
         // This is what the 'GetStatement' query will read later

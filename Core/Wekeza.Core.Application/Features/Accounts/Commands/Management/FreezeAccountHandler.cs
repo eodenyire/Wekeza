@@ -31,7 +31,7 @@ public class FreezeAccountHandler : IRequestHandler<FreezeAccountCommand, bool>
             ?? throw new NotFoundException("Account", request.AccountNumber);
 
         // Domain Logic: The Soul decides if this is allowed
-        account.Freeze(request.Reason);
+        account.Freeze(request.Reason, _currentUserService.Username ?? "System");
 
         await _unitOfWork.SaveChangesAsync(ct);
         

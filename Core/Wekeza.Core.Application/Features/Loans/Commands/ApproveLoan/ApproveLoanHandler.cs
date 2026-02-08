@@ -72,7 +72,7 @@ public class ApproveLoanHandler : IRequestHandler<ApproveLoanCommand, ApproveLoa
             }
 
             // 5. Approve the loan
-            var approvedBy = request.ApprovedBy ?? _currentUserService.UserId ?? "System";
+            var approvedBy = request.ApprovedBy ?? (_currentUserService.UserId ?? Guid.Empty).ToString();
             loan.Approve(approvedBy, request.FirstPaymentDate, conditions);
 
             // 6. Update any related workflow

@@ -23,7 +23,7 @@ public class UpdateKYCStatusHandler : IRequestHandler<UpdateKYCStatusCommand, bo
         
         if (party == null)
         {
-            throw new NotFoundException($"Party with number {request.PartyNumber} not found.");
+            throw new NotFoundException("Party", request.PartyNumber);
         }
 
         // Update KYC status

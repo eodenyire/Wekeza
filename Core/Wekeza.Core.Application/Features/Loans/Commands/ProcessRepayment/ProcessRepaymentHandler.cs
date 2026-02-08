@@ -51,11 +51,11 @@ public class ProcessRepaymentHandler : IRequestHandler<ProcessRepaymentCommand, 
             }
 
             // 3. Create payment amount
-            var paymentAmount = new Money(request.PaymentAmount, new Currency(request.Currency));
+            var paymentAmount = new Money(request.PaymentAmount, Currency.FromCode(request.Currency));
             var paymentDate = request.PaymentDate ?? DateTime.UtcNow;
 
             // 4. Use loan servicing service for repayment processing
-            var processedBy = request.ProcessedBy ?? _currentUserService.UserId ?? "System";
+            var processedBy = request.ProcessedBy ?? (_currentUserService.UserId ?? Guid.Empty).ToString();
             var servicingResult = await _loanServicingService.ProcessRepaymentAsync(
                 loan,
                 paymentAmount,

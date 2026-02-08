@@ -38,7 +38,7 @@ public class CreateApprovalWorkflowHandler : IRequestHandler<CreateApprovalWorkf
                 request.WorkflowType,
                 request.EntityType,
                 request.EntityId,
-                request.Amount.HasValue ? new Money(request.Amount.Value, new Currency(request.Currency)) : null,
+                request.Amount.HasValue ? new Money(request.Amount.Value, Currency.FromCode(request.Currency)) : null,
                 request.Priority,
                 request.InitiatedBy,
                 request.BranchCode,
@@ -53,8 +53,8 @@ public class CreateApprovalWorkflowHandler : IRequestHandler<CreateApprovalWorkf
                     stepRequest.ApproverRole,
                     stepRequest.SpecificApprover,
                     stepRequest.IsRequired,
-                    stepRequest.MinimumAmount.HasValue ? new Money(stepRequest.MinimumAmount.Value, new Currency(request.Currency)) : null,
-                    stepRequest.MaximumAmount.HasValue ? new Money(stepRequest.MaximumAmount.Value, new Currency(request.Currency)) : null);
+                    stepRequest.MinimumAmount.HasValue ? new Money(stepRequest.MinimumAmount.Value, Currency.FromCode(request.Currency)) : null,
+                    stepRequest.MaximumAmount.HasValue ? new Money(stepRequest.MaximumAmount.Value, Currency.FromCode(request.Currency)) : null);
             }
 
             // Start the workflow

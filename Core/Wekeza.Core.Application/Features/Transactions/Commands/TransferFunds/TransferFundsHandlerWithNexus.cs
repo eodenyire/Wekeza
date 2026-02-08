@@ -44,7 +44,7 @@ public class TransferFundsHandlerWithNexus : IRequestHandler<TransferFundsComman
         // NEW STEP 1: Evaluate fraud risk BEFORE fetching accounts
         // This provides early exit if transaction is clearly fraudulent
         var fraudVerdict = await _nexusClient.EvaluateTransactionAsync(
-            userId: request.UserId, // NEW: Assuming command includes UserId
+            userId: request.UserId?.ToString() ?? "", // NEW: Assuming command includes UserId
             fromAccountNumber: request.FromAccountNumber,
             toAccountNumber: request.ToAccountNumber,
             amount: request.Amount,

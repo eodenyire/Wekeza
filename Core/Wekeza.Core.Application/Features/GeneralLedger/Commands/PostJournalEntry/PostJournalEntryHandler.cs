@@ -39,7 +39,7 @@ public class PostJournalEntryHandler : IRequestHandler<PostJournalEntryCommand, 
             request.SourceId,
             request.SourceReference,
             request.Currency,
-            _currentUserService.UserId ?? "System",
+            (_currentUserService.UserId ?? Guid.Empty).ToString(),
             request.Description);
 
         // Add lines
@@ -68,7 +68,7 @@ public class PostJournalEntryHandler : IRequestHandler<PostJournalEntryCommand, 
         }
 
         // Post journal entry
-        journal.Post(_currentUserService.UserId ?? "System");
+        journal.Post((_currentUserService.UserId ?? Guid.Empty).ToString());
 
         // Update GL account balances
         foreach (var line in journal.Lines)

@@ -30,7 +30,7 @@ public class BookTermDepositHandler : IRequestHandler<BookTermDepositCommand, Re
         try
         {
             // Validate account exists and has sufficient balance
-            var account = await _accountRepository.GetByIdAsync(request.AccountId);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value, cancellationToken);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
@@ -38,7 +38,7 @@ public class BookTermDepositHandler : IRequestHandler<BookTermDepositCommand, Re
                 return Result<Guid>.Failure("Insufficient account balance");
 
             // Check if deposit number already exists
-            if (await _termDepositRepository.ExistsAsync(request.DepositNumber))
+            if (await _termDepositRepository.ExistsAsync(request.DepositNumber, cancellationToken))
                 return Result<Guid>.Failure("Deposit number already exists");
 
             // Create term deposit
@@ -47,25 +47,25 @@ public class BookTermDepositHandler : IRequestHandler<BookTermDepositCommand, Re
                 request.AccountId,
                 request.CustomerId,
                 request.DepositNumber,
-                new Money(request.PrincipalAmount, new Currency(request.Currency)),
+                new Money(request.PrincipalAmount, Currency.FromCode(request.Currency)),
                 new InterestRate(request.InterestRate),
                 request.TermInMonths,
                 request.InterestFrequency,
                 request.AllowPartialWithdrawal,
-                new Money(request.MinimumBalance, new Currency(request.Currency)),
+                new Money(request.MinimumBalance, Currency.FromCode(request.Currency)),
                 request.AutoRenewal,
                 request.BranchCode,
                 request.CreatedBy);
 
             // Debit the account
             account.Debit(
-                new Money(request.PrincipalAmount, new Currency(request.Currency)),
+                new Money(request.PrincipalAmount, Currency.FromCode(request.Currency)),
                 $"Term deposit booking - {request.DepositNumber}",
                 request.CreatedBy);
 
             // Save changes
-            await _termDepositRepository.AddAsync(termDeposit);
-            await _accountRepository.UpdateAsync(account);
+            await _termDepositRepository.AddAsync(termDeposit, cancellationToken);
+            await _accountRepository.UpdateAsync(account, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(termDeposit.Id);

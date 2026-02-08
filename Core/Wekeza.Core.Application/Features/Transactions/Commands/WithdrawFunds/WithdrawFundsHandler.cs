@@ -35,7 +35,7 @@ public class WithdrawFundsHandler : IRequestHandler<WithdrawFundsCommand, Guid>
         // 3. Domain Logic: Debit
         // This internal call checks if balance is sufficient and if account is frozen
         var withdrawalAmount = new Money(request.Amount, Currency.FromCode(request.Currency));
-        account.Debit(withdrawalAmount);
+        account.Debit(withdrawalAmount, request.CorrelationId.ToString(), $"[{request.Channel}] {request.Description}");
 
         // 4. Update Ledger
         _accountRepository.Update(account);

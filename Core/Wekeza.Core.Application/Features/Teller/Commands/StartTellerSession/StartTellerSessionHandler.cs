@@ -46,8 +46,8 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
             {
                 // Create new cash drawer
                 var drawerId = GenerateDrawerId(request.BranchCode, request.TellerCode);
-                var maxCashLimit = new Money(5000000, new Currency(request.Currency)); // 5M limit
-                var minCashLimit = new Money(10000, new Currency(request.Currency)); // 10K minimum
+                var maxCashLimit = new Money(5000000, Currency.FromCode(request.Currency)); // 5M limit
+                var minCashLimit = new Money(10000, Currency.FromCode(request.Currency)); // 10K minimum
                 
                 cashDrawer = CashDrawer.Create(
                     drawerId,
@@ -58,7 +58,7 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
                     maxCashLimit,
                     minCashLimit,
                     requiresDualControl: false,
-                    _currentUserService.UserId ?? "System");
+                    (_currentUserService.UserId ?? Guid.Empty).ToString());
 
                 await _cashDrawerRepository.AddAsync(cashDrawer, cancellationToken);
             }
@@ -70,16 +70,16 @@ public class StartTellerSessionHandler : IRequestHandler<StartTellerSessionComma
             }
 
             // 4. Create opening cash balance
-            var openingCash = new Money(request.OpeningCashAmount, new Currency(request.Currency));
+            var openingCash = new Money(request.OpeningCashAmount, Currency.FromCode(request.Currency));
 
             // 5. Create teller limits
             var limits = new TellerLimits(
-                new Money(request.DailyTransactionLimit, new Currency(request.Currency)),
-                new Money(request.SingleTransactionLimit, new Currency(request.Currency)),
-                new Money(request.CashWithdrawalLimit, new Currency(request.Currency)));
+                new Money(request.DailyTransactionLimit, Currency.FromCode(request.Currency)),
+                new Money(request.SingleTransactionLimit, Currency.FromCode(request.Currency)),
+                new Money(request.CashWithdrawalLimit, Currency.FromCode(request.Currency)));
 
             // 6. Start teller session
-            var currentUser = _currentUserService.UserId ?? "System";
+            var currentUser = (_currentUserService.UserId ?? Guid.Empty).ToString();
             var session = TellerSession.Start(
                 request.TellerId,
                 request.TellerCode,

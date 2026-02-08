@@ -33,7 +33,7 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
         try
         {
             // Validate account exists and is active
-            var account = await _accountRepository.GetByIdAsync(request.AccountId);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value, cancellationToken);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
@@ -41,17 +41,17 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
                 return Result<Guid>.Failure("Account is not active");
 
             // Validate customer exists
-            var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
+            var customer = await _customerRepository.GetByIdAsync(request.CustomerId, cancellationToken);
             if (customer == null)
                 return Result<Guid>.Failure("Customer not found");
 
             // Validate sufficient balance for deposit
-            var principalAmount = new Money(request.PrincipalAmount, new Currency(request.Currency));
+            var principalAmount = new Money(request.PrincipalAmount, Currency.FromCode(request.Currency));
             if (account.Balance.Amount < principalAmount.Amount)
                 return Result<Guid>.Failure("Insufficient account balance for deposit");
 
             // Check for duplicate deposit number
-            var existingDeposit = await _fixedDepositRepository.GetByDepositNumberAsync(request.DepositNumber);
+            var existingDeposit = await _fixedDepositRepository.GetByDepositNumberAsync(request.DepositNumber, cancellationToken);
             if (existingDeposit != null)
                 return Result<Guid>.Failure("Deposit number already exists");
 
@@ -80,8 +80,8 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
             account.Debit(principalAmount, $"Fixed Deposit booking - {request.DepositNumber}");
 
             // Save changes
-            await _fixedDepositRepository.AddAsync(fixedDeposit);
-            await _accountRepository.UpdateAsync(account);
+            await _fixedDepositRepository.AddAsync(fixedDeposit, cancellationToken);
+            await _accountRepository.UpdateAsync(account, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(fixedDeposit.Id);

@@ -2,6 +2,7 @@ using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
 using MediatR;
+using Wekeza.Core.Application.Common.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.DeactivateAccount;
 
@@ -10,7 +11,8 @@ public class DeactivateAccountHandler : IRequestHandler<DeactivateAccountCommand
     private readonly IAccountRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeactivateAccountHandler(IAccountRepository repository, IUnitOfWork unitOfWork)
+    public DeactivateAccountHandler(IAccountRepository repository, IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;

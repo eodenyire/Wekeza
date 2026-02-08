@@ -33,7 +33,7 @@ public class GetCustomer360ViewHandler : IRequestHandler<GetCustomer360ViewQuery
         
         if (party == null)
         {
-            throw new NotFoundException($"Party with number {request.PartyNumber} not found.");
+            throw new NotFoundException("Party", request.PartyNumber);
         }
 
         // Get accounts

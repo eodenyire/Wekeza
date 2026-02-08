@@ -33,7 +33,7 @@ public class GetPaymentHistoryHandler : IRequestHandler<GetPaymentHistoryQuery, 
         if (request.CustomerId.HasValue)
         {
             payments = await _paymentOrderRepository.GetByCustomerAsync(
-                request.CustomerId.Value, 
+                request.CustomerId, 
                 request.PageSize * 2, // Get more to filter
                 1);
         }

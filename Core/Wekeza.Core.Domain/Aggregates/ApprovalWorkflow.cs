@@ -375,6 +375,10 @@ public class ApprovalStep
     public DateTime? ProcessedAt { get; private set; }
     public string? ProcessedBy { get; private set; }
     public string? Comments { get; private set; }
+    public string? AssignedTo => SpecificApprover;
+    public DateTime? AssignedDate => AssignedAt;
+    public string? ApprovedBy => ProcessedBy;
+    public DateTime? ApprovedDate => ProcessedAt;
 
     private ApprovalStep() { } // EF Core
 
@@ -458,6 +462,8 @@ public class WorkflowComment
     public string Comment { get; private set; }
     public WorkflowCommentType CommentType { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public string CommentBy => UserId;
+    public DateTime CommentDate => CreatedAt;
 
     private WorkflowComment() { } // EF Core
 

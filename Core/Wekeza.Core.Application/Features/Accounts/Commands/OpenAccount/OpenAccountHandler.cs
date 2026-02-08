@@ -1,4 +1,5 @@
 using MediatR;
+using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
@@ -83,7 +84,7 @@ public class OpenAccountHandler : IRequestHandler<OpenAccountCommand, Result<Ope
             AccountId = account.Id,
             AccountNumber = account.AccountNumber.Value,
             CustomerId = customer.Id,
-            CIFNumber = customer.CIFNumber ?? "CIF-" + customer.Id.ToString()[..8],
+            CIFNumber = customer.CustomerNumber ?? "CIF-" + customer.Id.ToString()[..8],
             Status = "PENDING_APPROVAL",
             Message = "Account opening request submitted successfully",
             RequiresApproval = request.RequiresApproval

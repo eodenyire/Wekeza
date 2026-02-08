@@ -18,6 +18,7 @@ public interface ITellerSessionRepository
 
     // Teller-based queries
     Task<TellerSession?> GetActiveSessionByTellerIdAsync(Guid tellerId, CancellationToken ct = default);
+    Task<TellerSession?> GetActiveSessionByUserAsync(Guid userId, CancellationToken ct = default);
     Task<IEnumerable<TellerSession>> GetSessionsByTellerIdAsync(Guid tellerId, CancellationToken ct = default);
     Task<IEnumerable<TellerSession>> GetSessionsByTellerCodeAsync(string tellerCode, CancellationToken ct = default);
 

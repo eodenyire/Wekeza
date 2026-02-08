@@ -1,4 +1,5 @@
 using MediatR;
+using Wekeza.Core.Domain.Aggregates;
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.ValueObjects;
@@ -32,7 +33,7 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
 
         // 2. Validate Funds Availability
         var amount = new Money(request.PrincipalAmount, sourceAccount.Balance.Currency);
-        sourceAccount.Debit(amount); // This will throw InsufficientFunds if they don't have it
+        sourceAccount.Debit(amount, $"FD-{Guid.NewGuid()}", "Fixed Deposit booking"); // This will throw InsufficientFunds if they don't have it
 
         // 3. Create Fixed Deposit Aggregate
         // We calculate maturity date: Today + Term
@@ -43,7 +44,7 @@ public class BookFixedDepositHandler : IRequestHandler<BookFixedDepositCommand, 
             Guid.NewGuid(),
             sourceAccount.CustomerId,
             amount,
-            request.AgreedInterestRate,
+            request.InterestRate,
             maturityDate
         );
 

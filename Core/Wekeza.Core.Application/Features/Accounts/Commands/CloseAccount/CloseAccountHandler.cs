@@ -48,7 +48,7 @@ public class CloseAccountHandler : IRequestHandler<CloseAccountCommand, bool>
 
         // 4. Execute Domain Logic
         // This will move status to 'Closed' and raise an AccountClosedDomainEvent
-        // account.Close(); 
+        // account.Close("Account closed by user request", _currentUserService.Username ?? "System"); 
 
         _accountRepository.Update(account);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

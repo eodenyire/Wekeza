@@ -27,7 +27,7 @@ public class BookMoneyMarketDealHandler : IRequestHandler<BookMoneyMarketDealCom
         // Validate deal number uniqueness
         if (await _dealRepository.ExistsAsync(request.DealNumber, cancellationToken))
         {
-            throw new ValidationException($"Deal with number {request.DealNumber} already exists");
+            throw new ValidationException(new List<FluentValidation.Results.ValidationFailure> { new FluentValidation.Results.ValidationFailure("", $"Deal with number {request.DealNumber} already exists") });
         }
 
         // Validate counterparty exists
@@ -38,8 +38,8 @@ public class BookMoneyMarketDealHandler : IRequestHandler<BookMoneyMarketDealCom
         }
 
         // Create value objects
-        var principal = new Money(request.Principal, request.Currency);
-        var interestRate = new InterestRate(request.InterestRate);
+        var principal = new Money(request.Principal, Currency.FromCode(request.Currency));
+        var interestRate = new InterestRate((decimal)request.InterestRate);
 
         // Book the money market deal
         var deal = MoneyMarketDeal.Book(

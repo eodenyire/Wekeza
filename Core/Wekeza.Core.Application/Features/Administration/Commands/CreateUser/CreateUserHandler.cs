@@ -53,7 +53,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             // 2. Validate branch if specified
             if (request.BranchId.HasValue)
             {
-                var branch = await _branchRepository.GetByIdAsync(request.BranchId.Value, cancellationToken);
+                var branch = await _branchRepository.GetByIdAsync(request.BranchId ?? Guid.Empty, cancellationToken);
                 if (branch == null)
                 {
                     return Result<Guid>.Failure("Branch not found");
@@ -78,31 +78,31 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
             );
 
             // 5. Set password and security settings
-            user.SetPassword(passwordHash, request.MustChangePassword);
+            user.SetPassword(passwordHash, request.MustChangePassword ? "Initial password" : null);
             
             if (request.MfaEnabled)
             {
-                user.EnableMfa(MfaMethod.TOTP);
+                user.EnableMfa(MfaMethod.TOTP, "TOTP_SECRET", _currentUserService.Username ?? "System");
             }
 
             // 6. Assign roles
             foreach (var role in request.Roles)
             {
-                user.AssignRole(role);
+                user.AssignRole(role, _currentUserService.Username ?? "System");
             }
 
             // 7. Set additional properties
             if (!string.IsNullOrEmpty(request.PhoneNumber))
-                user.UpdatePhoneNumber(request.PhoneNumber);
+                user.UpdatePhoneNumber(request.PhoneNumber, _currentUserService.Username ?? "System");
             
             if (!string.IsNullOrEmpty(request.Department))
-                user.UpdateDepartment(request.Department);
+                user.UpdateDepartment(request.Department, _currentUserService.Username ?? "System");
             
             if (!string.IsNullOrEmpty(request.JobTitle))
-                user.UpdateJobTitle(request.JobTitle);
+                user.UpdateJobTitle(request.JobTitle, _currentUserService.Username ?? "System");
 
             if (request.BranchId.HasValue)
-                user.AssignToBranch(request.BranchId.Value);
+                user.AssignToBranch(request.BranchId.ToString(), _currentUserService.Username ?? "System");
 
             // 8. Save user
             await _userRepository.AddAsync(user, cancellationToken);
@@ -110,7 +110,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Guid>
 
             // 9. Send welcome email with temporary password
             // This would be handled by a domain event handler
-            user.AddDomainEvent(new UserCreatedDomainEvent(user.Id, user.Username, user.Email, _currentUserService.Username ?? "System"));
+            // TODO: Add UserCreatedDomainEvent when domain events are implemented
 
             return Result<Guid>.Success(user.Id);
         }

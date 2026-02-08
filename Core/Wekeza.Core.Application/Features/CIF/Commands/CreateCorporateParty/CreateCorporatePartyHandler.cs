@@ -55,7 +55,7 @@ public class CreateCorporatePartyHandler : IRequestHandler<CreateCorporatePartyC
             request.RegistrationNumber,
             request.IncorporationDate,
             request.Industry,
-            _currentUserService.UserId ?? "System"
+            (_currentUserService.UserId ?? Guid.Empty).ToString()
         );
 
         // Add contact information

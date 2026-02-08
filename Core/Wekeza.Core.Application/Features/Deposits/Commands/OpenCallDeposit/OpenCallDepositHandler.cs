@@ -30,7 +30,7 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
         try
         {
             // Validate account exists and has sufficient balance
-            var account = await _accountRepository.GetByIdAsync(request.AccountId);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value, cancellationToken);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
@@ -38,7 +38,7 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
                 return Result<Guid>.Failure("Insufficient account balance");
 
             // Check if deposit number already exists
-            if (await _callDepositRepository.ExistsAsync(request.DepositNumber))
+            if (await _callDepositRepository.ExistsAsync(request.DepositNumber, cancellationToken))
                 return Result<Guid>.Failure("Deposit number already exists");
 
             // Validate minimum deposit requirement
@@ -51,11 +51,11 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
                 request.AccountId,
                 request.CustomerId,
                 request.DepositNumber,
-                new Money(request.InitialDeposit, new Currency(request.Currency)),
+                new Money(request.InitialDeposit, Currency.FromCode(request.Currency)),
                 new InterestRate(request.InterestRate),
                 request.NoticePeriodDays,
-                new Money(request.MinimumBalance, new Currency(request.Currency)),
-                new Money(request.MaximumBalance, new Currency(request.Currency)),
+                new Money(request.MinimumBalance, Currency.FromCode(request.Currency)),
+                new Money(request.MaximumBalance, Currency.FromCode(request.Currency)),
                 request.InterestFrequency,
                 request.InstantAccess,
                 request.BranchCode,
@@ -63,13 +63,13 @@ public class OpenCallDepositHandler : IRequestHandler<OpenCallDepositCommand, Re
 
             // Debit the account
             account.Debit(
-                new Money(request.InitialDeposit, new Currency(request.Currency)),
+                new Money(request.InitialDeposit, Currency.FromCode(request.Currency)),
                 $"Call deposit opening - {request.DepositNumber}",
                 request.CreatedBy);
 
             // Save changes
-            await _callDepositRepository.AddAsync(callDeposit);
-            await _accountRepository.UpdateAsync(account);
+            await _callDepositRepository.AddAsync(callDeposit, cancellationToken);
+            await _accountRepository.UpdateAsync(account, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(callDeposit.Id);

@@ -1,6 +1,7 @@
 using Wekeza.Core.Application.Common.Exceptions;
 using Wekeza.Core.Domain.Interfaces;
 using MediatR;
+using Wekeza.Core.Application.Common.Interfaces;
 
 namespace Wekeza.Core.Application.Features.Accounts.Commands.VerifyBusinessAccount;
 

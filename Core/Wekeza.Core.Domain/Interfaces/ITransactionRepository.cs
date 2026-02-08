@@ -13,20 +13,11 @@ namespace Wekeza.Core.Domain.Interfaces;
 /// </summary>
 public interface ITransactionRepository
 {
-    /// <summary>
-    /// Persists a new ledger entry (Debit/Credit).
-    /// </summary>
     Task AddAsync(Transaction transaction, CancellationToken ct);
-
-    /// <summary>
-    /// Fetches all cheque deposits that have passed their clearing window 
-    /// but haven't been marked as 'Cleared' yet.
-    /// </summary>
+    Task<Transaction?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IEnumerable<Transaction>> GetMaturedChequesAsync(CancellationToken ct);
-
-    /// <summary>
-    /// Retrieves the most recent transactions for a specific account.
-    /// In the infrastructure implementation, this is often optimized with Dapper.
-    /// </summary>
     Task<IEnumerable<Transaction>> GetRecentTransactionsAsync(Guid accountId, int limit, CancellationToken ct);
+    Task<IEnumerable<Transaction>> GetRecentByCustomerIdAsync(Guid customerId, int limit, CancellationToken ct = default);
+    Task<IEnumerable<Transaction>> GetTransactionsByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default);
+    Task<IEnumerable<Transaction>> GetByAccountAsync(Guid accountId, DateTime startDate, DateTime endDate, CancellationToken ct = default);
 }

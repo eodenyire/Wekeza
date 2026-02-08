@@ -336,6 +336,57 @@ public class User : AggregateRoot
                (LockedUntil == null || LockedUntil < DateTime.UtcNow);
     }
 
+    public void SetPassword(string passwordHash, string setBy)
+    {
+        if (string.IsNullOrWhiteSpace(passwordHash))
+            throw new ArgumentException("Password hash cannot be empty", nameof(passwordHash));
+
+        PasswordHash = passwordHash;
+        LastPasswordChange = DateTime.UtcNow;
+        MustChangePassword = false;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = setBy;
+    }
+
+    public void AssignRole(string roleCode, string assignedBy)
+    {
+        var role = new UserRole(roleCode, roleCode, new List<string>(), assignedBy);
+        AddRole(role, assignedBy);
+    }
+
+    public bool HasRole(string roleCode)
+    {
+        return Roles.Any(r => r.RoleCode == roleCode);
+    }
+
+    public void UpdatePhoneNumber(string phoneNumber, string updatedBy)
+    {
+        PhoneNumber = phoneNumber;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = updatedBy;
+    }
+
+    public void UpdateDepartment(string department, string updatedBy)
+    {
+        Department = department;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = updatedBy;
+    }
+
+    public void UpdateJobTitle(string jobTitle, string updatedBy)
+    {
+        JobTitle = jobTitle;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = updatedBy;
+    }
+
+    public void AssignToBranch(string branchId, string assignedBy)
+    {
+        Metadata["BranchId"] = branchId;
+        LastModifiedAt = DateTime.UtcNow;
+        LastModifiedBy = assignedBy;
+    }
+
     private void RefreshPermissions()
     {
         Permissions.Clear();

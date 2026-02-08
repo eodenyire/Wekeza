@@ -27,10 +27,10 @@ public class RejectWorkflowHandler : IRequestHandler<RejectWorkflowCommand, bool
         
         if (workflow == null)
         {
-            throw new NotFoundException($"Workflow with ID {request.WorkflowId} not found.");
+            throw new NotFoundException("Workflow", request.WorkflowId);
         }
 
-        var rejectedBy = _currentUserService.UserId ?? "System";
+        var rejectedBy = (_currentUserService.UserId ?? Guid.Empty).ToString();
 
         workflow.Reject(rejectedBy, request.Reason);
 

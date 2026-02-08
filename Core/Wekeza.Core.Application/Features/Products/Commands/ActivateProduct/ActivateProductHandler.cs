@@ -27,10 +27,10 @@ public class ActivateProductHandler : IRequestHandler<ActivateProductCommand, bo
         
         if (product == null)
         {
-            throw new NotFoundException($"Product with code {request.ProductCode} not found.");
+            throw new NotFoundException("Product", request.ProductCode);
         }
 
-        product.Activate(_currentUserService.UserId ?? "System");
+        product.Activate((_currentUserService.UserId ?? Guid.Empty).ToString());
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -33,7 +33,7 @@ public class OpenRecurringDepositHandler : IRequestHandler<OpenRecurringDepositC
         try
         {
             // Validate account exists and is active
-            var account = await _accountRepository.GetByIdAsync(request.AccountId);
+            var account = await _accountRepository.GetByIdAsync(request.AccountId.Value, cancellationToken);
             if (account == null)
                 return Result<Guid>.Failure("Account not found");
 
@@ -41,7 +41,7 @@ public class OpenRecurringDepositHandler : IRequestHandler<OpenRecurringDepositC
                 return Result<Guid>.Failure("Account is not active");
 
             // Validate customer exists
-            var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
+            var customer = await _customerRepository.GetByIdAsync(request.CustomerId, cancellationToken);
             if (customer == null)
                 return Result<Guid>.Failure("Customer not found");
 
@@ -49,7 +49,7 @@ public class OpenRecurringDepositHandler : IRequestHandler<OpenRecurringDepositC
             Account? autoDebitAccount = null;
             if (request.AutoDebit && request.AutoDebitAccountId.HasValue)
             {
-                autoDebitAccount = await _accountRepository.GetByIdAsync(request.AutoDebitAccountId.Value);
+                autoDebitAccount = await _accountRepository.GetByIdAsync(request.AutoDebitAccountId.Value, cancellationToken);
                 if (autoDebitAccount == null)
                     return Result<Guid>.Failure("Auto-debit account not found");
 
@@ -57,18 +57,18 @@ public class OpenRecurringDepositHandler : IRequestHandler<OpenRecurringDepositC
                     return Result<Guid>.Failure("Auto-debit account is not active");
 
                 // Ensure auto-debit account has sufficient balance for first installment
-                var monthlyInstallment = new Money(request.MonthlyInstallment, new Currency(request.Currency));
+                var monthlyInstallment = new Money(request.MonthlyInstallment, Currency.FromCode(request.Currency));
                 if (autoDebitAccount.Balance.Amount < monthlyInstallment.Amount)
                     return Result<Guid>.Failure("Insufficient balance in auto-debit account for first installment");
             }
 
             // Check for duplicate deposit number
-            var existingDeposit = await _recurringDepositRepository.GetByDepositNumberAsync(request.DepositNumber);
+            var existingDeposit = await _recurringDepositRepository.GetByDepositNumberAsync(request.DepositNumber, cancellationToken);
             if (existingDeposit != null)
                 return Result<Guid>.Failure("Deposit number already exists");
 
             // Create Recurring Deposit
-            var monthlyInstallmentAmount = new Money(request.MonthlyInstallment, new Currency(request.Currency));
+            var monthlyInstallmentAmount = new Money(request.MonthlyInstallment, Currency.FromCode(request.Currency));
             var interestRate = new InterestRate(request.InterestRate);
             
             var recurringDeposit = new RecurringDeposit(
@@ -99,12 +99,12 @@ public class OpenRecurringDepositHandler : IRequestHandler<OpenRecurringDepositC
                 recurringDeposit.ProcessInstallment(monthlyInstallmentAmount, DateTime.UtcNow, request.CreatedBy);
 
                 // Update auto-debit account
-                await _accountRepository.UpdateAsync(autoDebitAccount);
+                await _accountRepository.UpdateAsync(autoDebitAccount, cancellationToken);
             }
 
             // Save changes
-            await _recurringDepositRepository.AddAsync(recurringDeposit);
-            await _accountRepository.UpdateAsync(account);
+            await _recurringDepositRepository.AddAsync(recurringDeposit, cancellationToken);
+            await _accountRepository.UpdateAsync(account, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(recurringDeposit.Id);

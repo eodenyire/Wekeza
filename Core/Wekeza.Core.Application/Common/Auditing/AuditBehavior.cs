@@ -30,7 +30,7 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         // We only audit Commands (Actions that change state)
         if (requestName.EndsWith("Command"))
         {
-            var userId = _currentUser.UserId ?? "System";
+            var userId = _currentUser.UserId?.ToString() ?? "System";
             var userName = _currentUser.UserName ?? "Unauthorized_Access";
 
             // LOG: Audit Trail for Risk Management

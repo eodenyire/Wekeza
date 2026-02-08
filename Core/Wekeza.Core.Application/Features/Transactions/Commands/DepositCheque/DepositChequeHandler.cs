@@ -35,7 +35,7 @@ public class DepositChequeHandler : IRequestHandler<DepositChequeCommand, Guid>
         // The balance update logic would distinguish between Ledger and Available.
         
         // For this MVP core, we record the intent and update the Ledger
-        account.Credit(chequeAmount); 
+        account.Credit(chequeAmount, request.ChequeNumber, $"Cheque deposit - {request.ChequeNumber}"); 
 
         // Add detailed transaction record for the clearing system to pick up later
         _accountRepository.Update(account);
