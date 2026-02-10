@@ -16,6 +16,7 @@ using Wekeza.Core.Infrastructure.BackgroundServices;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Services;
 using Wekeza.Core.Application.Common.Interfaces;
+using Wekeza.Core.Application.Common.Services;
 
 namespace Wekeza.Core.Infrastructure;
 
@@ -73,6 +74,8 @@ public static class DependencyInjection
         services.AddScoped<ICallDepositRepository, CallDepositRepository>();
         services.AddScoped<ITermDepositRepository, TermDepositRepository>();
         services.AddScoped<IFixedDepositRepository, FixedDepositRepository>();
+        services.AddScoped<IRecurringDepositRepository, RecurringDepositRepository>();
+        services.AddScoped<IInterestAccrualEngineRepository, InterestAccrualEngineRepository>();
 
         // User & Administration Repositories
         services.AddScoped<IUserRepository, UserRepository>();
@@ -80,6 +83,7 @@ public static class DependencyInjection
         // Compliance & AML Repositories
         services.AddScoped<IAMLCaseRepository, AMLCaseRepository>();
         services.AddScoped<ITransactionMonitoringRepository, TransactionMonitoringRepository>();
+        services.AddScoped<ISanctionsScreeningRepository, SanctionsScreeningRepository>();
 
         // Domain Services
         services.AddScoped<PaymentProcessingService>();
@@ -97,6 +101,7 @@ public static class DependencyInjection
         services.AddScoped<IDateTime, DateTimeService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IPasswordHashingService, PasswordHashingService>();
 
         // Week 14: Advanced Features & Optimization Services
         AddWeek14Services(services, configuration);
