@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
+using Npgsql;
+using System.Data;
 using Wekeza.Core.Infrastructure.Persistence;
 using Wekeza.Core.Infrastructure.Persistence.Repositories;
 using Wekeza.Core.Infrastructure.Services;
@@ -14,6 +16,7 @@ using Wekeza.Core.Infrastructure.BackgroundServices;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Services;
 using Wekeza.Core.Application.Common.Interfaces;
+using Wekeza.Core.Application.Common.Services;
 
 namespace Wekeza.Core.Infrastructure;
 
@@ -25,6 +28,13 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+
+        // Register IDbConnection for Dapper-based repositories
+        services.AddScoped<IDbConnection>(provider =>
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            return new NpgsqlConnection(connectionString);
+        });
 
         // Repositories
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -60,11 +70,35 @@ public static class DependencyInjection
         services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<IDigitalChannelRepository, DigitalChannelRepository>();
 
+        // Deposit Repositories
+        services.AddScoped<ICallDepositRepository, CallDepositRepository>();
+        services.AddScoped<ITermDepositRepository, TermDepositRepository>();
+        services.AddScoped<IFixedDepositRepository, FixedDepositRepository>();
+        services.AddScoped<IRecurringDepositRepository, RecurringDepositRepository>();
+        services.AddScoped<IInterestAccrualEngineRepository, InterestAccrualEngineRepository>();
+
+        // User & Administration Repositories
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        // Compliance & AML Repositories
+        services.AddScoped<IAMLCaseRepository, AMLCaseRepository>();
+        services.AddScoped<ITransactionMonitoringRepository, TransactionMonitoringRepository>();
+        services.AddScoped<ISanctionsScreeningRepository, SanctionsScreeningRepository>();
+
+        // Reporting Repositories
+        services.AddScoped<IRegulatoryReportRepository, RegulatoryReportRepository>();
+
+        // Treasury Repositories
+        services.AddScoped<IFXDealRepository, FXDealRepository>();
+        services.AddScoped<IMoneyMarketDealRepository, MoneyMarketDealRepository>();
+
         // Domain Services
         services.AddScoped<PaymentProcessingService>();
         services.AddScoped<CreditScoringService>();
         services.AddScoped<LoanServicingService>();
         services.AddScoped<TellerOperationsService>();
+        services.AddScoped<TransferService>();
+        services.AddScoped<ApprovalRoutingService>();
         
         // Week 8: Cards & Channels Management Services
         services.AddScoped<CardManagementService>();
@@ -76,6 +110,8 @@ public static class DependencyInjection
         services.AddScoped<IDateTime, DateTimeService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IPasswordHashingService, PasswordHashingService>();
+        services.AddScoped<IMapper, SimpleMapper>();
 
         // Week 14: Advanced Features & Optimization Services
         AddWeek14Services(services, configuration);
@@ -101,16 +137,24 @@ public static class DependencyInjection
         services.AddSingleton<IConnectionMultiplexer>(provider =>
         {
             var connectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
-            return ConnectionMultiplexer.Connect(connectionString);
+            try
+            {
+                return ConnectionMultiplexer.Connect(connectionString);
+            }
+            catch
+            {
+                // If Redis is not available, return null and services will gracefully degrade
+                return null!;
+            }
         });
         services.AddScoped<ICacheService, RedisCacheService>();
 
         // Performance Monitoring
         services.AddScoped<IPerformanceMonitoringService, PerformanceMonitoringService>();
 
-        // Real-time Notifications
-        services.AddScoped<INotificationService, NotificationService>();
-        // SignalR is optional - comment out if not needed
+        // Real-time Notifications - temporarily disabled due to SignalR dependency issues
+        // TODO: Update SignalR package and re-enable
+        // services.AddScoped<INotificationService, NotificationService>();
         // services.AddSignalR(options =>
         // {
         //     options.EnableDetailedErrors = true;
@@ -130,9 +174,10 @@ public static class DependencyInjection
             .AddCheck<DatabaseHealthCheck>("database")
             .AddCheck<ApiGatewayHealthCheck>("api-gateway");
 
-        // Background Services for Week 14
-        services.AddHostedService<PerformanceMonitoringBackgroundService>();
-        services.AddHostedService<CacheWarmupBackgroundService>();
-        services.AddHostedService<HealthCheckBackgroundService>();
+        // Background Services for Week 14 - Commented out temporarily to resolve DI issues
+        // TODO: Fix background services to properly use scoped services via IServiceScopeFactory
+        // services.AddHostedService<PerformanceMonitoringBackgroundService>();
+        // services.AddHostedService<CacheWarmupBackgroundService>();
+        // services.AddHostedService<HealthCheckBackgroundService>();
     }
 }

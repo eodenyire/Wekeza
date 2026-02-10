@@ -266,7 +266,8 @@ public class CustomerPortalController : BaseApiController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> GetCards()
     {
-        var query = new GetCustomerCardsQuery();
+        // TODO: Get customer ID from authenticated user claims
+        var query = new GetCardsQuery { CustomerId = Guid.Empty };
         var result = await Mediator.Send(query);
         return Ok(result);
     }

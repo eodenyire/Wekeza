@@ -8,12 +8,15 @@ using Wekeza.Core.Application.Features.Administration.Commands.CreateRole;
 using Wekeza.Core.Application.Features.Administration.Commands.AssignRole;
 using Wekeza.Core.Application.Features.Administration.Commands.CreateBranch;
 using Wekeza.Core.Application.Features.Administration.Commands.UpdateSystemParameter;
+using Wekeza.Core.Application.Features.Administration.Commands.ResetPassword;
 using Wekeza.Core.Application.Features.Administration.Queries.GetUsers;
 using Wekeza.Core.Application.Features.Administration.Queries.GetRoles;
 using Wekeza.Core.Application.Features.Administration.Queries.GetBranches;
 using Wekeza.Core.Application.Features.Administration.Queries.GetSystemStats;
 using Wekeza.Core.Application.Features.Administration.Queries.GetAuditLogs;
 using Wekeza.Core.Application.Features.Administration.Queries.GetUser;
+using Wekeza.Core.Application.Features.Administration.Queries.GetPendingApprovals;
+using Wekeza.Core.Application.Features.Administration.Queries.GetSystemParameters;
 
 namespace Wekeza.Core.Api.Controllers;
 
@@ -216,9 +219,13 @@ public class AdministratorController : BaseApiController
     /// Update system parameter
     /// </summary>
     [HttpPut("system/parameters/{key}")]
-    public async Task<IActionResult> UpdateSystemParameter(string key, [FromBody] UpdateSystemParameterCommand command)
+    public async Task<IActionResult> UpdateSystemParameter(string key, [FromBody] string parameterValue)
     {
-        command.Key = key;
+        var command = new UpdateSystemParameterCommand 
+        { 
+            ParameterKey = key,
+            ParameterValue = parameterValue
+        };
         var result = await Mediator.Send(command);
         return Ok(result);
     }
