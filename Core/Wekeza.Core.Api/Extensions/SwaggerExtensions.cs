@@ -112,7 +112,7 @@ Example: '12345abcdef'"
             options.DocInclusionPredicate((name, api) => true);
 
             // Use full names for schema IDs to avoid conflicts with duplicate type names
-            options.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
+            options.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
         });
 
         return services;
