@@ -16,6 +16,7 @@ using Wekeza.Core.Application.Features.Teller.Queries.GetCashDrawerBalance;
 using Wekeza.Core.Application.Features.Teller.Queries.GetCustomerAccounts;
 using Wekeza.Core.Application.Features.Teller.Queries.GetAccountBalance;
 using Wekeza.Core.Application.Features.Teller.Queries.GetTransactionHistory;
+using Wekeza.Core.Application.Features.Teller.Queries.SearchCustomers;
 
 namespace Wekeza.Core.Api.Controllers;
 
@@ -232,9 +233,13 @@ public class TellerPortalController : BaseApiController
     /// Verify customer identity
     /// </summary>
     [HttpPost("customers/{customerId:guid}/verify")]
-    public async Task<IActionResult> VerifyCustomer(Guid customerId, [FromBody] VerifyCustomerCommand command)
+    public async Task<IActionResult> VerifyCustomer(Guid customerId, [FromBody] VerifyCustomerRequest request)
     {
-        command.CustomerId = customerId;
+        var command = new VerifyCustomerCommand 
+        {
+            CustomerIdentifier = customerId.ToString(),
+            IdentificationType = request.IdentificationType ?? "CustomerID"
+        };
         var result = await Mediator.Send(command);
         return Ok(result);
     }
@@ -243,9 +248,14 @@ public class TellerPortalController : BaseApiController
     /// Print account statement
     /// </summary>
     [HttpPost("accounts/{accountId:guid}/statement")]
-    public async Task<IActionResult> PrintStatement(Guid accountId, [FromBody] PrintStatementCommand command)
+    public async Task<IActionResult> PrintStatement(Guid accountId, [FromBody] PrintStatementRequest request)
     {
-        command.AccountId = accountId;
+        var command = new PrintStatementCommand 
+        {
+            AccountNumber = accountId.ToString(),
+            StartDate = request.StartDate,
+            EndDate = request.EndDate
+        };
         var result = await Mediator.Send(command);
         return Ok(result);
     }
@@ -261,4 +271,16 @@ public class TellerPortalController : BaseApiController
     }
 
     #endregion
+}
+
+// Request models
+public class VerifyCustomerRequest
+{
+    public string? IdentificationType { get; set; }
+}
+
+public class PrintStatementRequest
+{
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }
