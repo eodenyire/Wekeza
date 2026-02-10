@@ -53,14 +53,14 @@ try
     // Serilog request logging
     app.UseSerilogRequestLogging();
 
+    // Serve static files (for Swagger custom CSS)
+    app.UseStaticFiles();
+
     // Order matters here! Security first, then Logging, then the logic.
     if (app.Environment.IsDevelopment())
     {
         app.UseWekezaSwagger();
     }
-
-    // Serve static files (for Swagger custom CSS)
-    app.UseStaticFiles();
 
     // Global Error Shield
     app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -85,9 +85,6 @@ try
     app.MapHealthChecks("/health");
     app.MapHealthChecks("/health/ready");
     app.MapHealthChecks("/health/live");
-
-    // Admin Panel redirect
-    app.MapGet("/admin", () => Results.Redirect("/admin/"));
     
     // Welcome endpoint with system information
     app.MapGet("/", () => new
