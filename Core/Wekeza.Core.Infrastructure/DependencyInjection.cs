@@ -69,6 +69,18 @@ public static class DependencyInjection
         services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<IDigitalChannelRepository, DigitalChannelRepository>();
 
+        // Deposit Repositories
+        services.AddScoped<ICallDepositRepository, CallDepositRepository>();
+        services.AddScoped<ITermDepositRepository, TermDepositRepository>();
+        services.AddScoped<IFixedDepositRepository, FixedDepositRepository>();
+
+        // User & Administration Repositories
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        // Compliance & AML Repositories
+        services.AddScoped<IAMLCaseRepository, AMLCaseRepository>();
+        services.AddScoped<ITransactionMonitoringRepository, TransactionMonitoringRepository>();
+
         // Domain Services
         services.AddScoped<PaymentProcessingService>();
         services.AddScoped<CreditScoringService>();
