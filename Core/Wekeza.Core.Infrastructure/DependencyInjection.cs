@@ -85,11 +85,20 @@ public static class DependencyInjection
         services.AddScoped<ITransactionMonitoringRepository, TransactionMonitoringRepository>();
         services.AddScoped<ISanctionsScreeningRepository, SanctionsScreeningRepository>();
 
+        // Reporting Repositories
+        services.AddScoped<IRegulatoryReportRepository, RegulatoryReportRepository>();
+
+        // Treasury Repositories
+        services.AddScoped<IFXDealRepository, FXDealRepository>();
+        services.AddScoped<IMoneyMarketDealRepository, MoneyMarketDealRepository>();
+
         // Domain Services
         services.AddScoped<PaymentProcessingService>();
         services.AddScoped<CreditScoringService>();
         services.AddScoped<LoanServicingService>();
         services.AddScoped<TellerOperationsService>();
+        services.AddScoped<TransferService>();
+        services.AddScoped<ApprovalRoutingService>();
         
         // Week 8: Cards & Channels Management Services
         services.AddScoped<CardManagementService>();
@@ -102,6 +111,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IPasswordHashingService, PasswordHashingService>();
+        services.AddScoped<IMapper, SimpleMapper>();
 
         // Week 14: Advanced Features & Optimization Services
         AddWeek14Services(services, configuration);
