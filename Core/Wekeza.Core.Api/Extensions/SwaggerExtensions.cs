@@ -112,6 +112,7 @@ Example: '12345abcdef'"
             options.DocInclusionPredicate((name, api) => true);
 
             // Use full names for schema IDs to avoid conflicts with duplicate type names
+            // Replace '+' (nested type marker) with '.' for Swagger compatibility
             options.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
         });
 
