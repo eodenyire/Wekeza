@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Care Web Interface Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { margin: 5px; padding: 10px; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Customer Care Web Interface Test</h1>
+    
+    <div class="test-section">
+        <h3>Authentication Test</h3>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Customer Search Test</h3>
+        <input type="text" id="searchTerm" placeholder="Search term" value="Doe">
+        <button onclick="testCustomerSearch()">Search Customers</button>
+        <div id="searchResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Dashboard Stats Test</h3>
+        <button onclick="testDashboardStats()">Get Dashboard Stats</button>
+        <div id="statsResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Create Complaint Test</h3>
+        <button onclick="testCreateComplaint()">Create Test Complaint</button>
+        <div id="complaintResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Account Status Request Test</h3>
+        <button onclick="testAccountStatusRequest()">Create Account Status Request</button>
+        <div id="accountRequestResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Card Request Test</h3>
+        <button onclick="testCardRequest()">Create Card Request</button>
+        <div id="cardRequestResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Report Generation Test</h3>
+        <button onclick="testReportGeneration()">Generate Statement</button>
+        <div id="reportResult"></div>
+    </div>
+
+    <script>
+        const baseUrl = 'http://localhost:5004';
+        let authToken = '';
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<div class="${className}">${new Date().toLocaleTimeString()}: ${message}</div>`;
+        }
+
+        async function testLogin() {
+            try {
+                log('loginResult', 'Testing login...', 'info');
+                
+                const response = await fetch(`${baseUrl}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'jacobodenyire',
+                        password: 'admin123',
+                        role: 'CustomerCareOfficer'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    authToken = data.token;
+                    log('loginResult', `Login successful! User: ${data.user.fullName}`, 'success');
+                } else {
+                    log('loginResult', `Login failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log('loginResult', `Login error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCustomerSearch() {
+            if (!authToken) {
+                log('searchResult', 'Please login first', 'error');
+                return;
+            }
+
+            try {
+                const searchTerm = document.getElementById('searchTerm').value;
+                log('searchResult', `Searching for customers with term: ${searchTerm}`, 'info');
+                
+                const response = await fetch(`${baseUrl}/api/customercare/customers/search?searchTerm=${searchTerm}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('searchResult', `Found ${data.data.length} customers`, 'success');
+                    data.data.forEach(customer => {
+                        log('searchResult', `- ${customer.fullName} (${customer.customerNumber})`, 'info');
+                    });
+                } else {
+                    log('searchResult', `Search failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log('searchResult', `Search error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDashboardStats() {
+            if (!authToken) {
+                log('statsResult', 'Please login first', 'error');
+                return;
+            }
+
+            try {
+                log('statsResult', 'Getting dashboard statistics...', 'info');
+                
+                const response = await fetch(`${baseUrl}/api/customercare/dashboard/stats`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('statsResult', 'Dashboard stats retrieved successfully:', 'success');
+                    log('statsResult', `- Active Inquiries: ${data.data.activeInquiries}`, 'info');
+                    log('statsResult', `- Resolved Today: ${data.data.resolvedToday}`, 'info');
+                    log('statsResult', `- Avg Response Time: ${data.data.avgResponseTime}`, 'info');
+                    log('statsResult', `- Satisfaction Score: ${data.data.satisfactionScore}`, 'info');
+                } else {
+                    log('statsResult', `Stats failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log('statsResult', `Stats error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCreateComplaint() {
+            if (!authToken) {
+                log('complaintResult', 'Please login first', 'error');
+                return;
+            }
+
+            try {
+                log('complaintResult', 'Creating test complaint...', 'info');
+                
+                const complaintData = {
+                    customerId: '11111111-1111-1111-1111-111111111111', // Test customer ID
+                    category: 'Account Balance',
+                    priority: 'Medium',
+                    subject: 'Test Complaint from Web Interface',
+                    description: 'This is a test complaint created from the web interface test.',
+                    channel: 'Online Chat',
+                    relatedAccount: 'ACC001',
+                    expectedResolution: '24 Hours',
+                    customerNotified: true
+                };
+                
+                const response = await fetch(`${baseUrl}/api/customercare/complaints`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(complaintData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('complaintResult', 'Complaint created successfully!', 'success');
+                } else {
+                    log('complaintResult', `Complaint creation failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log('complaintResult', `Complaint error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAccountStatusRequest() {
+            if (!authToken) {
+                log('accountRequestResult', 'Please login first', 'error');
+                return;
+            }
+
+            try {
+                log('accountRequestResult', 'Creating account status request...', 'info');
+                
+                const requestData = {
+                    accountNumber: 'ACC001234',
+                    requestType: 'Freeze',
+                    reason: 'Customer requested account freeze due to suspicious activity',
+                    customerAuthorized: true
+                };
+                
+                const response = await fetch(`${baseUrl}/api/customercare/account-status-requests`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('accountRequestResult', 'Account status request created successfully!', 'success');
+                } else {
+                    log('accountRequestResult', `Request creation failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log('accountRequestResult', `Request error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCardRequest() {
+            if (!authToken) {
+                log('cardRequestResult', 'Please login first', 'error');
+                return;
+            }
+
+            try {
+                log('cardRequestResult', 'Creating card request...', 'info');
+                
+                const requestData = {
+                    accountNumber: 'ACC001234',
+                    cardNumber: '1234',
+                    requestType: 'Block',
+                    reason: 'Lost Card',
+                    comments: 'Customer reported card lost during travel'
+                };
+                
+                const response = await fetch(`${baseUrl}/api/customercare/card-requests`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('cardRequestResult', 'Card request created successfully!', 'success');
+                } else {
+                    log('cardRequestResult', `Card request creation failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log('cardRequestResult', `Card request error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testReportGeneration() {
+            if (!authToken) {
+                log('reportResult', 'Please login first', 'error');
+                return;
+            }
+
+            try {
+                log('reportResult', 'Generating account statement...', 'info');
+                
+                const fromDate = '2024-01-01';
+                const toDate = '2024-12-31';
+                const accountNumber = 'ACC001234';
+                
+                const response = await fetch(`${baseUrl}/api/customercare/reports/statement/${accountNumber}?fromDate=${fromDate}&toDate=${toDate}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    log('reportResult', `Statement generated successfully! Size: ${blob.size} bytes`, 'success');
+                    
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `statement_${accountNumber}_${fromDate}_${toDate}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    log('reportResult', 'Statement downloaded successfully!', 'success');
+                } else {
+                    log('reportResult', `Report generation failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log('reportResult', `Report error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-login on page load
+        window.onload = function() {
+            testLogin();
+        };
+    </script>
+</body>
+</html>

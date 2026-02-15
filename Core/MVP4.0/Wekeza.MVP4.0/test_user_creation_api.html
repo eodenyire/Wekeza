@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test User Creation API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { width: 300px; padding: 8px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Test User Creation API</h1>
+    
+    <form id="testForm">
+        <div class="form-group">
+            <label>Full Name:</label>
+            <input type="text" id="fullName" value="Test User" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Username:</label>
+            <input type="text" id="username" value="testuser123" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="email" value="testuser123@wekeza.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" id="password" value="password123" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Role:</label>
+            <select id="role" required>
+                <option value="Teller">Teller</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="BranchManager">Branch Manager</option>
+                <option value="Administrator">Administrator</option>
+            </select>
+        </div>
+        
+        <button type="button" onclick="testCreateUser()">Test Create User</button>
+        <button type="button" onclick="generateRandomUser()">Generate Random User</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        function generateRandomUser() {
+            const timestamp = Date.now();
+            document.getElementById('fullName').value = `Test User ${timestamp}`;
+            document.getElementById('username').value = `user${timestamp}`;
+            document.getElementById('email').value = `user${timestamp}@wekeza.com`;
+            document.getElementById('password').value = 'password123';
+        }
+        
+        function testCreateUser() {
+            const data = {
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value,
+                isActive: true
+            };
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            fetch('http://localhost:5004/api/admin/create-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                resultDiv.className = 'result ' + (result.success ? 'success' : 'error');
+                resultDiv.innerHTML = `
+                    <h3>Result:</h3>
+                    <p><strong>Success:</strong> ${result.success}</p>
+                    <p><strong>Message:</strong> ${result.message}</p>
+                    <p><strong>Data sent:</strong></p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            })
+            .catch(error => {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>Error:</h3>
+                    <p>${error.message}</p>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+@page
+@model Wekeza.MVP4._0.Pages.CustomerCare.ReportsModel
+@{
+    ViewData["Title"] = "Customer Reports";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Customer Care Officer";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Search" class="sidebar-menu-link">
+            <i class="fas fa-search"></i>
+            <span>Search Customer</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Inquiries" class="sidebar-menu-link">
+            <i class="fas fa-question-circle"></i>
+            <span>Inquiries</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Complaints" class="sidebar-menu-link">
+            <i class="fas fa-comment-dots"></i>
+            <span>Complaints</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Reports" class="sidebar-menu-link active">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Customer Reports & Documentation</h3>
+    <p>Generate statements, confirmations, and certificates for customers</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-file-alt"></i> Account Statements</h5>
+            </div>
+            <div class="card-body">
+                <p>Generate detailed account statements for customers</p>
+                <form id="statementForm">
+                    <div class="mb-3">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" class="form-control" id="statementAccount" required placeholder="Enter account number">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">From Date</label>
+                                <input type="date" class="form-control" id="statementFromDate" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">To Date</label>
+                                <input type="date" class="form-control" id="statementToDate" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-download"></i> Generate Statement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-balance-scale"></i> Balance Confirmation</h5>
+            </div>
+            <div class="card-body">
+                <p>Generate balance confirmation letters</p>
+                <form id="balanceForm">
+                    <div class="mb-3">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" class="form-control" id="balanceAccount" required placeholder="Enter account number">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Purpose</label>
+                        <select class="form-select" id="balancePurpose">
+                            <option value="Visa Application">Visa Application</option>
+                            <option value="Loan Application">Loan Application</option>
+                            <option value="Business Registration">Business Registration</option>
+                            <option value="Audit Purposes">Audit Purposes</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-download"></i> Generate Confirmation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-percentage"></i> Interest Certificate</h5>
+            </div>
+            <div class="card-body">
+                <p>Generate annual interest certificates</p>
+                <form id="interestForm">
+                    <div class="mb-3">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" class="form-control" id="interestAccount" required placeholder="Enter account number">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Year</label>
+                        <select class="form-select" id="interestYear" required>
+                            <option value="">Select Year</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-info w-100">
+                        <i class="fas fa-download"></i> Generate Certificate
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-search"></i> Account Lookup</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Search Account</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="accountLookup" placeholder="Enter account number or customer name">
+                        <button type="button" class="btn btn-outline-primary" id="lookupBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="accountInfo" class="account-info" style="display: none;">
+                    <!-- Account information will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Recent Reports</h5>
+            </div>
+            <div class="card-body">
+                <div id="recentReports">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                        <div>
+                            <strong>Statement - ACC001234</strong><br>
+                            <small class="text-muted">Generated today at 2:30 PM</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                        <div>
+                            <strong>Balance Confirmation - ACC005678</strong><br>
+                            <small class="text-muted">Generated yesterday at 4:15 PM</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Interest Certificate - ACC009876</strong><br>
+                            <small class="text-muted">Generated 2 days ago</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function() {
+    // Set default dates
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    $('#statementFromDate').val(firstDayOfMonth.toISOString().split('T')[0]);
+    $('#statementToDate').val(today.toISOString().split('T')[0]);
+    
+    // Form submissions
+    $('#statementForm').submit(function(e) {
+        e.preventDefault();
+        generateStatement();
+    });
+    
+    $('#balanceForm').submit(function(e) {
+        e.preventDefault();
+        generateBalanceConfirmation();
+    });
+    
+    $('#interestForm').submit(function(e) {
+        e.preventDefault();
+        generateInterestCertificate();
+    });
+    
+    // Account lookup
+    $('#lookupBtn').click(function() {
+        lookupAccount();
+    });
+    
+    $('#accountLookup').keypress(function(e) {
+        if (e.which == 13) {
+            lookupAccount();
+        }
+    });
+    
+    function generateStatement() {
+        const accountNumber = $('#statementAccount').val();
+        const fromDate = $('#statementFromDate').val();
+        const toDate = $('#statementToDate').val();
+        
+        if (!accountNumber || !fromDate || !toDate) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        // Create download link
+        const url = `/api/customercare/reports/statement/${accountNumber}?fromDate=${fromDate}&toDate=${toDate}`;
+        
+        $.ajax({
+            url: url,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken()
+            },
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(data, status, xhr) {
+                // Create download link
+                const blob = new Blob([data], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `statement_${accountNumber}_${fromDate}_${toDate}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showAlert('Statement generated successfully!', 'success');
+            },
+            error: function(xhr) {
+                console.error('Statement generation error:', xhr);
+                showAlert('Error generating statement. Please check the account number and try again.', 'danger');
+            }
+        });
+    }
+    
+    function generateBalanceConfirmation() {
+        const accountNumber = $('#balanceAccount').val();
+        
+        if (!accountNumber) {
+            alert('Please enter an account number');
+            return;
+        }
+        
+        const url = `/api/customercare/reports/balance-confirmation/${accountNumber}`;
+        
+        $.ajax({
+            url: url,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken()
+            },
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(data, status, xhr) {
+                const blob = new Blob([data], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `balance_confirmation_${accountNumber}_${new Date().toISOString().split('T')[0]}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showAlert('Balance confirmation generated successfully!', 'success');
+            },
+            error: function(xhr) {
+                console.error('Balance confirmation error:', xhr);
+                showAlert('Error generating balance confirmation. Please check the account number and try again.', 'danger');
+            }
+        });
+    }
+    
+    function generateInterestCertificate() {
+        const accountNumber = $('#interestAccount').val();
+        const year = $('#interestYear').val();
+        
+        if (!accountNumber || !year) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        const url = `/api/customercare/reports/interest-certificate/${accountNumber}?year=${year}`;
+        
+        $.ajax({
+            url: url,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken()
+            },
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(data, status, xhr) {
+                const blob = new Blob([data], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `interest_certificate_${accountNumber}_${year}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showAlert('Interest certificate generated successfully!', 'success');
+            },
+            error: function(xhr) {
+                console.error('Interest certificate error:', xhr);
+                showAlert('Error generating interest certificate. Please check the account number and try again.', 'danger');
+            }
+        });
+    }
+    
+    function lookupAccount() {
+        const searchTerm = $('#accountLookup').val().trim();
+        if (!searchTerm) return;
+        
+        // First try to get account by number
+        $.ajax({
+            url: `/api/customercare/accounts/${searchTerm}`,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayAccountInfo(response.data);
+                }
+            },
+            error: function(xhr) {
+                // If account lookup fails, try customer search
+                $.ajax({
+                    url: '/api/customercare/customers/search',
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + getAuthToken(),
+                        'Content-Type': 'application/json'
+                    },
+                    data: { searchTerm: searchTerm },
+                    success: function(response) {
+                        if (response.success && response.data.length > 0) {
+                            displayCustomerAccounts(response.data[0]);
+                        } else {
+                            $('#accountInfo').html('<p class="text-muted">No account or customer found</p>').show();
+                        }
+                    },
+                    error: function() {
+                        $('#accountInfo').html('<p class="text-danger">Error searching for account</p>').show();
+                    }
+                });
+            }
+        });
+    }
+    
+    function displayAccountInfo(account) {
+        const html = `
+            <div class="account-details">
+                <h6>Account Information</h6>
+                <p><strong>Account Number:</strong> ${account.accountNumber}</p>
+                <p><strong>Account Name:</strong> ${account.accountName}</p>
+                <p><strong>Account Type:</strong> ${account.accountType}</p>
+                <p><strong>Balance:</strong> ${account.currency} ${account.balance.toLocaleString()}</p>
+                <p><strong>Status:</strong> <span class="badge bg-${account.status === 'Active' ? 'success' : 'warning'}">${account.status}</span></p>
+                <p><strong>Customer:</strong> ${account.customer ? account.customer.fullName : 'N/A'}</p>
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-primary" onclick="$('#statementAccount, #balanceAccount, #interestAccount').val('${account.accountNumber}')">
+                        Use for Reports
+                    </button>
+                </div>
+            </div>
+        `;
+        $('#accountInfo').html(html).show();
+    }
+    
+    function displayCustomerAccounts(customer) {
+        const html = `
+            <div class="customer-accounts">
+                <h6>Customer: ${customer.fullName}</h6>
+                <p><strong>Customer Number:</strong> ${customer.customerNumber}</p>
+                <p class="text-muted">Use account lookup to view specific account details</p>
+            </div>
+        `;
+        $('#accountInfo').html(html).show();
+    }
+    
+    function getAuthToken() {
+        return sessionStorage.getItem('authToken') || getCookie('authToken') || '';
+    }
+    
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+    
+    function showAlert(message, type) {
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        $('.page-header').after(alertHtml);
+        
+        setTimeout(() => {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+});
+</script>
+}

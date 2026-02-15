@@ -1,0 +1,209 @@
+@page
+@model Wekeza.MVP4._0.Pages.BranchManager.ReportsModel
+@{
+    ViewData["Title"] = "Branch Reports";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Branch Manager";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+</form>
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Staff" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>Staff Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Performance" class="sidebar-menu-link">
+            <i class="fas fa-chart-line"></i>
+            <span>Performance</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Reports" class="sidebar-menu-link active">
+            <i class="fas fa-file-alt"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Operations" class="sidebar-menu-link">
+            <i class="fas fa-cogs"></i>
+            <span>Operations</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Branch Reports</h3>
+    <p>Generate and view branch reports</p>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Generate Reports</h5>
+    <div class="action-buttons">
+        <button class="action-btn" onclick="generateReport('daily')">
+            <i class="fas fa-chart-bar"></i>
+            <span>Daily Report</span>
+        </button>
+        <button class="action-btn" onclick="generateReport('weekly')">
+            <i class="fas fa-calendar-week"></i>
+            <span>Weekly Report</span>
+        </button>
+        <button class="action-btn" onclick="generateReport('monthly')">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Monthly Report</span>
+        </button>
+        <button class="action-btn" onclick="generateReport('staff')">
+            <i class="fas fa-users"></i>
+            <span>Staff Report</span>
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="data-table">
+            <h5><i class="fas fa-file-alt"></i> Recent Reports</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Report Name</th>
+                        <th>Type</th>
+                        <th>Generated</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model.RecentReports)
+                    {
+                        <tr>
+                            <td>@report.Name</td>
+                            <td>@report.Type</td>
+                            <td>@report.Generated</td>
+                            <td><span class="badge bg-@report.StatusClass">@report.Status</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="downloadReport(@report.Id, '@report.Name')">Download</button>
+                                <button class="btn btn-sm btn-outline-info" onclick="viewReport(@report.Id, '@report.Name')">View</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function generateReport(type) {
+            // Show loading state
+            const button = event.target.closest('.action-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Generating...</span>';
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/api/BranchManager/generate-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({ reportType: type })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    
+                    // Add new report to the table
+                    addReportToTable(result.reportId, `${type.charAt(0).toUpperCase() + type.slice(1)} Report - ${new Date().toLocaleDateString()}`, type, 'Just now', 'Ready');
+                } else {
+                    showAlert('danger', result.message);
+                }
+            } catch (error) {
+                showAlert('danger', 'Error generating report: ' + error.message);
+            } finally {
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function downloadReport(reportId, reportName) {
+            showAlert('info', `Downloading ${reportName}...`);
+            
+            // Create a temporary link to trigger download
+            const link = document.createElement('a');
+            link.href = `/api/BranchManager/download-report/${reportId}`;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            setTimeout(() => {
+                showAlert('success', `${reportName} download started!`);
+            }, 500);
+        }
+
+        function viewReport(reportId, reportName) {
+            showAlert('info', `Opening ${reportName} in viewer...`);
+            
+            // In a real application, this would open a report viewer
+            // For now, we'll trigger the download as a view action
+            setTimeout(() => {
+                downloadReport(reportId, reportName);
+            }, 1000);
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function addReportToTable(reportId, name, type, generated, status) {
+            const tbody = document.querySelector('tbody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${type}</td>
+                <td>${generated}</td>
+                <td><span class="badge bg-success">${status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="downloadReport(${reportId}, '${name}')">Download</button>
+                    <button class="btn btn-sm btn-outline-info" onclick="viewReport(${reportId}, '${name}')">View</button>
+                </td>
+            `;
+            tbody.insertBefore(row, tbody.firstChild);
+        }
+    </script>
+}

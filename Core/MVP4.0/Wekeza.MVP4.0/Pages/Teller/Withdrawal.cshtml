@@ -1,0 +1,336 @@
+@page
+@model Wekeza.MVP4._0.Pages.Teller.WithdrawalModel
+@{
+    ViewData["Title"] = "Cash Withdrawal";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Teller";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Teller" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Deposit" class="sidebar-menu-link">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposits</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Withdrawal" class="sidebar-menu-link active">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdrawals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Transfer" class="sidebar-menu-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfers</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/AccountOpening" class="sidebar-menu-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Account Opening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/BalanceInquiry" class="sidebar-menu-link">
+            <i class="fas fa-search-dollar"></i>
+            <span>Balance Inquiry</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Statement" class="sidebar-menu-link">
+            <i class="fas fa-file-invoice"></i>
+            <span>Statement</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Cash Withdrawal</h3>
+    <p>Process customer cash withdrawals</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-arrow-up"></i> New Withdrawal</h5>
+            <form method="post" id="withdrawalForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="accountNumber" class="form-label">Account Number</label>
+                            <input type="text" class="form-control" id="accountNumber" name="AccountNumber" placeholder="Enter account number" required onblur="lookupCustomer()">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="customerName" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customerName" name="CustomerName" placeholder="Customer name" readonly>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="currentBalance" class="form-label">Current Balance</label>
+                            <input type="text" class="form-control" id="currentBalance" placeholder="$0.00" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Withdrawal Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="amount" name="Amount" placeholder="0.00" step="0.01" required onchange="checkBalance()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="withdrawalType" class="form-label">Withdrawal Type</label>
+                            <select class="form-control" id="withdrawalType" name="WithdrawalType" required>
+                                <option value="">Select type</option>
+                                <option value="cash">Cash</option>
+                                <option value="check">Cashier's Check</option>
+                                <option value="transfer">Internal Transfer</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description (Optional)</label>
+                    <textarea class="form-control" id="description" name="Description" rows="3" placeholder="Enter transaction description"></textarea>
+                </div>
+
+                <div class="alert alert-warning" id="balanceWarning" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Warning:</strong> Withdrawal amount exceeds available balance!
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger" id="processBtn">
+                        <i class="fas fa-check"></i> Process Withdrawal
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Withdrawals</h5>
+            <div class="list-group">
+                @foreach (var withdrawal in Model.RecentWithdrawals)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@withdrawal.AccountNumber</h6>
+                            <small>@withdrawal.Time</small>
+                        </div>
+                        <p class="mb-1 text-danger">-@withdrawal.Amount</p>
+                        <small>@withdrawal.CustomerName</small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sample customer data with balances - synchronized with other pages
+        const customers = {
+            '1001234567': { name: 'John Smith', balance: 2500.00 },
+            '1001234568': { name: 'Jane Doe', balance: 5800.00 }, 
+            '1001234569': { name: 'Mike Johnson', balance: 1200.00 },
+            '1001234570': { name: 'Sarah Wilson', balance: 3400.00 },
+            '1001234571': { name: 'David Brown', balance: 750.00 },
+            '1001234572': { name: 'Lisa Davis', balance: 4200.00 }
+        };
+
+        // Load any newly created accounts from localStorage
+        function loadNewAccounts() {
+            const newAccounts = JSON.parse(localStorage.getItem('newAccountsWithBalance') || '{}');
+            Object.assign(customers, newAccounts);
+        }
+
+        // Initialize with any new accounts
+        loadNewAccounts();
+
+        function lookupCustomer() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            const customerNameField = document.getElementById('customerName');
+            const balanceField = document.getElementById('currentBalance');
+            
+            if (accountNumber && customers[accountNumber]) {
+                customerNameField.value = customers[accountNumber].name;
+                balanceField.value = `$${customers[accountNumber].balance.toFixed(2)}`;
+                customerNameField.style.backgroundColor = '#d4edda';
+                balanceField.style.backgroundColor = '#d4edda';
+            } else if (accountNumber) {
+                customerNameField.value = 'Account not found';
+                balanceField.value = '$0.00';
+                customerNameField.style.backgroundColor = '#f8d7da';
+                balanceField.style.backgroundColor = '#f8d7da';
+            } else {
+                customerNameField.value = '';
+                balanceField.value = '';
+                customerNameField.style.backgroundColor = '';
+                balanceField.style.backgroundColor = '';
+            }
+            checkBalance();
+        }
+
+        function checkBalance() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            const warning = document.getElementById('balanceWarning');
+            const processBtn = document.getElementById('processBtn');
+            
+            if (accountNumber && customers[accountNumber]) {
+                const balance = customers[accountNumber].balance;
+                if (amount > balance) {
+                    warning.style.display = 'block';
+                    processBtn.disabled = true;
+                    processBtn.classList.add('btn-secondary');
+                    processBtn.classList.remove('btn-danger');
+                } else {
+                    warning.style.display = 'none';
+                    processBtn.disabled = false;
+                    processBtn.classList.add('btn-danger');
+                    processBtn.classList.remove('btn-secondary');
+                }
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('withdrawalForm').reset();
+            document.getElementById('customerName').style.backgroundColor = '';
+            document.getElementById('currentBalance').style.backgroundColor = '';
+            document.getElementById('balanceWarning').style.display = 'none';
+            document.getElementById('processBtn').disabled = false;
+            document.getElementById('processBtn').classList.add('btn-danger');
+            document.getElementById('processBtn').classList.remove('btn-secondary');
+        }
+
+        // Handle form submission
+        document.getElementById('withdrawalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const accountNumber = document.getElementById('accountNumber').value;
+            const customerName = document.getElementById('customerName').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const withdrawalType = document.getElementById('withdrawalType').value;
+            
+            if (!customers[accountNumber]) {
+                showAlert('danger', 'Invalid account number. Please check and try again.');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                showAlert('danger', 'Please enter a valid withdrawal amount.');
+                return;
+            }
+
+            if (amount > customers[accountNumber].balance) {
+                showAlert('danger', 'Insufficient funds for this withdrawal.');
+                return;
+            }
+            
+            // Simulate processing
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Update balance
+                customers[accountNumber].balance -= amount;
+                document.getElementById('currentBalance').value = `$${customers[accountNumber].balance.toFixed(2)}`;
+                
+                // Show success message
+                showAlert('success', `Withdrawal of $${amount.toFixed(2)} processed successfully for ${customers[accountNumber].name}!`);
+                
+                // Add to recent withdrawals
+                addToRecentWithdrawals(accountNumber, customers[accountNumber].name, `$${amount.toFixed(2)}`);
+                
+                // Clear form
+                clearForm();
+            }, 2000);
+        });
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function addToRecentWithdrawals(accountNumber, customerName, amount) {
+            const recentList = document.querySelector('.list-group');
+            const newItem = document.createElement('div');
+            newItem.className = 'list-group-item';
+            newItem.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${accountNumber}</h6>
+                    <small>Just now</small>
+                </div>
+                <p class="mb-1 text-danger">-${amount}</p>
+                <small>${customerName}</small>
+            `;
+            
+            // Add to top of list
+            recentList.insertBefore(newItem, recentList.firstChild);
+            
+            // Remove last item if more than 4 items
+            if (recentList.children.length > 4) {
+                recentList.removeChild(recentList.lastChild);
+            }
+        }
+    </script>
+}

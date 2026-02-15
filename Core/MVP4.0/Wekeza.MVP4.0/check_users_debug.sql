@@ -1,0 +1,1 @@
+SELECT "Username", "Email", "FullName", "Role", "IsActive" FROM "Users" ORDER BY "Username";

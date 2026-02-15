@@ -1,0 +1,378 @@
+@page
+@model Wekeza.MVP4._0.Pages.CustomerCare.SearchModel
+@{
+    ViewData["Title"] = "Customer Search";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Customer Care Officer";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Search" class="sidebar-menu-link active">
+            <i class="fas fa-search"></i>
+            <span>Search Customer</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Inquiries" class="sidebar-menu-link">
+            <i class="fas fa-question-circle"></i>
+            <span>Inquiries</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Complaints" class="sidebar-menu-link">
+            <i class="fas fa-comment-dots"></i>
+            <span>Complaints</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Accounts" class="sidebar-menu-link">
+            <i class="fas fa-wallet"></i>
+            <span>Account Services</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Reports" class="sidebar-menu-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Feedback" class="sidebar-menu-link">
+            <i class="fas fa-star"></i>
+            <span>Feedback</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Customer Search</h3>
+    <p>Search and view customer information</p>
+</div>
+
+<div class="search-section">
+    <div class="search-form">
+        <div class="row">
+            <div class="col-md-8">
+                <input type="text" id="searchTerm" class="form-control" placeholder="Search by name, customer number, email, phone, or ID number..." />
+            </div>
+            <div class="col-md-4">
+                <button type="button" id="searchBtn" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <button type="button" id="clearBtn" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="searchResults" class="search-results" style="display: none;">
+    <h5><i class="fas fa-users"></i> Search Results</h5>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Customer Number</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="customerDetails" class="customer-details" style="display: none;">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Customer Information</h5>
+                </div>
+                <div class="card-body" id="customerInfo">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-wallet"></i> Accounts</h5>
+                </div>
+                <div class="card-body" id="customerAccounts">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Recent Transactions</h5>
+                </div>
+                <div class="card-body" id="recentTransactions">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function() {
+    $('#searchBtn').click(function() {
+        performSearch();
+    });
+    
+    $('#searchTerm').keypress(function(e) {
+        if (e.which == 13) {
+            performSearch();
+        }
+    });
+    
+    $('#clearBtn').click(function() {
+        $('#searchTerm').val('');
+        $('#searchResults').hide();
+        $('#customerDetails').hide();
+    });
+    
+    function performSearch() {
+        const searchTerm = $('#searchTerm').val().trim();
+        if (!searchTerm) {
+            alert('Please enter a search term');
+            return;
+        }
+        
+        $.ajax({
+            url: '/api/customercare/customers/search',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            data: { searchTerm: searchTerm },
+            success: function(response) {
+                if (response.success && response.data.length > 0) {
+                    displaySearchResults(response.data);
+                } else {
+                    $('#resultsTableBody').html('<tr><td colspan="6" class="text-center">No customers found</td></tr>');
+                    $('#searchResults').show();
+                    $('#customerDetails').hide();
+                }
+            },
+            error: function(xhr) {
+                console.error('Search error:', xhr);
+                alert('Error searching customers. Please try again.');
+            }
+        });
+    }
+    
+    function displaySearchResults(customers) {
+        let html = '';
+        customers.forEach(function(customer) {
+            const statusBadge = customer.customerStatus === 'Active' ? 'success' : 
+                               customer.customerStatus === 'Dormant' ? 'warning' : 'danger';
+            
+            html += `
+                <tr>
+                    <td>${customer.customerNumber}</td>
+                    <td>${customer.fullName}</td>
+                    <td>${customer.email}</td>
+                    <td>${customer.phoneNumber}</td>
+                    <td><span class="badge bg-${statusBadge}">${customer.customerStatus}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewCustomer('${customer.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        $('#resultsTableBody').html(html);
+        $('#searchResults').show();
+        $('#customerDetails').hide();
+    }
+    
+    window.viewCustomer = function(customerId) {
+        $.ajax({
+            url: `/api/customercare/customers/${customerId}`,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayCustomerDetails(response.data);
+                    loadCustomerAccounts(customerId);
+                }
+            },
+            error: function(xhr) {
+                console.error('Customer details error:', xhr);
+                alert('Error loading customer details. Please try again.');
+            }
+        });
+    };
+    
+    function displayCustomerDetails(customer) {
+        const kycBadge = customer.kycStatus === 'Approved' ? 'success' : 
+                        customer.kycStatus === 'Pending' ? 'warning' : 'danger';
+        
+        const customerInfo = `
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Customer Number:</strong> ${customer.customerNumber}</p>
+                    <p><strong>Full Name:</strong> ${customer.fullName}</p>
+                    <p><strong>Email:</strong> ${customer.email}</p>
+                    <p><strong>Phone:</strong> ${customer.phoneNumber}</p>
+                    <p><strong>Gender:</strong> ${customer.gender}</p>
+                    <p><strong>Date of Birth:</strong> ${new Date(customer.dateOfBirth).toLocaleDateString()}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>ID Type:</strong> ${customer.idType}</p>
+                    <p><strong>ID Number:</strong> ${customer.idNumber}</p>
+                    <p><strong>Occupation:</strong> ${customer.occupation}</p>
+                    <p><strong>Employer:</strong> ${customer.employerName}</p>
+                    <p><strong>KYC Status:</strong> <span class="badge bg-${kycBadge}">${customer.kycStatus}</span></p>
+                    <p><strong>Customer Status:</strong> <span class="badge bg-${customer.customerStatus === 'Active' ? 'success' : 'warning'}">${customer.customerStatus}</span></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <p><strong>Address:</strong> ${customer.address}</p>
+                </div>
+            </div>
+        `;
+        
+        $('#customerInfo').html(customerInfo);
+        $('#customerDetails').show();
+    }
+    
+    function loadCustomerAccounts(customerId) {
+        $.ajax({
+            url: `/api/customercare/customers/${customerId}/accounts`,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayCustomerAccounts(response.data);
+                }
+            },
+            error: function(xhr) {
+                console.error('Accounts error:', xhr);
+            }
+        });
+    }
+    
+    function displayCustomerAccounts(accounts) {
+        let html = '';
+        if (accounts.length === 0) {
+            html = '<p>No accounts found for this customer.</p>';
+        } else {
+            html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Account Number</th><th>Type</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+            
+            accounts.forEach(function(account) {
+                const statusBadge = account.status === 'Active' ? 'success' : 
+                                   account.status === 'Dormant' ? 'warning' : 'danger';
+                
+                html += `
+                    <tr>
+                        <td>${account.accountNumber}</td>
+                        <td>${account.accountType}</td>
+                        <td>${account.currency} ${account.balance.toLocaleString()}</td>
+                        <td><span class="badge bg-${statusBadge}">${account.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewTransactions('${account.id}')">
+                                <i class="fas fa-list"></i> Transactions
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+        }
+        
+        $('#customerAccounts').html(html);
+    }
+    
+    window.viewTransactions = function(accountId) {
+        $.ajax({
+            url: `/api/customercare/accounts/${accountId}/transactions`,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayTransactions(response.data);
+                }
+            },
+            error: function(xhr) {
+                console.error('Transactions error:', xhr);
+            }
+        });
+    };
+    
+    // Utility function to get auth token
+    function getAuthToken() {
+        // Try to get token from session storage first, then from cookie
+        return sessionStorage.getItem('authToken') || getCookie('authToken') || '';
+    }
+    
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+    
+    function displayTransactions(transactions) {
+        let html = '';
+        if (transactions.length === 0) {
+            html = '<p>No transactions found for this account.</p>';
+        } else {
+            html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Balance</th></tr></thead><tbody>';
+            
+            transactions.forEach(function(txn) {
+                const amountClass = txn.amount >= 0 ? 'text-success' : 'text-danger';
+                
+                html += `
+                    <tr>
+                        <td>${new Date(txn.transactionDate).toLocaleDateString()}</td>
+                        <td>${txn.transactionType}</td>
+                        <td>${txn.description}</td>
+                        <td class="${amountClass}">${txn.currency} ${txn.amount.toLocaleString()}</td>
+                        <td>${txn.currency} ${txn.runningBalance.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+        }
+        
+        $('#recentTransactions').html(html);
+    }
+});
+</script>
+}

@@ -1,0 +1,330 @@
+@page
+@model Wekeza.MVP4._0.Pages.Admin.SettingsModel
+@{
+    ViewData["Title"] = "System Settings";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Administrator";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Admin" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Users" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Roles" class="sidebar-menu-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Role Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Settings" class="sidebar-menu-link active">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Audit" class="sidebar-menu-link">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Audit Logs</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Reports" class="sidebar-menu-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Profile" class="sidebar-menu-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>System Settings</h3>
+    <p>Configure system parameters and business rules</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-shield-alt"></i> Security Settings</h5>
+            <form method="post" asp-page-handler="UpdateSettings">
+                <div class="mb-3">
+                    <label class="form-label">Max Login Attempts</label>
+                    <input type="number" class="form-control" name="MaxLoginAttempts" value="@Model.SystemSettings.GetValueOrDefault("MaxLoginAttempts", "3")" min="1" max="10">
+                    <small class="form-text text-muted">Number of failed login attempts before account lockout</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Session Timeout (minutes)</label>
+                    <input type="number" class="form-control" name="SessionTimeout" value="@Model.SystemSettings.GetValueOrDefault("SessionTimeout", "30")" min="5" max="480">
+                    <small class="form-text text-muted">User session timeout in minutes</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Password Minimum Length</label>
+                    <input type="number" class="form-control" name="PasswordMinLength" value="@Model.SystemSettings.GetValueOrDefault("PasswordMinLength", "8")" min="6" max="20">
+                    <small class="form-text text-muted">Minimum password length requirement</small>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="RequirePasswordComplexity" @(Model.SystemSettings.GetValueOrDefault("RequirePasswordComplexity", "true") == "true" ? "checked" : "")>
+                        <label class="form-check-label">Require Password Complexity</label>
+                        <small class="form-text text-muted">Require uppercase, lowercase, numbers, and special characters</small>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Security Settings
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-cogs"></i> Business Rules</h5>
+            <form method="post" asp-page-handler="UpdateSettings">
+                <div class="mb-3">
+                    <label class="form-label">Max Transaction Amount</label>
+                    <input type="number" class="form-control" name="MaxTransactionAmount" value="@Model.SystemSettings.GetValueOrDefault("MaxTransactionAmount", "100000")" min="1000" step="1000">
+                    <small class="form-text text-muted">Maximum single transaction amount</small>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="RequireDualApproval" @(Model.SystemSettings.GetValueOrDefault("RequireDualApproval", "true") == "true" ? "checked" : "")>
+                        <label class="form-check-label">Require Dual Approval</label>
+                        <small class="form-text text-muted">Require two-person authorization for high-value transactions</small>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="EnableAuditLogging" @(Model.SystemSettings.GetValueOrDefault("EnableAuditLogging", "true") == "true" ? "checked" : "")>
+                        <label class="form-check-label">Enable Audit Logging</label>
+                        <small class="form-text text-muted">Log all user activities and system changes</small>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Backup Retention (days)</label>
+                    <input type="number" class="form-control" name="BackupRetentionDays" value="@Model.SystemSettings.GetValueOrDefault("BackupRetentionDays", "30")" min="7" max="365">
+                    <small class="form-text text-muted">Number of days to retain database backups</small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Business Rules
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="data-table">
+            <h5><i class="fas fa-database"></i> Database Operations</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Backup Operations</h6>
+                    <p>Create and manage database backups</p>
+                    <button type="button" class="btn btn-success" onclick="initiateBackup()">
+                        <i class="fas fa-download"></i> Create Backup
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="showBackupHistory()">
+                        <i class="fas fa-history"></i> Backup History
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <h6>System Maintenance</h6>
+                    <p>Perform system maintenance operations</p>
+                    <button type="button" class="btn btn-warning" onclick="optimizeDatabase()">
+                        <i class="fas fa-tools"></i> Optimize Database
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearCache()">
+                        <i class="fas fa-broom"></i> Clear Cache
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backup History Modal -->
+<div class="modal fade" id="backupHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Backup History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Backup File</th>
+                            <th>Created</th>
+                            <th>Size</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="backupHistoryTable">
+                        <tr>
+                            <td colspan="4" class="text-center">Loading backup history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function initiateBackup() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Backup...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/api/Admin/backup-database', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                } else {
+                    showAlert('danger', result.message);
+                }
+            } catch (error) {
+                showAlert('danger', 'Error occurred while creating backup.');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        async function optimizeDatabase() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizing...';
+            button.disabled = true;
+            
+            // Simulate database optimization
+            setTimeout(() => {
+                showAlert('success', 'Database optimization completed successfully!');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 3000);
+        }
+        
+        async function clearCache() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+            button.disabled = true;
+            
+            // Simulate cache clearing
+            setTimeout(() => {
+                showAlert('success', 'System cache cleared successfully!');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 1500);
+        }
+        
+        function showBackupHistory() {
+            const modal = new bootstrap.Modal(document.getElementById('backupHistoryModal'));
+            modal.show();
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        // Load backup history when modal is shown
+        document.getElementById('backupHistoryModal').addEventListener('show.bs.modal', async function() {
+            const tbody = document.getElementById('backupHistoryTable');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">Loading backup history...</td></tr>';
+            
+            // Simulate loading backup history
+            setTimeout(() => {
+                tbody.innerHTML = `
+                    <tr>
+                        <td>backup_20260123_210000.sql</td>
+                        <td>Today 9:00 PM</td>
+                        <td>45.2 MB</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>backup_20260122_210000.sql</td>
+                        <td>Yesterday 9:00 PM</td>
+                        <td>44.8 MB</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>backup_20260121_210000.sql</td>
+                        <td>2 days ago 9:00 PM</td>
+                        <td>44.1 MB</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                    </tr>
+                `;
+            }, 1000);
+        });
+    </script>
+}

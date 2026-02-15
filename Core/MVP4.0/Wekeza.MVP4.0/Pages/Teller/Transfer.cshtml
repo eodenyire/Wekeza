@@ -1,0 +1,416 @@
+@page
+@model Wekeza.MVP4._0.Pages.Teller.TransferModel
+@{
+    ViewData["Title"] = "Fund Transfer";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Teller";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Teller" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Deposit" class="sidebar-menu-link">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposits</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Withdrawal" class="sidebar-menu-link">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdrawals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Transfer" class="sidebar-menu-link active">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfers</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/AccountOpening" class="sidebar-menu-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Account Opening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/BalanceInquiry" class="sidebar-menu-link">
+            <i class="fas fa-search-dollar"></i>
+            <span>Balance Inquiry</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Statement" class="sidebar-menu-link">
+            <i class="fas fa-file-invoice"></i>
+            <span>Statement</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Fund Transfer</h3>
+    <p>Transfer funds between accounts</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-exchange-alt"></i> New Transfer</h5>
+            <form method="post" id="transferForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="fromAccount" class="form-label">From Account</label>
+                            <input type="text" class="form-control" id="fromAccount" name="FromAccount" placeholder="Source account number" required onblur="lookupFromAccount()">
+                        </div>
+                        <div class="mb-3">
+                            <label for="fromCustomer" class="form-label">Account Holder</label>
+                            <input type="text" class="form-control" id="fromCustomer" placeholder="Account holder name" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fromBalance" class="form-label">Available Balance</label>
+                            <input type="text" class="form-control" id="fromBalance" placeholder="$0.00" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="toAccount" class="form-label">To Account</label>
+                            <input type="text" class="form-control" id="toAccount" name="ToAccount" placeholder="Destination account number" required onblur="lookupToAccount()">
+                        </div>
+                        <div class="mb-3">
+                            <label for="toCustomer" class="form-label">Beneficiary</label>
+                            <input type="text" class="form-control" id="toCustomer" placeholder="Beneficiary name" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="toBalance" class="form-label">Current Balance</label>
+                            <input type="text" class="form-control" id="toBalance" placeholder="$0.00" readonly>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Transfer Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="amount" name="Amount" placeholder="0.00" step="0.01" required onchange="validateTransfer()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="transferType" class="form-label">Transfer Type</label>
+                            <select class="form-control" id="transferType" name="TransferType" required>
+                                <option value="">Select transfer type</option>
+                                <option value="internal">Internal Transfer</option>
+                                <option value="external">External Transfer</option>
+                                <option value="wire">Wire Transfer</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Transfer Description</label>
+                    <textarea class="form-control" id="description" name="Description" rows="3" placeholder="Enter transfer description or reference"></textarea>
+                </div>
+
+                <div class="alert alert-warning" id="balanceWarning" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Warning:</strong> Transfer amount exceeds available balance!
+                </div>
+
+                <div class="alert alert-info" id="transferSummary" style="display: none;">
+                    <h6><i class="fas fa-info-circle"></i> Transfer Summary</h6>
+                    <div id="summaryContent"></div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" id="processBtn">
+                        <i class="fas fa-exchange-alt"></i> Process Transfer
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Transfers</h5>
+            <div class="list-group">
+                @foreach (var transfer in Model.RecentTransfers)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@transfer.Amount</h6>
+                            <small>@transfer.Time</small>
+                        </div>
+                        <p class="mb-1">
+                            <small class="text-muted">From:</small> @transfer.FromAccount<br>
+                            <small class="text-muted">To:</small> @transfer.ToAccount
+                        </p>
+                        <small><span class="badge bg-success">@transfer.Status</span></small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sample customer data with balances - synchronized with other pages
+        const customers = {
+            '1001234567': { name: 'John Smith', balance: 2500.00 },
+            '1001234568': { name: 'Jane Doe', balance: 5800.00 }, 
+            '1001234569': { name: 'Mike Johnson', balance: 1200.00 },
+            '1001234570': { name: 'Sarah Wilson', balance: 3400.00 },
+            '1001234571': { name: 'David Brown', balance: 750.00 },
+            '1001234572': { name: 'Lisa Davis', balance: 4200.00 }
+        };
+
+        // Load any newly created accounts from localStorage
+        function loadNewAccounts() {
+            const newAccountsWithBalance = JSON.parse(localStorage.getItem('newAccountsWithBalance') || '{}');
+            Object.assign(customers, newAccountsWithBalance);
+        }
+
+        // Initialize with any new accounts
+        loadNewAccounts();
+
+        function lookupFromAccount() {
+            const accountNumber = document.getElementById('fromAccount').value;
+            const customerField = document.getElementById('fromCustomer');
+            const balanceField = document.getElementById('fromBalance');
+            
+            if (accountNumber && customers[accountNumber]) {
+                customerField.value = customers[accountNumber].name;
+                balanceField.value = `$${customers[accountNumber].balance.toFixed(2)}`;
+                customerField.style.backgroundColor = '#d4edda';
+                balanceField.style.backgroundColor = '#d4edda';
+            } else if (accountNumber) {
+                customerField.value = 'Account not found';
+                balanceField.value = '$0.00';
+                customerField.style.backgroundColor = '#f8d7da';
+                balanceField.style.backgroundColor = '#f8d7da';
+            } else {
+                customerField.value = '';
+                balanceField.value = '';
+                customerField.style.backgroundColor = '';
+                balanceField.style.backgroundColor = '';
+            }
+            validateTransfer();
+        }
+
+        function lookupToAccount() {
+            const accountNumber = document.getElementById('toAccount').value;
+            const customerField = document.getElementById('toCustomer');
+            const balanceField = document.getElementById('toBalance');
+            
+            if (accountNumber && customers[accountNumber]) {
+                customerField.value = customers[accountNumber].name;
+                balanceField.value = `$${customers[accountNumber].balance.toFixed(2)}`;
+                customerField.style.backgroundColor = '#d4edda';
+                balanceField.style.backgroundColor = '#d4edda';
+            } else if (accountNumber) {
+                customerField.value = 'Account not found';
+                balanceField.value = '$0.00';
+                customerField.style.backgroundColor = '#f8d7da';
+                balanceField.style.backgroundColor = '#f8d7da';
+            } else {
+                customerField.value = '';
+                balanceField.value = '';
+                customerField.style.backgroundColor = '';
+                balanceField.style.backgroundColor = '';
+            }
+            validateTransfer();
+        }
+
+        function validateTransfer() {
+            const fromAccount = document.getElementById('fromAccount').value;
+            const toAccount = document.getElementById('toAccount').value;
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            const warning = document.getElementById('balanceWarning');
+            const summary = document.getElementById('transferSummary');
+            const processBtn = document.getElementById('processBtn');
+            
+            // Reset states
+            warning.style.display = 'none';
+            summary.style.display = 'none';
+            processBtn.disabled = false;
+            
+            if (fromAccount && toAccount && amount > 0) {
+                // Check if accounts are the same
+                if (fromAccount === toAccount) {
+                    warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Error:</strong> Source and destination accounts cannot be the same!';
+                    warning.style.display = 'block';
+                    processBtn.disabled = true;
+                    return;
+                }
+                
+                // Check if accounts exist
+                if (!customers[fromAccount] || !customers[toAccount]) {
+                    warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Error:</strong> One or both accounts not found!';
+                    warning.style.display = 'block';
+                    processBtn.disabled = true;
+                    return;
+                }
+                
+                // Check balance
+                const fromBalance = customers[fromAccount].balance;
+                if (amount > fromBalance) {
+                    warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Warning:</strong> Transfer amount exceeds available balance!';
+                    warning.style.display = 'block';
+                    processBtn.disabled = true;
+                    return;
+                }
+                
+                // Show transfer summary
+                const summaryContent = document.getElementById('summaryContent');
+                summaryContent.innerHTML = `
+                    <strong>From:</strong> ${customers[fromAccount].name} (${fromAccount})<br>
+                    <strong>To:</strong> ${customers[toAccount].name} (${toAccount})<br>
+                    <strong>Amount:</strong> $${amount.toFixed(2)}<br>
+                    <strong>New Balance:</strong> $${(fromBalance - amount).toFixed(2)}
+                `;
+                summary.style.display = 'block';
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('transferForm').reset();
+            document.getElementById('fromCustomer').style.backgroundColor = '';
+            document.getElementById('fromBalance').style.backgroundColor = '';
+            document.getElementById('toCustomer').style.backgroundColor = '';
+            document.getElementById('toBalance').style.backgroundColor = '';
+            document.getElementById('balanceWarning').style.display = 'none';
+            document.getElementById('transferSummary').style.display = 'none';
+            document.getElementById('processBtn').disabled = false;
+        }
+
+        // Handle form submission
+        document.getElementById('transferForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fromAccount = document.getElementById('fromAccount').value;
+            const toAccount = document.getElementById('toAccount').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const transferType = document.getElementById('transferType').value;
+            
+            if (!customers[fromAccount] || !customers[toAccount]) {
+                showAlert('danger', 'Invalid account numbers. Please check and try again.');
+                return;
+            }
+            
+            if (fromAccount === toAccount) {
+                showAlert('danger', 'Source and destination accounts cannot be the same.');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                showAlert('danger', 'Please enter a valid transfer amount.');
+                return;
+            }
+
+            if (amount > customers[fromAccount].balance) {
+                showAlert('danger', 'Insufficient funds for this transfer.');
+                return;
+            }
+            
+            // Simulate processing
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Update balances
+                customers[fromAccount].balance -= amount;
+                customers[toAccount].balance += amount;
+                
+                // Show success message
+                showAlert('success', `Transfer of $${amount.toFixed(2)} from ${customers[fromAccount].name} to ${customers[toAccount].name} completed successfully!`);
+                
+                // Add to recent transfers
+                addToRecentTransfers(fromAccount, toAccount, `$${amount.toFixed(2)}`);
+                
+                // Clear form
+                clearForm();
+            }, 2000);
+        });
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function addToRecentTransfers(fromAccount, toAccount, amount) {
+            const recentList = document.querySelector('.list-group');
+            const newItem = document.createElement('div');
+            newItem.className = 'list-group-item';
+            newItem.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${amount}</h6>
+                    <small>Just now</small>
+                </div>
+                <p class="mb-1">
+                    <small class="text-muted">From:</small> ${fromAccount}<br>
+                    <small class="text-muted">To:</small> ${toAccount}
+                </p>
+                <small><span class="badge bg-success">Completed</span></small>
+            `;
+            
+            // Add to top of list
+            recentList.insertBefore(newItem, recentList.firstChild);
+            
+            // Remove last item if more than 4 items
+            if (recentList.children.length > 4) {
+                recentList.removeChild(recentList.lastChild);
+            }
+        }
+    </script>
+}

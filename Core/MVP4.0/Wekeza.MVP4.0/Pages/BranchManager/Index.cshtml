@@ -1,0 +1,798 @@
+@page
+@model Wekeza.MVP4._0.Pages.BranchManager.IndexModel
+@{
+    ViewData["Title"] = "Branch Manager Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Branch Manager";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Staff" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>Staff Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Performance" class="sidebar-menu-link">
+            <i class="fas fa-chart-line"></i>
+            <span>Performance</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Reports" class="sidebar-menu-link">
+            <i class="fas fa-file-alt"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Operations" class="sidebar-menu-link">
+            <i class="fas fa-cogs"></i>
+            <span>Operations</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>Branch performance and operations management</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="stats-grid">
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>PENDING AUTHORIZATIONS</h6>
+                <div class="stat-value">@Model.PendingAuthorizations</div>
+                <div class="stat-change">
+                    <i class="fas fa-exclamation-triangle"></i> Requires attention
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>CASH POSITION</h6>
+                <div class="stat-value">@Model.CashPosition</div>
+                <div class="stat-change">
+                    <i class="fas fa-money-bill-wave"></i> Branch vault
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-vault"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>RISK ALERTS</h6>
+                <div class="stat-value">@Model.RiskAlerts</div>
+                <div class="stat-change">
+                    <i class="fas fa-shield-alt"></i> AML/Compliance
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>BRANCH PERFORMANCE</h6>
+                <div class="stat-value">@Model.BranchPerformance</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> Above target
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-chart-line"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Core BM Functions</h5>
+    <div class="action-buttons">
+        <a href="#authorizationModal" class="action-btn" data-bs-toggle="modal">
+            <i class="fas fa-check-circle"></i>
+            <span>Authorizations</span>
+        </a>
+        <a href="#cashOversightModal" class="action-btn" data-bs-toggle="modal">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Cash Oversight</span>
+        </a>
+        <a href="#accountControlModal" class="action-btn" data-bs-toggle="modal">
+            <i class="fas fa-user-shield"></i>
+            <span>Account Control</span>
+        </a>
+        <a href="#riskComplianceModal" class="action-btn" data-bs-toggle="modal">
+            <i class="fas fa-shield-alt"></i>
+            <span>Risk & Compliance</span>
+        </a>
+        <a href="/BranchManager/Staff" class="action-btn">
+            <i class="fas fa-users"></i>
+            <span>Staff Management</span>
+        </a>
+        <a href="/BranchManager/Reports" class="action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>Branch Reports</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-clipboard-check"></i> Pending Authorizations Queue</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Teller</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.PendingAuthorizationsList.Any())
+                    {
+                        @foreach (var auth in Model.PendingAuthorizationsList)
+                        {
+                            <tr>
+                                <td><span class="badge bg-warning">@auth.Type</span></td>
+                                <td>@auth.TellerId</td>
+                                <td>@auth.CustomerName</td>
+                                <td>$@auth.Amount.ToString("N2")</td>
+                                <td>@auth.RequestedAt.ToString("HH:mm")</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-success" data-action="approve" data-auth-id="@auth.Id">Approve</button>
+                                    <button type="button" class="btn btn-sm btn-danger" data-action="reject" data-auth-id="@auth.Id">Reject</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No pending authorizations</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-exclamation-triangle"></i> Risk & Compliance Alerts</h5>
+            <div class="list-group">
+                @if (Model.RiskAlertsList.Any())
+                {
+                    @foreach (var alert in Model.RiskAlertsList.Take(4))
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@alert.AlertType Alert</strong><br>
+                                <small>@alert.Description - Account @alert.AccountNumber</small>
+                            </div>
+                            <div>
+                                <span class="badge bg-@(alert.RiskLevel?.ToLower() switch { "critical" => "danger", "high" => "danger", "medium" => "warning", "low" => "info", _ => "secondary" })">@alert.RiskLevel</span>
+                                <div class="btn-group btn-group-sm mt-1">
+                                    <button type="button" class="btn btn-warning btn-sm" data-alert-action="Investigating" data-alert-id="@alert.Id">Investigate</button>
+                                    <button type="button" class="btn btn-success btn-sm" data-alert-action="Resolved" data-alert-id="@alert.Id">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="list-group-item text-center text-muted">
+                        No active risk alerts
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Handle authorization approval/rejection via AJAX
+        async function handleAuthorization(authorizationId, action) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`/api/BranchManager/authorize/${authorizationId}/${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    // Remove the row from the table
+                    button.closest('tr').remove();
+                    // Update the pending count
+                    await updateDashboardCounts();
+                } else {
+                    showAlert('danger', result.message);
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            } catch (error) {
+                showAlert('danger', 'Network error occurred');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Handle risk alert updates via AJAX
+        async function handleRiskAlert(alertId, status) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`/api/BranchManager/risk-alert/${alertId}/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({ status: status })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    if (status === 'Resolved') {
+                        // Remove the alert from the list
+                        button.closest('.list-group-item').remove();
+                    } else {
+                        // Update the badge to show investigating status
+                        const badge = button.closest('.list-group-item').querySelector('.badge');
+                        badge.className = 'badge bg-info';
+                        badge.textContent = 'Investigating';
+                    }
+                    // Update the dashboard counts
+                    await updateDashboardCounts();
+                } else {
+                    showAlert('danger', result.message);
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            } catch (error) {
+                showAlert('danger', 'Network error occurred');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Update dashboard counts without page refresh
+        async function updateDashboardCounts() {
+            try {
+                const response = await fetch('/api/BranchManager/dashboard-data');
+                const data = await response.json();
+                
+                // Update the stat cards
+                document.querySelector('.stat-card.danger .stat-value').textContent = data.pendingAuthorizations;
+                document.querySelector('.stat-card.primary .stat-value').textContent = data.riskAlerts;
+                document.querySelector('.stat-card.warning .stat-value').textContent = data.cashPosition;
+                document.querySelector('.stat-card.success .stat-value').textContent = data.branchPerformance;
+            } catch (error) {
+                console.error('Failed to update dashboard counts:', error);
+            }
+        }
+        
+        // Show alert messages
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        // Modal functionality for cash oversight
+        async function approveCashOperation(action, operationType) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            try {
+                // Simulate API call for cash operation approval
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                if (action === 'approve') {
+                    showAlert('success', `${operationType} approved successfully!`);
+                    button.closest('.list-group-item').remove();
+                } else {
+                    showAlert('warning', `${operationType} rejected.`);
+                    button.closest('.list-group-item').remove();
+                }
+                
+                // Update dashboard counts
+                await updateDashboardCounts();
+            } catch (error) {
+                showAlert('danger', 'Error processing cash operation');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Account control functionality
+        async function processAccountAction() {
+            const accountNumber = document.querySelector('#accountControlModal input[placeholder="Enter account number"]').value;
+            const action = document.querySelector('#accountControlModal select').value;
+            const reason = document.querySelector('#accountControlModal textarea[placeholder="Enter reason for action"]').value;
+            
+            if (!accountNumber || !action || !reason) {
+                showAlert('warning', 'Please fill in all fields');
+                return;
+            }
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            button.disabled = true;
+            
+            try {
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                showAlert('success', `Account ${action.toLowerCase()} executed successfully for account ${accountNumber}`);
+                
+                // Clear form
+                document.querySelector('#accountControlModal input[placeholder="Enter account number"]').value = '';
+                document.querySelector('#accountControlModal select').value = '';
+                document.querySelector('#accountControlModal textarea[placeholder="Enter reason for action"]').value = '';
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('accountControlModal'));
+                modal.hide();
+                
+            } catch (error) {
+                showAlert('danger', 'Error processing account action');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Customer dispute resolution
+        async function resolveDispute(action) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const actionText = action === 'approve' ? 'resolved' : action === 'escalate' ? 'escalated' : 'rejected';
+                showAlert('success', `Dispute ${actionText} successfully!`);
+                button.closest('.list-group-item').remove();
+                
+            } catch (error) {
+                showAlert('danger', 'Error processing dispute');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Risk and compliance handlers for modal buttons
+        async function handleRiskAlertModal(action) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                showAlert('success', `Risk alert ${action}d successfully!`);
+                if (action === 'clear') {
+                    button.closest('.list-group-item').remove();
+                } else {
+                    const badge = button.closest('.list-group-item').querySelector('.badge');
+                    badge.className = 'badge bg-info';
+                    badge.textContent = action === 'investigate' ? 'Investigating' : 'Escalated';
+                }
+                
+                await updateDashboardCounts();
+                
+            } catch (error) {
+                showAlert('danger', 'Error processing risk alert');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Compliance actions
+        async function handleCompliance(action) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                if (action === 'respond') {
+                    showAlert('success', 'Audit query response submitted successfully!');
+                } else if (action === 'generate') {
+                    showAlert('success', 'Regulatory report generated successfully!');
+                }
+                
+                button.closest('.list-group-item').remove();
+                
+            } catch (error) {
+                showAlert('danger', 'Error processing compliance action');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Lock account functionality
+        async function lockAccount() {
+            const accountNumber = document.querySelector('#riskComplianceModal input[placeholder="Enter account to investigate"]').value;
+            
+            if (!accountNumber) {
+                showAlert('warning', 'Please enter an account number');
+                return;
+            }
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Locking...';
+            button.disabled = true;
+            
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                showAlert('success', `Account ${accountNumber} locked successfully for investigation`);
+                document.querySelector('#riskComplianceModal input[placeholder="Enter account to investigate"]').value = '';
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('riskComplianceModal'));
+                modal.hide();
+                
+            } catch (error) {
+                showAlert('danger', 'Error locking account');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Add event listeners to existing buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Authorization buttons
+            document.querySelectorAll('button[data-action="approve"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const authId = this.getAttribute('data-auth-id');
+                    handleAuthorization(authId, 'approve');
+                });
+            });
+            
+            document.querySelectorAll('button[data-action="reject"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const authId = this.getAttribute('data-auth-id');
+                    handleAuthorization(authId, 'reject');
+                });
+            });
+            
+            // Risk alert buttons
+            document.querySelectorAll('button[data-alert-action]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const alertId = this.getAttribute('data-alert-id');
+                    const action = this.getAttribute('data-alert-action');
+                    handleRiskAlert(alertId, action);
+                });
+            });
+        });
+    </script>
+}
+
+<!-- Authorization Modal -->
+<div class="modal fade" id="authorizationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Authorization Center</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Transaction Authorizations</h6>
+                        <div class="list-group">
+                            <div class="list-group-item d-flex justify-content-between">
+                                <span>High-value withdrawals</span>
+                                <span class="badge bg-warning">3</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between">
+                                <span>Account openings</span>
+                                <span class="badge bg-info">2</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between">
+                                <span>System overrides</span>
+                                <span class="badge bg-danger">1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Account Operations</h6>
+                        <div class="list-group">
+                            <div class="list-group-item d-flex justify-content-between">
+                                <span>Account closures</span>
+                                <span class="badge bg-secondary">0</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between">
+                                <span>Dormant reactivations</span>
+                                <span class="badge bg-success">1</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between">
+                                <span>Limit breaches</span>
+                                <span class="badge bg-warning">2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="showAlert('info', 'Authorization queue refreshed')">Refresh Queue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cash Oversight Modal -->
+<div class="modal fade" id="cashOversightModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cash & Vault Oversight</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Current Cash Position</h6>
+                        <table class="table table-sm">
+                            <tr><td>Vault Cash</td><td>$125,000</td></tr>
+                            <tr><td>Teller Cash</td><td>$45,000</td></tr>
+                            <tr><td>ATM Cash</td><td>$35,000</td></tr>
+                            <tr><td><strong>Total</strong></td><td><strong>$205,000</strong></td></tr>
+                        </table>
+                        
+                        <h6>Pending Approvals</h6>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <strong>Till Opening</strong> - Teller 1<br>
+                                <small>Amount: $10,000</small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-success" onclick="approveCashOperation('approve', 'Till Opening')">Approve</button>
+                                    <button class="btn btn-sm btn-danger" onclick="approveCashOperation('reject', 'Till Opening')">Reject</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Cash Movement History</h6>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>Vault to Teller 2</span>
+                                    <span>$5,000</span>
+                                </div>
+                                <small>09:30 AM - Approved by BM</small>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>ATM Replenishment</span>
+                                    <span>$20,000</span>
+                                </div>
+                                <small>08:15 AM - Approved by BM</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Control Modal -->
+<div class="modal fade" id="accountControlModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Account & Customer Controls</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Account Operations</h6>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Account Number</label>
+                                <input type="text" class="form-control" placeholder="Enter account number">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Action</label>
+                                <select class="form-control">
+                                    <option>Freeze Account</option>
+                                    <option>Unfreeze Account</option>
+                                    <option>Mark Lien</option>
+                                    <option>Remove Lien</option>
+                                    <option>Close Account</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Reason</label>
+                                <textarea class="form-control" rows="3" placeholder="Enter reason for action"></textarea>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="processAccountAction()">Execute Action</button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Customer Disputes</h6>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <strong>Transaction Dispute</strong><br>
+                                <small>Account: 1001234567 - Amount: $500</small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-success" onclick="resolveDispute('approve')">Resolve</button>
+                                    <button class="btn btn-sm btn-warning" onclick="resolveDispute('escalate')">Escalate</button>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <strong>KYC Update Request</strong><br>
+                                <small>Account: 1001234568 - ID Update</small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-success" onclick="resolveDispute('approve')">Approve</button>
+                                    <button class="btn btn-sm btn-danger" onclick="resolveDispute('reject')">Reject</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk & Compliance Modal -->
+<div class="modal fade" id="riskComplianceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Risk & Compliance Center</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>AML & Suspicious Activity</h6>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span><strong>Large Cash Transaction</strong></span>
+                                    <span class="badge bg-danger">Critical</span>
+                                </div>
+                                <small>Account: 1001234567 - $25,000 cash deposit</small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-warning" onclick="handleRiskAlert('investigate')">Investigate</button>
+                                    <button class="btn btn-sm btn-danger" onclick="handleRiskAlert('escalate')">Escalate</button>
+                                    <button class="btn btn-sm btn-success" onclick="handleRiskAlert('clear')">Clear</button>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span><strong>Multiple Withdrawals</strong></span>
+                                    <span class="badge bg-warning">Medium</span>
+                                </div>
+                                <small>Account: 1001234568 - 5 withdrawals today</small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-warning" onclick="handleRiskAlert('investigate')">Investigate</button>
+                                    <button class="btn btn-sm btn-success" onclick="handleRiskAlert('clear')">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Compliance Actions</h6>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <strong>Audit Query Response</strong><br>
+                                <small>Internal audit - Transaction verification</small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-primary" onclick="handleCompliance('respond')">Respond</button>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <strong>Regulatory Report</strong><br>
+                                <small>Monthly AML report due</small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-success" onclick="handleCompliance('generate')">Generate</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mt-3">Account Investigations</h6>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Account Number</label>
+                                <input type="text" class="form-control" placeholder="Enter account to investigate">
+                            </div>
+                            <button type="button" class="btn btn-warning" onclick="lockAccount()">Lock Account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

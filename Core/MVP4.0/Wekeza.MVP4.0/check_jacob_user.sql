@@ -1,0 +1,1 @@
+SELECT "Username", "FullName", "Role" FROM "Users" WHERE "Username" = 'jacobodenyire';

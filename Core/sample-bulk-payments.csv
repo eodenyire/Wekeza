@@ -1,0 +1,11 @@
+BeneficiaryName,BeneficiaryAccount,BeneficiaryBank,Amount,Narration,Reference
+ABC Suppliers Ltd,1234567890,KCB Bank,500000,Office supplies - January 2026,INV-2026-001
+XYZ Services Ltd,9876543210,Equity Bank,250000,Consulting services,INV-2026-002
+Kenya Power & Lighting,1122334455,Cooperative Bank,150000,Electricity bill - January,BILL-2026-001
+Nairobi Water Company,5544332211,NCBA Bank,75000,Water services,BILL-2026-002
+Ministry of Health,6677889900,KCB Bank,1000000,Medical supplies,PO-2026-001
+County Government Nairobi,9988776655,Equity Bank,2000000,Infrastructure project,PROJECT-001
+Teachers Service Commission,1231231234,Cooperative Bank,5000000,Teacher salaries - January,SALARY-2026-01
+National Hospital Insurance Fund,4564564567,NCBA Bank,300000,NHIF contributions,NHIF-2026-01
+Kenya Revenue Authority,7897897890,KCB Bank,150000,Tax refund,TAX-REF-001
+Ministry of Education,3213213210,Equity Bank,800000,School supplies,EDU-2026-001

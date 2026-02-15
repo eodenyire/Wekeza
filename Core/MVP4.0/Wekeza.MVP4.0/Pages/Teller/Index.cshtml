@@ -1,0 +1,223 @@
+@page
+@model Wekeza.MVP4._0.Pages.Teller.IndexModel
+@{
+    ViewData["Title"] = "Teller Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Teller";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Teller" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Deposit" class="sidebar-menu-link">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposits</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Withdrawal" class="sidebar-menu-link">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdrawals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Transfer" class="sidebar-menu-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfers</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/AccountOpening" class="sidebar-menu-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Account Opening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/CashDrawer" class="sidebar-menu-link">
+            <i class="fas fa-cash-register"></i>
+            <span>Cash Drawer</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/CashDrawer" class="sidebar-menu-link">
+            <i class="fas fa-cash-register"></i>
+            <span>Cash Drawer</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Profile" class="sidebar-menu-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome, @Model.UserName!</h3>
+    <p>Today's transaction summary - @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TODAY'S TRANSACTIONS</h6>
+                <div class="stat-value">@Model.TodayTransactions</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 15% vs yesterday
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-receipt"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>CASH DRAWER BALANCE</h6>
+                <div class="stat-value">@Model.CashDrawerBalance</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check-circle"></i> Balanced
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-cash-register"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>PENDING APPROVALS</h6>
+                <div class="stat-value">@Model.PendingApprovals</div>
+                <div class="stat-change">
+                    <i class="fas fa-clock"></i> Awaiting review
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TOTAL AMOUNT</h6>
+                <div class="stat-value">@Model.TotalAmount</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-dollar-sign"></i> Today's total
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/Teller/Deposit" class="action-btn">
+            <i class="fas fa-arrow-down"></i>
+            <span>Cash Deposit</span>
+        </a>
+        <a href="/Teller/Withdrawal" class="action-btn">
+            <i class="fas fa-arrow-up"></i>
+            <span>Cash Withdrawal</span>
+        </a>
+        <a href="/Teller/Transfer" class="action-btn">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Fund Transfer</span>
+        </a>
+        <a href="/Teller/AccountOpening" class="action-btn">
+            <i class="fas fa-user-plus"></i>
+            <span>Open Account</span>
+        </a>
+        <a href="/Teller/BalanceInquiry" class="action-btn">
+            <i class="fas fa-search-dollar"></i>
+            <span>Balance Inquiry</span>
+        </a>
+        <a href="/Teller/Statement" class="action-btn">
+            <i class="fas fa-file-invoice"></i>
+            <span>Print Statement</span>
+        </a>
+    </div>
+</div>
+
+<!-- Pending Transactions and Recent Activities -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-clock"></i> Pending Transactions</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in Model.PendingTransactions)
+                    {
+                        <tr>
+                            <td>@transaction.AccountNumber</td>
+                            <td>@transaction.Type</td>
+                            <td>@transaction.Amount</td>
+                            <td><span class="badge bg-warning">@transaction.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Transactions</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Account</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in Model.RecentTransactions)
+                    {
+                        <tr>
+                            <td>@transaction.Time</td>
+                            <td>@transaction.AccountNumber</td>
+                            <td>@transaction.Type</td>
+                            <td>@transaction.Amount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        console.log('Teller Dashboard loaded');
+    </script>
+}

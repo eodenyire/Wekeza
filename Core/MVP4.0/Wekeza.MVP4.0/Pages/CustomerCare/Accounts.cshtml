@@ -1,0 +1,452 @@
+@page
+@model Wekeza.MVP4._0.Pages.CustomerCare.AccountsModel
+@{
+    ViewData["Title"] = "Account Management";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Customer Care Officer";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Search" class="sidebar-menu-link">
+            <i class="fas fa-search"></i>
+            <span>Search Customer</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Inquiries" class="sidebar-menu-link">
+            <i class="fas fa-question-circle"></i>
+            <span>Inquiries</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Complaints" class="sidebar-menu-link">
+            <i class="fas fa-comment-dots"></i>
+            <span>Complaints</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Accounts" class="sidebar-menu-link active">
+            <i class="fas fa-wallet"></i>
+            <span>Account Services</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Account Services & Status Requests</h3>
+    <p>Initiate account status changes and manage account-related requests</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-lock"></i> Account Status Requests</h5>
+            </div>
+            <div class="card-body">
+                <p>Initiate account freeze, unfreeze, or closure requests</p>
+                <form id="accountStatusForm">
+                    <div class="mb-3">
+                        <label class="form-label">Account Number</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="statusAccountNumber" required placeholder="Enter account number">
+                            <button type="button" class="btn btn-outline-secondary" id="verifyAccountBtn">
+                                <i class="fas fa-search"></i> Verify
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="accountDetails" style="display: none;" class="mb-3">
+                        <!-- Account details will be shown here -->
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Request Type</label>
+                        <select class="form-select" id="requestType" required>
+                            <option value="">Select Request Type</option>
+                            <option value="Freeze">Freeze Account</option>
+                            <option value="Unfreeze">Unfreeze Account</option>
+                            <option value="Activate">Activate Dormant Account</option>
+                            <option value="Close">Account Closure Request</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Reason</label>
+                        <textarea class="form-control" id="requestReason" rows="3" required placeholder="Provide detailed reason for this request..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Customer Authorization</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="customerAuthorized" required>
+                            <label class="form-check-label" for="customerAuthorized">
+                                Customer has been properly identified and has authorized this request
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-credit-card"></i> Card Requests</h5>
+            </div>
+            <div class="card-body">
+                <p>Handle card blocking, replacement, and PIN reset requests</p>
+                <form id="cardRequestForm">
+                    <div class="mb-3">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" class="form-control" id="cardAccountNumber" required placeholder="Enter account number">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Card Number (Last 4 digits)</label>
+                        <input type="text" class="form-control" id="cardNumber" maxlength="4" placeholder="Last 4 digits of card">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Request Type</label>
+                        <select class="form-select" id="cardRequestType" required>
+                            <option value="">Select Request Type</option>
+                            <option value="Block">Block Card</option>
+                            <option value="Unblock">Unblock Card</option>
+                            <option value="Replace">Replace Card</option>
+                            <option value="PIN Reset">PIN Reset</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Reason</label>
+                        <select class="form-select" id="cardReason">
+                            <option value="">Select Reason</option>
+                            <option value="Lost Card">Lost Card</option>
+                            <option value="Stolen Card">Stolen Card</option>
+                            <option value="Damaged Card">Damaged Card</option>
+                            <option value="Forgotten PIN">Forgotten PIN</option>
+                            <option value="Suspicious Activity">Suspicious Activity</option>
+                            <option value="Customer Request">Customer Request</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Additional Comments</label>
+                        <textarea class="form-control" id="cardComments" rows="2" placeholder="Additional details..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-credit-card"></i> Submit Card Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Recent Requests</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table" id="requestsTable">
+                        <thead>
+                            <tr>
+                                <th>Request #</th>
+                                <th>Type</th>
+                                <th>Account</th>
+                                <th>Status</th>
+                                <th>Requested</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestsTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function() {
+    loadRecentRequests();
+    
+    // Account verification
+    $('#verifyAccountBtn').click(function() {
+        verifyAccount();
+    });
+    
+    // Form submissions
+    $('#accountStatusForm').submit(function(e) {
+        e.preventDefault();
+        submitAccountStatusRequest();
+    });
+    
+    $('#cardRequestForm').submit(function(e) {
+        e.preventDefault();
+        submitCardRequest();
+    });
+    
+    function verifyAccount() {
+        const accountNumber = $('#statusAccountNumber').val().trim();
+        if (!accountNumber) {
+            alert('Please enter an account number');
+            return;
+        }
+        
+        $.ajax({
+            url: `/api/customercare/accounts/${accountNumber}`,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayAccountDetails(response.data);
+                } else {
+                    showAlert('Account not found', 'warning');
+                }
+            },
+            error: function(xhr) {
+                console.error('Account verification error:', xhr);
+                showAlert('Error verifying account. Please check the account number.', 'danger');
+            }
+        });
+    }
+    
+    function displayAccountDetails(account) {
+        const statusBadge = account.status === 'Active' ? 'success' : 
+                           account.status === 'Dormant' ? 'warning' : 'danger';
+        
+        const html = `
+            <div class="alert alert-info">
+                <h6>Account Verified</h6>
+                <p><strong>Account Name:</strong> ${account.accountName}</p>
+                <p><strong>Account Type:</strong> ${account.accountType}</p>
+                <p><strong>Current Status:</strong> <span class="badge bg-${statusBadge}">${account.status}</span></p>
+                <p><strong>Customer:</strong> ${account.customer ? account.customer.fullName : 'N/A'}</p>
+            </div>
+        `;
+        $('#accountDetails').html(html).show();
+    }
+    
+    function submitAccountStatusRequest() {
+        const requestData = {
+            accountNumber: $('#statusAccountNumber').val(),
+            requestType: $('#requestType').val(),
+            reason: $('#requestReason').val(),
+            customerAuthorized: $('#customerAuthorized').is(':checked')
+        };
+        
+        if (!requestData.customerAuthorized) {
+            alert('Customer authorization is required');
+            return;
+        }
+        
+        $.ajax({
+            url: '/api/customercare/account-status-requests',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(requestData),
+            success: function(response) {
+                if (response.success) {
+                    showAlert('Account status request submitted successfully!', 'success');
+                    $('#accountStatusForm')[0].reset();
+                    $('#accountDetails').hide();
+                    loadRecentRequests();
+                } else {
+                    showAlert('Error submitting request: ' + response.message, 'danger');
+                }
+            },
+            error: function(xhr) {
+                console.error('Submit error:', xhr);
+                showAlert('Error submitting request. Please try again.', 'danger');
+            }
+        });
+    }
+    
+    function submitCardRequest() {
+        const requestData = {
+            accountNumber: $('#cardAccountNumber').val(),
+            cardNumber: $('#cardNumber').val(),
+            requestType: $('#cardRequestType').val(),
+            reason: $('#cardReason').val(),
+            comments: $('#cardComments').val()
+        };
+        
+        $.ajax({
+            url: '/api/customercare/card-requests',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(requestData),
+            success: function(response) {
+                if (response.success) {
+                    showAlert('Card request submitted successfully!', 'success');
+                    $('#cardRequestForm')[0].reset();
+                    loadRecentRequests();
+                } else {
+                    showAlert('Error submitting card request: ' + response.message, 'danger');
+                }
+            },
+            error: function(xhr) {
+                console.error('Card request error:', xhr);
+                showAlert('Error submitting card request. Please try again.', 'danger');
+            }
+        });
+    }
+    
+    function loadRecentRequests() {
+        // Load account status requests
+        $.ajax({
+            url: '/api/customercare/account-status-requests',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayRequests(response.data, 'account');
+                }
+            },
+            error: function(xhr) {
+                console.error('Load requests error:', xhr);
+            }
+        });
+        
+        // Load card requests
+        $.ajax({
+            url: '/api/customercare/card-requests',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayRequests(response.data, 'card');
+                }
+            },
+            error: function(xhr) {
+                console.error('Load card requests error:', xhr);
+            }
+        });
+    }
+    
+    function displayRequests(requests, type) {
+        const tbody = $('#requestsTableBody');
+        
+        if (requests.length === 0 && type === 'account') {
+            tbody.html('<tr><td colspan="6" class="text-center">No requests found</td></tr>');
+            return;
+        }
+        
+        let html = '';
+        requests.forEach(function(request) {
+            const statusBadge = getStatusBadge(request.status);
+            const requestDate = new Date(request.requestedAt).toLocaleDateString();
+            const requestNumber = request.requestNumber || request.id;
+            const requestType = type === 'account' ? request.requestType : `Card ${request.requestType}`;
+            
+            html += `
+                <tr>
+                    <td>${requestNumber}</td>
+                    <td>${requestType}</td>
+                    <td>${request.accountNumber}</td>
+                    <td>${statusBadge}</td>
+                    <td>${requestDate}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewRequest('${request.id}', '${type}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        if (type === 'account') {
+            tbody.html(html);
+        } else {
+            tbody.append(html);
+        }
+    }
+    
+    function getStatusBadge(status) {
+        const badges = {
+            'Pending': 'bg-warning',
+            'Approved': 'bg-success',
+            'Rejected': 'bg-danger',
+            'Processing': 'bg-info'
+        };
+        return `<span class="badge ${badges[status] || 'bg-secondary'}">${status}</span>`;
+    }
+    
+    window.viewRequest = function(requestId, type) {
+        // This would open a modal or navigate to a detailed view
+        alert(`View ${type} request: ${requestId}`);
+    };
+    
+    function getAuthToken() {
+        return sessionStorage.getItem('authToken') || getCookie('authToken') || '';
+    }
+    
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+    
+    function showAlert(message, type) {
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        $('.page-header').after(alertHtml);
+        
+        setTimeout(() => {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+});
+</script>
+}

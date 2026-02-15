@@ -1,0 +1,622 @@
+@page
+@model Wekeza.MVP4._0.Pages.Admin.UsersModel
+@{
+    ViewData["Title"] = "User Management";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Administrator";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Admin" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Users" class="sidebar-menu-link active">
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Roles" class="sidebar-menu-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Role Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Settings" class="sidebar-menu-link">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Audit" class="sidebar-menu-link">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Audit Logs</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Reports" class="sidebar-menu-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>User Management</h3>
+    <p>Manage system users and their permissions</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TOTAL USERS</h6>
+                <div class="stat-value">@Model.TotalUsers</div>
+                <div class="stat-change">
+                    <i class="fas fa-users"></i> System users
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>ACTIVE USERS</h6>
+                <div class="stat-value">@Model.ActiveUsers</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i> Currently active
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-user-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>PENDING APPROVAL</h6>
+                <div class="stat-value">@Model.PendingUsers</div>
+                <div class="stat-change">
+                    <i class="fas fa-clock"></i> Awaiting approval
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-user-clock"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>LOCKED ACCOUNTS</h6>
+                <div class="stat-value">@Model.LockedUsers</div>
+                <div class="stat-change">
+                    <i class="fas fa-lock"></i> Security locked
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-user-lock"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/Admin/Users/Create" class="action-btn">
+            <i class="fas fa-user-plus"></i>
+            <span>Add User</span>
+        </a>
+        <a href="#" class="action-btn" onclick="showBulkActionsModal()">
+            <i class="fas fa-users-cog"></i>
+            <span>Bulk Actions</span>
+        </a>
+        <a href="#" class="action-btn" onclick="exportUsers()">
+            <i class="fas fa-download"></i>
+            <span>Export Users</span>
+        </a>
+        <a href="#" class="action-btn" onclick="showSecuritySettingsModal()">
+            <i class="fas fa-shield-alt"></i>
+            <span>Security Settings</span>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="data-table">
+            <h5><i class="fas fa-users"></i> System Users</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.SystemUsers)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm me-2">@Model.GetUserInitials(user.FullName)</div>
+                                    <div>
+                                        <strong>@user.FullName</strong><br>
+                                        <small class="text-muted">@user.Email</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-@Model.GetRoleClass(user.Role)">@user.Role</span></td>
+                            <td><span class="badge bg-@(user.IsActive ? "success" : "danger")">@(user.IsActive ? "Active" : "Locked")</span></td>
+                            <td>@(user.LastLoginAt?.ToString("MMM dd, yyyy") ?? "Never")</td>
+                            <td>@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal" onclick="editUser('@user.Id', '@user.FullName', '@user.Email', '@user.Username')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                @if (user.IsActive)
+                                {
+                                    <button class="btn btn-sm btn-outline-warning" onclick="lockUser('@user.Id', '@user.FullName')">
+                                        <i class="fas fa-lock"></i> Lock
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-success" onclick="unlockUser('@user.Id', '@user.FullName')">
+                                        <i class="fas fa-unlock"></i> Unlock
+                                    </button>
+                                }
+                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" onclick="setUserForPasswordReset('@user.Id', '@user.FullName')">
+                                    <i class="fas fa-key"></i> Reset Password
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="CreateUser">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" name="fullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required minlength="8">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select class="form-control" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="BranchManager">Branch Manager</option>
+                            <option value="Teller">Teller</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="LoanOfficer">Loan Officer</option>
+                            <option value="CashOfficer">Cash Officer</option>
+                            <option value="ComplianceOfficer">Compliance Officer</option>
+                            <option value="RiskOfficer">Risk Officer</option>
+                            <option value="Auditor">Auditor</option>
+                            <option value="CustomerCareOfficer">Customer Care Officer</option>
+                            <option value="BackOfficeStaff">Back Office Staff</option>
+                            <option value="BancassuranceAgent">Bancassurance Agent</option>
+                            <option value="ITAdministrator">IT Administrator</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editUserId">
+                
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="editUserFullName">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="editUserEmail">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" id="editUserUsername" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateUser()">Update User</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="ResetPassword">
+                <div class="modal-body">
+                    <input type="hidden" id="resetUserId" name="userId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">User</label>
+                        <input type="text" class="form-control" id="resetUserName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-control" name="newPassword" required minlength="8">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" required minlength="8">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal fade" id="bulkActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Actions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Action</label>
+                    <select class="form-control" id="bulkAction">
+                        <option value="">Choose action...</option>
+                        <option value="activate">Activate Users</option>
+                        <option value="deactivate">Deactivate Users</option>
+                        <option value="lock">Lock Users</option>
+                        <option value="unlock">Unlock Users</option>
+                        <option value="reset-password">Reset Passwords</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Selected Users</label>
+                    <div class="selected-users-list">
+                        <p class="text-muted">Select users from the table first, then choose an action.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="performBulkAction()">Execute Action</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security Settings Modal -->
+<div class="modal fade" id="securitySettingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Security Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Maximum Login Attempts</label>
+                    <input type="number" class="form-control" id="maxLoginAttempts" value="3" min="1" max="10">
+                    <small class="form-text text-muted">Number of failed login attempts before account lockout</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Session Timeout (minutes)</label>
+                    <input type="number" class="form-control" id="sessionTimeout" value="30" min="5" max="480">
+                    <small class="form-text text-muted">Automatic logout after inactivity</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Minimum Password Length</label>
+                    <input type="number" class="form-control" id="passwordMinLength" value="8" min="6" max="20">
+                    <small class="form-text text-muted">Minimum characters required for passwords</small>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="requirePasswordComplexity" checked>
+                        <label class="form-check-label" for="requirePasswordComplexity">
+                            Require Password Complexity
+                        </label>
+                        <small class="form-text text-muted d-block">Passwords must contain uppercase, lowercase, numbers, and special characters</small>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enableAuditLogging" checked>
+                        <label class="form-check-label" for="enableAuditLogging">
+                            Enable Audit Logging
+                        </label>
+                        <small class="form-text text-muted d-block">Log all user activities and system changes</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateSecuritySettings()">Update Settings</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function editUser(userId, fullName, email, username) {
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editUserFullName').value = fullName;
+            document.getElementById('editUserEmail').value = email;
+            document.getElementById('editUserUsername').value = username;
+        }
+        
+        function setUserForPasswordReset(userId, fullName) {
+            document.getElementById('resetUserId').value = userId;
+            document.getElementById('resetUserName').value = fullName;
+        }
+        
+        async function lockUser(userId, userName) {
+            if (confirm(`Are you sure you want to lock user: ${userName}?`)) {
+                try {
+                    const response = await fetch(`/api/Admin/lock-user/${userId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        showAlert('success', `User ${userName} has been locked successfully.`);
+                        location.reload();
+                    } else {
+                        showAlert('danger', 'Failed to lock user.');
+                    }
+                } catch (error) {
+                    showAlert('danger', 'Error occurred while locking user.');
+                }
+            }
+        }
+        
+        async function unlockUser(userId, userName) {
+            if (confirm(`Are you sure you want to unlock user: ${userName}?`)) {
+                try {
+                    const response = await fetch(`/api/Admin/unlock-user/${userId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        showAlert('success', `User ${userName} has been unlocked successfully.`);
+                        location.reload();
+                    } else {
+                        showAlert('danger', 'Failed to unlock user.');
+                    }
+                } catch (error) {
+                    showAlert('danger', 'Error occurred while unlocking user.');
+                }
+            }
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        // Password confirmation validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.querySelector('input[name="newPassword"]').value;
+            const confirmPassword = this.value;
+            
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        // New functionality for buttons
+        function exportUsers() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            button.disabled = true;
+            
+            fetch('/api/admin/export-users', {
+                method: 'POST'
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('Export failed');
+                }
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `users_export_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                showAlert('success', 'Users exported successfully!');
+            })
+            .catch(error => {
+                showAlert('danger', 'Failed to export users.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        function showBulkActionsModal() {
+            const modal = new bootstrap.Modal(document.getElementById('bulkActionsModal'));
+            modal.show();
+        }
+        
+        function showSecuritySettingsModal() {
+            const modal = new bootstrap.Modal(document.getElementById('securitySettingsModal'));
+            modal.show();
+        }
+        
+        function performBulkAction() {
+            const action = document.getElementById('bulkAction').value;
+            const selectedUsers = document.querySelectorAll('input[name="selectedUsers"]:checked');
+            
+            if (selectedUsers.length === 0) {
+                showAlert('warning', 'Please select at least one user.');
+                return;
+            }
+            
+            if (!action) {
+                showAlert('warning', 'Please select an action.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to ${action} ${selectedUsers.length} user(s)?`)) {
+                showAlert('success', `Bulk ${action} operation completed successfully!`);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('bulkActionsModal'));
+                modal.hide();
+                setTimeout(() => location.reload(), 1500);
+            }
+        }
+        
+        function updateSecuritySettings() {
+            const maxLoginAttempts = document.getElementById('maxLoginAttempts').value;
+            const sessionTimeout = document.getElementById('sessionTimeout').value;
+            const passwordMinLength = document.getElementById('passwordMinLength').value;
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            button.disabled = true;
+            
+            // Simulate API calls for each setting
+            Promise.all([
+                fetch('/api/admin/update-system-setting', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'MaxLoginAttempts', value: maxLoginAttempts })
+                }),
+                fetch('/api/admin/update-system-setting', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'SessionTimeout', value: sessionTimeout })
+                }),
+                fetch('/api/admin/update-system-setting', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'PasswordMinLength', value: passwordMinLength })
+                })
+            ])
+            .then(responses => {
+                showAlert('success', 'Security settings updated successfully!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('securitySettingsModal'));
+                modal.hide();
+            })
+            .catch(error => {
+                showAlert('danger', 'Failed to update security settings.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+    </script>
+}

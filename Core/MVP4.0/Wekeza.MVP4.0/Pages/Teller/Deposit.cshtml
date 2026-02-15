@@ -1,0 +1,277 @@
+@page
+@model Wekeza.MVP4._0.Pages.Teller.DepositModel
+@{
+    ViewData["Title"] = "Cash Deposit";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Teller";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Teller" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Deposit" class="sidebar-menu-link active">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposits</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Withdrawal" class="sidebar-menu-link">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdrawals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Transfer" class="sidebar-menu-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfers</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/AccountOpening" class="sidebar-menu-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Account Opening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/BalanceInquiry" class="sidebar-menu-link">
+            <i class="fas fa-search-dollar"></i>
+            <span>Balance Inquiry</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Statement" class="sidebar-menu-link">
+            <i class="fas fa-file-invoice"></i>
+            <span>Statement</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/CashDrawer" class="sidebar-menu-link">
+            <i class="fas fa-cash-register"></i>
+            <span>Cash Drawer</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Cash Deposit</h3>
+    <p>Process customer cash deposits</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-arrow-down"></i> New Deposit</h5>
+            <form method="post" id="depositForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="accountNumber" class="form-label">Account Number</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="accountNumber" name="AccountNumber" placeholder="Enter account number" required onblur="lookupCustomer()">
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#customerSearchModal" title="Search Customer">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Enter account number or click search to find customer</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="customerName" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customerName" name="CustomerName" placeholder="Customer name" readonly>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Deposit Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="amount" name="Amount" placeholder="0.00" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="depositType" class="form-label">Deposit Type</label>
+                            <select class="form-control" id="depositType" name="DepositType" required>
+                                <option value="">Select deposit type</option>
+                                <option value="cash">Cash</option>
+                                <option value="check">Check</option>
+                                <option value="transfer">Transfer</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description (Optional)</label>
+                    <textarea class="form-control" id="description" name="Description" rows="3" placeholder="Enter transaction description"></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Process Deposit
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Deposits</h5>
+            <div class="list-group">
+                @foreach (var deposit in Model.RecentDeposits)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@deposit.AccountNumber</h6>
+                            <small>@deposit.Time</small>
+                        </div>
+                        <p class="mb-1">@deposit.Amount</p>
+                        <small>@deposit.CustomerName</small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        // Sample customer data for lookup - synchronized with other pages
+        const customers = {
+            '1001234567': 'John Smith',
+            '1001234568': 'Jane Doe', 
+            '1001234569': 'Mike Johnson',
+            '1001234570': 'Sarah Wilson',
+            '1001234571': 'David Brown',
+            '1001234572': 'Lisa Davis'
+        };
+
+        // Load any newly created accounts from localStorage
+        function loadNewAccounts() {
+            const newAccounts = JSON.parse(localStorage.getItem('newAccounts') || '{}');
+            Object.assign(customers, newAccounts);
+        }
+
+        // Initialize with any new accounts
+        loadNewAccounts();
+
+        function lookupCustomer() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            const customerNameField = document.getElementById('customerName');
+            
+            if (accountNumber && customers[accountNumber]) {
+                customerNameField.value = customers[accountNumber];
+                customerNameField.style.backgroundColor = '#d4edda';
+            } else if (accountNumber) {
+                customerNameField.value = 'Account not found';
+                customerNameField.style.backgroundColor = '#f8d7da';
+            } else {
+                customerNameField.value = '';
+                customerNameField.style.backgroundColor = '';
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('depositForm').reset();
+            document.getElementById('customerName').style.backgroundColor = '';
+        }
+
+        // Handle form submission
+        document.getElementById('depositForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const accountNumber = document.getElementById('accountNumber').value;
+            const customerName = document.getElementById('customerName').value;
+            const amount = document.getElementById('amount').value;
+            const depositType = document.getElementById('depositType').value;
+            
+            if (!customers[accountNumber]) {
+                showAlert('danger', 'Invalid account number. Please check and try again.');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showAlert('danger', 'Please enter a valid deposit amount.');
+                return;
+            }
+            
+            // Simulate processing
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Show success message
+                showAlert('success', `Deposit of $${parseFloat(amount).toFixed(2)} processed successfully for ${customerName}!`);
+                
+                // Add to recent deposits
+                addToRecentDeposits(accountNumber, customerName, `$${parseFloat(amount).toFixed(2)}`);
+                
+                // Clear form
+                clearForm();
+            }, 2000);
+        });
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function addToRecentDeposits(accountNumber, customerName, amount) {
+            const recentList = document.querySelector('.list-group');
+            const newItem = document.createElement('div');
+            newItem.className = 'list-group-item';
+            newItem.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${accountNumber}</h6>
+                    <small>Just now</small>
+                </div>
+                <p class="mb-1">${amount}</p>
+                <small>${customerName}</small>
+            `;
+            
+            // Add to top of list
+            recentList.insertBefore(newItem, recentList.firstChild);
+            
+            // Remove last item if more than 5 items
+            if (recentList.children.length > 5) {
+                recentList.removeChild(recentList.lastChild);
+            }
+        }
+    </script>
+}

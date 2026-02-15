@@ -1,0 +1,346 @@
+@page
+@model Wekeza.MVP4._0.Pages.Admin.ProfileModel
+@{
+    ViewData["Title"] = "Admin Profile";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Administrator";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Admin" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Users" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Roles" class="sidebar-menu-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Role Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Settings" class="sidebar-menu-link">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Audit" class="sidebar-menu-link">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Audit Logs</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Reports" class="sidebar-menu-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Profile" class="sidebar-menu-link active">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Administrator Profile</h3>
+    <p>Manage your administrator account settings</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-user-circle"></i> Profile Information</h5>
+            <div class="profile-section">
+                <div class="profile-avatar">
+                    <div class="avatar-circle">
+                        <span>@Model.UserInitials</span>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h6>@Model.UserName</h6>
+                    <p class="text-muted">System Administrator</p>
+                    <span class="badge bg-success">Active</span>
+                </div>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Last Login</span>
+                    <span class="stat-value">@Model.LastLogin</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Account Created</span>
+                    <span class="stat-value">@Model.AccountCreated</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Sessions</span>
+                    <span class="stat-value">@Model.TotalSessions</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-edit"></i> Edit Profile</h5>
+            <form id="profileForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" value="@Model.FullName">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" value="@Model.Email">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" value="@Model.Username" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <input type="text" class="form-control" value="Administrator" readonly>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <button type="button" class="btn btn-primary" onclick="updateProfile()">
+                        <i class="fas fa-save"></i> Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="data-table mt-4">
+            <h5><i class="fas fa-key"></i> Change Password</h5>
+            <form id="passwordForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmPassword">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <button type="button" class="btn btn-warning" onclick="changePassword()">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateProfile() {
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            
+            if (!fullName || !email) {
+                showAlert('danger', 'Please fill in all required fields.');
+                return;
+            }
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            button.disabled = true;
+            
+            fetch('/api/admin/update-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fullName: fullName,
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', 'Profile updated successfully!');
+                } else {
+                    showAlert('danger', data.message || 'Failed to update profile.');
+                }
+            })
+            .catch(error => {
+                showAlert('danger', 'An error occurred while updating profile.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showAlert('danger', 'Please fill in all password fields.');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showAlert('danger', 'New passwords do not match.');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showAlert('danger', 'New password must be at least 6 characters long.');
+                return;
+            }
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing...';
+            button.disabled = true;
+            
+            fetch('/api/admin/change-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', 'Password changed successfully!');
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    showAlert('danger', data.message || 'Failed to change password.');
+                }
+            })
+            .catch(error => {
+                showAlert('danger', 'An error occurred while changing password.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+}
+
+<style>
+    .profile-section {
+        text-align: center;
+        padding: 2rem 0;
+        border-bottom: 1px solid #e9ecef;
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-avatar {
+        margin-bottom: 1rem;
+    }
+    
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    
+    .profile-info h6 {
+        margin: 0.5rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .profile-stats {
+        padding-top: 1.5rem;
+    }
+    
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+    
+    .stat-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    .stat-value {
+        font-weight: 600;
+        color: #495057;
+    }
+</style>

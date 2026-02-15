@@ -1,0 +1,501 @@
+@page
+@model Wekeza.MVP4._0.Pages.Teller.BalanceInquiryModel
+@{
+    ViewData["Title"] = "Balance Inquiry";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Teller";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Teller" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Deposit" class="sidebar-menu-link">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposits</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Withdrawal" class="sidebar-menu-link">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdrawals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Transfer" class="sidebar-menu-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfers</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/AccountOpening" class="sidebar-menu-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Account Opening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/BalanceInquiry" class="sidebar-menu-link active">
+            <i class="fas fa-search-dollar"></i>
+            <span>Balance Inquiry</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Statement" class="sidebar-menu-link">
+            <i class="fas fa-file-invoice"></i>
+            <span>Statement</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Balance Inquiry</h3>
+    <p>Check customer account balances</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-search-dollar"></i> Customer & Account Lookup</h5>
+            
+            <!-- Search Options -->
+            <div class="mb-3">
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="searchType" id="searchByAccount" value="account" checked>
+                    <label class="btn btn-outline-primary" for="searchByAccount">Search by Account Number</label>
+                    
+                    <input type="radio" class="btn-check" name="searchType" id="searchByName" value="name">
+                    <label class="btn btn-outline-primary" for="searchByName">Search by Customer Name</label>
+                    
+                    <input type="radio" class="btn-check" name="searchType" id="searchById" value="id">
+                    <label class="btn btn-outline-primary" for="searchById">Search by ID Number</label>
+                </div>
+            </div>
+            
+            <form id="balanceForm">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="searchInput" class="form-label" id="searchLabel">Account Number</label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Enter account number" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-primary" onclick="performSearch()">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Search Results -->
+            <div id="searchResults" style="display: none;">
+                <h6><i class="fas fa-list"></i> Search Results</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Account Number</th>
+                                <th>Customer Name</th>
+                                <th>Account Type</th>
+                                <th>Balance</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchResultsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+                <button type="button" class="btn btn-secondary" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Account Details Card -->
+        <div class="data-table mt-4" id="accountDetails" style="display: none;">
+            <h5><i class="fas fa-user"></i> Account Details</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Account Holder</label>
+                        <input type="text" class="form-control" id="accountHolder" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" class="form-control" id="displayAccountNumber" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Account Type</label>
+                        <input type="text" class="form-control" id="accountType" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Current Balance</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="text" class="form-control balance-display" id="currentBalance" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Available Balance</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="text" class="form-control balance-display" id="availableBalance" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Account Status</label>
+                        <input type="text" class="form-control" id="accountStatus" readonly>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <h6>Recent Transactions (Last 5)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionHistory">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Inquiries</h5>
+            <div class="list-group">
+                @foreach (var inquiry in Model.RecentInquiries)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@inquiry.AccountNumber</h6>
+                            <small>@inquiry.Time</small>
+                        </div>
+                        <p class="mb-1 text-success">@inquiry.Balance</p>
+                        <small>@inquiry.CustomerName</small>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="data-table mt-3">
+            <h5><i class="fas fa-info-circle"></i> Quick Actions</h5>
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-primary" onclick="printBalance()">
+                    <i class="fas fa-print"></i> Print Balance
+                </button>
+                <button class="btn btn-outline-info" onclick="emailBalance()">
+                    <i class="fas fa-envelope"></i> Email Balance
+                </button>
+                <button class="btn btn-outline-success" onclick="exportBalance()">
+                    <i class="fas fa-download"></i> Export Details
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sample customer data with detailed information - synchronized with other pages
+        const customers = {
+            '1001234567': { 
+                name: 'John Smith', 
+                balance: 2500.00, 
+                available: 2500.00,
+                type: 'Savings',
+                status: 'Active',
+                transactions: [
+                    { date: '2026-01-22', description: 'ATM Withdrawal', type: 'Debit', amount: -200.00, balance: 2500.00 },
+                    { date: '2026-01-21', description: 'Direct Deposit', type: 'Credit', amount: 1500.00, balance: 2700.00 },
+                    { date: '2026-01-20', description: 'Online Transfer', type: 'Debit', amount: -300.00, balance: 1200.00 },
+                    { date: '2026-01-19', description: 'Check Deposit', type: 'Credit', amount: 800.00, balance: 1500.00 },
+                    { date: '2026-01-18', description: 'Purchase', type: 'Debit', amount: -150.00, balance: 700.00 }
+                ]
+            },
+            '1001234568': { 
+                name: 'Jane Doe', 
+                balance: 5800.00, 
+                available: 5300.00,
+                type: 'Checking',
+                status: 'Active',
+                transactions: [
+                    { date: '2026-01-22', description: 'Salary Deposit', type: 'Credit', amount: 3000.00, balance: 5800.00 },
+                    { date: '2026-01-21', description: 'Rent Payment', type: 'Debit', amount: -1200.00, balance: 2800.00 },
+                    { date: '2026-01-20', description: 'Grocery Store', type: 'Debit', amount: -85.50, balance: 4000.00 },
+                    { date: '2026-01-19', description: 'Gas Station', type: 'Debit', amount: -45.00, balance: 4085.50 },
+                    { date: '2026-01-18', description: 'ATM Deposit', type: 'Credit', amount: 500.00, balance: 4130.50 }
+                ]
+            },
+            '1001234569': { 
+                name: 'Mike Johnson', 
+                balance: 1200.00, 
+                available: 1200.00,
+                type: 'Savings',
+                status: 'Active',
+                transactions: [
+                    { date: '2026-01-22', description: 'Interest Payment', type: 'Credit', amount: 12.50, balance: 1200.00 },
+                    { date: '2026-01-21', description: 'Transfer Out', type: 'Debit', amount: -500.00, balance: 1187.50 },
+                    { date: '2026-01-20', description: 'Cash Deposit', type: 'Credit', amount: 300.00, balance: 1687.50 },
+                    { date: '2026-01-19', description: 'Online Purchase', type: 'Debit', amount: -75.00, balance: 1387.50 },
+                    { date: '2026-01-18', description: 'Transfer In', type: 'Credit', amount: 200.00, balance: 1462.50 }
+                ]
+            },
+            '1001234570': { 
+                name: 'Sarah Wilson', 
+                balance: 3400.00, 
+                available: 3400.00,
+                type: 'Business',
+                status: 'Active',
+                transactions: [
+                    { date: '2026-01-22', description: 'Client Payment', type: 'Credit', amount: 2500.00, balance: 3400.00 },
+                    { date: '2026-01-21', description: 'Office Supplies', type: 'Debit', amount: -150.00, balance: 900.00 },
+                    { date: '2026-01-20', description: 'Utilities', type: 'Debit', amount: -200.00, balance: 1050.00 },
+                    { date: '2026-01-19', description: 'Equipment Purchase', type: 'Debit', amount: -800.00, balance: 1250.00 },
+                    { date: '2026-01-18', description: 'Service Revenue', type: 'Credit', amount: 1500.00, balance: 2050.00 }
+                ]
+            },
+            '1001234571': { 
+                name: 'David Brown', 
+                balance: 750.00, 
+                available: 750.00,
+                type: 'Student',
+                status: 'Active',
+                transactions: [
+                    { date: '2026-01-22', description: 'Part-time Job', type: 'Credit', amount: 400.00, balance: 750.00 },
+                    { date: '2026-01-21', description: 'Textbooks', type: 'Debit', amount: -120.00, balance: 350.00 },
+                    { date: '2026-01-20', description: 'Food Court', type: 'Debit', amount: -25.00, balance: 470.00 },
+                    { date: '2026-01-19', description: 'Student Loan', type: 'Credit', amount: 1000.00, balance: 495.00 },
+                    { date: '2026-01-18', description: 'Tuition Payment', type: 'Debit', amount: -500.00, balance: -505.00 }
+                ]
+            },
+            '1001234572': { 
+                name: 'Lisa Davis', 
+                balance: 4200.00, 
+                available: 4200.00,
+                type: 'Checking',
+                status: 'Active',
+                transactions: [
+                    { date: '2026-01-22', description: 'Freelance Payment', type: 'Credit', amount: 800.00, balance: 4200.00 },
+                    { date: '2026-01-21', description: 'Credit Card Payment', type: 'Debit', amount: -600.00, balance: 3400.00 },
+                    { date: '2026-01-20', description: 'Dividend', type: 'Credit', amount: 150.00, balance: 4000.00 },
+                    { date: '2026-01-19', description: 'Insurance', type: 'Debit', amount: -250.00, balance: 3850.00 },
+                    { date: '2026-01-18', description: 'Salary', type: 'Credit', amount: 2800.00, balance: 4100.00 }
+                ]
+            }
+        };
+
+        // Load any newly created accounts from localStorage
+        function loadNewAccounts() {
+            const newAccountsDetailed = JSON.parse(localStorage.getItem('newAccountsDetailed') || '{}');
+            Object.assign(customers, newAccountsDetailed);
+        }
+
+        // Initialize with any new accounts
+        loadNewAccounts();
+
+        function lookupAccount() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            const customerNameField = document.getElementById('customerName');
+            
+            if (accountNumber && customers[accountNumber]) {
+                customerNameField.value = customers[accountNumber].name;
+                customerNameField.style.backgroundColor = '#d4edda';
+            } else if (accountNumber) {
+                customerNameField.value = 'Account not found';
+                customerNameField.style.backgroundColor = '#f8d7da';
+            } else {
+                customerNameField.value = '';
+                customerNameField.style.backgroundColor = '';
+            }
+        }
+
+        function checkBalance() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            
+            if (!accountNumber) {
+                showAlert('danger', 'Please enter an account number.');
+                return;
+            }
+            
+            if (!customers[accountNumber]) {
+                showAlert('danger', 'Account not found. Please check the account number.');
+                return;
+            }
+            
+            const customer = customers[accountNumber];
+            
+            // Show loading state
+            const checkBtn = document.querySelector('button[onclick="checkBalance()"]');
+            const originalText = checkBtn.innerHTML;
+            checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+            checkBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Reset button
+                checkBtn.innerHTML = originalText;
+                checkBtn.disabled = false;
+                
+                // Populate account details
+                document.getElementById('accountHolder').value = customer.name;
+                document.getElementById('displayAccountNumber').value = accountNumber;
+                document.getElementById('accountType').value = customer.type;
+                document.getElementById('currentBalance').value = customer.balance.toFixed(2);
+                document.getElementById('availableBalance').value = customer.available.toFixed(2);
+                document.getElementById('accountStatus').value = customer.status;
+                
+                // Populate transaction history
+                const transactionHistory = document.getElementById('transactionHistory');
+                transactionHistory.innerHTML = '';
+                
+                customer.transactions.forEach(transaction => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${transaction.date}</td>
+                        <td>${transaction.description}</td>
+                        <td><span class="badge bg-${transaction.type === 'Credit' ? 'success' : 'danger'}">${transaction.type}</span></td>
+                        <td class="${transaction.amount >= 0 ? 'text-success' : 'text-danger'}">
+                            ${transaction.amount >= 0 ? '+' : ''}$${Math.abs(transaction.amount).toFixed(2)}
+                        </td>
+                        <td>$${transaction.balance.toFixed(2)}</td>
+                    `;
+                    transactionHistory.appendChild(row);
+                });
+                
+                // Show account details
+                document.getElementById('accountDetails').style.display = 'block';
+                
+                // Add to recent inquiries
+                addToRecentInquiries(accountNumber, customer.name, `$${customer.balance.toFixed(2)}`);
+                
+                showAlert('success', `Balance retrieved successfully for ${customer.name}!`);
+            }, 1500);
+        }
+
+        function clearForm() {
+            document.getElementById('balanceForm').reset();
+            document.getElementById('customerName').style.backgroundColor = '';
+            document.getElementById('accountDetails').style.display = 'none';
+        }
+
+        function printBalance() {
+            const accountNumber = document.getElementById('displayAccountNumber').value;
+            if (!accountNumber) {
+                showAlert('warning', 'Please check an account balance first.');
+                return;
+            }
+            
+            showAlert('info', 'Balance statement sent to printer...');
+            // In a real application, this would trigger a print job
+        }
+
+        function emailBalance() {
+            const accountNumber = document.getElementById('displayAccountNumber').value;
+            if (!accountNumber) {
+                showAlert('warning', 'Please check an account balance first.');
+                return;
+            }
+            
+            showAlert('info', 'Balance statement emailed to customer...');
+            // In a real application, this would send an email
+        }
+
+        function exportBalance() {
+            const accountNumber = document.getElementById('displayAccountNumber').value;
+            if (!accountNumber) {
+                showAlert('warning', 'Please check an account balance first.');
+                return;
+            }
+            
+            showAlert('info', 'Account details exported successfully...');
+            // In a real application, this would generate a downloadable file
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function addToRecentInquiries(accountNumber, customerName, balance) {
+            const recentList = document.querySelector('.list-group');
+            const newItem = document.createElement('div');
+            newItem.className = 'list-group-item';
+            newItem.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${accountNumber}</h6>
+                    <small>Just now</small>
+                </div>
+                <p class="mb-1 text-success">${balance}</p>
+                <small>${customerName}</small>
+            `;
+            
+            // Add to top of list
+            recentList.insertBefore(newItem, recentList.firstChild);
+            
+            // Remove last item if more than 4 items
+            if (recentList.children.length > 4) {
+                recentList.removeChild(recentList.lastChild);
+            }
+        }
+    </script>
+    
+    <style>
+        .balance-display {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #28a745;
+        }
+        
+        #accountDetails {
+            border: 2px solid #28a745;
+            border-radius: 8px;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+        }
+    </style>
+}

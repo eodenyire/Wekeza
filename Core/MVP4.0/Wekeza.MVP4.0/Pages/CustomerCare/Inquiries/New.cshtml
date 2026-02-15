@@ -1,0 +1,429 @@
+@page
+@model Wekeza.MVP4._0.Pages.CustomerCare.Inquiries.NewModel
+@{
+    ViewData["Title"] = "New Customer Inquiry";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Customer Care Officer";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Search" class="sidebar-menu-link">
+            <i class="fas fa-search"></i>
+            <span>Search Customer</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Inquiries" class="sidebar-menu-link active">
+            <i class="fas fa-question-circle"></i>
+            <span>Inquiries</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Complaints" class="sidebar-menu-link">
+            <i class="fas fa-comment-dots"></i>
+            <span>Complaints</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Feedback" class="sidebar-menu-link">
+            <i class="fas fa-star"></i>
+            <span>Feedback</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Create New Customer Inquiry</h3>
+    <p>Log and track customer inquiries and information requests</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> New Inquiry Form</h5>
+            </div>
+            <div class="card-body">
+                <form id="newInquiryForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Customer Search</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="customerSearch" placeholder="Search by name, number, email...">
+                                    <button type="button" class="btn btn-outline-secondary" id="searchCustomerBtn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <input type="hidden" id="selectedCustomerId">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Inquiry Category</label>
+                                <select class="form-select" id="inquiryCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Account Balance">Account Balance Inquiry</option>
+                                    <option value="Transaction Query">Transaction Query</option>
+                                    <option value="Statement Request">Statement Request</option>
+                                    <option value="Card Information">Card Information</option>
+                                    <option value="Account Status">Account Status Inquiry</option>
+                                    <option value="KYC Documents">KYC Documents</option>
+                                    <option value="Interest Rates">Interest Rates</option>
+                                    <option value="Charges & Fees">Charges & Fees</option>
+                                    <option value="General Inquiry">General Inquiry</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="inquiryPriority">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Channel</label>
+                                <select class="form-select" id="inquiryChannel">
+                                    <option value="Branch Visit">Branch Visit</option>
+                                    <option value="Phone Call">Phone Call</option>
+                                    <option value="Email">Email</option>
+                                    <option value="Online Chat">Online Chat</option>
+                                    <option value="Mobile App">Mobile App</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="inquirySubject" required placeholder="Brief description of the inquiry">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Detailed Description</label>
+                        <textarea class="form-control" id="inquiryDescription" rows="4" required placeholder="Provide detailed information about the customer's inquiry..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Account Number (if applicable)</label>
+                        <input type="text" class="form-control" id="relatedAccount" placeholder="Account number related to this inquiry">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Expected Resolution Time</label>
+                        <select class="form-select" id="expectedResolution">
+                            <option value="Immediate">Immediate (Same Day)</option>
+                            <option value="24 Hours" selected>Within 24 Hours</option>
+                            <option value="48 Hours">Within 48 Hours</option>
+                            <option value="3-5 Days">3-5 Business Days</option>
+                            <option value="1 Week">Within 1 Week</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="customerNotified">
+                            <label class="form-check-label" for="customerNotified">
+                                Customer has been notified of inquiry registration
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="/CustomerCare/Inquiries" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Inquiries
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-primary" id="saveDraftBtn">
+                                <i class="fas fa-save"></i> Save as Draft
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Inquiry
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Customer Information</h5>
+            </div>
+            <div class="card-body" id="customerInfo">
+                <p class="text-muted">Search and select a customer to view their information</p>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="fas fa-lightbulb"></i> Quick Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Always verify customer identity</li>
+                    <li><i class="fas fa-check text-success"></i> Use clear, specific subject lines</li>
+                    <li><i class="fas fa-check text-success"></i> Include relevant account numbers</li>
+                    <li><i class="fas fa-check text-success"></i> Set realistic resolution times</li>
+                    <li><i class="fas fa-check text-success"></i> Document all customer interactions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Search Modal -->
+<div class="modal fade" id="customerSearchModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Search Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="modalSearchTerm" placeholder="Search by name, customer number, email, phone...">
+                </div>
+                <div id="modalSearchResults">
+                    <p class="text-muted">Enter search term and press Enter to search</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function() {
+    // Customer search functionality
+    $('#searchCustomerBtn').click(function() {
+        $('#customerSearchModal').modal('show');
+    });
+    
+    $('#modalSearchTerm').keypress(function(e) {
+        if (e.which == 13) {
+            searchCustomers();
+        }
+    });
+    
+    // Form submission
+    $('#newInquiryForm').submit(function(e) {
+        e.preventDefault();
+        submitInquiry();
+    });
+    
+    $('#saveDraftBtn').click(function() {
+        saveDraft();
+    });
+    
+    function searchCustomers() {
+        const searchTerm = $('#modalSearchTerm').val().trim();
+        if (!searchTerm) return;
+        
+        $.ajax({
+            url: '/api/customercare/customers/search',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            data: { searchTerm: searchTerm },
+            success: function(response) {
+                if (response.success && response.data.length > 0) {
+                    displayModalSearchResults(response.data);
+                } else {
+                    $('#modalSearchResults').html('<p class="text-muted">No customers found</p>');
+                }
+            },
+            error: function(xhr) {
+                console.error('Search error:', xhr);
+                $('#modalSearchResults').html('<p class="text-danger">Error searching customers</p>');
+            }
+        });
+    }
+    
+    function displayModalSearchResults(customers) {
+        let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr><th>Customer #</th><th>Name</th><th>Email</th><th>Action</th></tr></thead><tbody>';
+        
+        customers.forEach(function(customer) {
+            html += `
+                <tr>
+                    <td>${customer.customerNumber}</td>
+                    <td>${customer.fullName}</td>
+                    <td>${customer.email}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="selectCustomer('${customer.id}', '${customer.customerNumber}', '${customer.fullName}')">
+                            Select
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table></div>';
+        $('#modalSearchResults').html(html);
+    }
+    
+    window.selectCustomer = function(customerId, customerNumber, customerName) {
+        $('#selectedCustomerId').val(customerId);
+        $('#customerSearch').val(`${customerNumber} - ${customerName}`);
+        $('#customerSearchModal').modal('hide');
+        
+        // Load customer details
+        loadCustomerDetails(customerId);
+    };
+    
+    function loadCustomerDetails(customerId) {
+        $.ajax({
+            url: `/api/customercare/customers/${customerId}`,
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayCustomerInfo(response.data);
+                }
+            },
+            error: function(xhr) {
+                console.error('Customer details error:', xhr);
+            }
+        });
+    }
+    
+    function displayCustomerInfo(customer) {
+        const html = `
+            <div class="customer-summary">
+                <p><strong>Customer #:</strong> ${customer.customerNumber}</p>
+                <p><strong>Name:</strong> ${customer.fullName}</p>
+                <p><strong>Email:</strong> ${customer.email}</p>
+                <p><strong>Phone:</strong> ${customer.phoneNumber}</p>
+                <p><strong>Status:</strong> <span class="badge bg-${customer.customerStatus === 'Active' ? 'success' : 'warning'}">${customer.customerStatus}</span></p>
+                <p><strong>KYC Status:</strong> <span class="badge bg-${customer.kycStatus === 'Approved' ? 'success' : 'warning'}">${customer.kycStatus}</span></p>
+            </div>
+        `;
+        $('#customerInfo').html(html);
+    }
+    
+    function submitInquiry() {
+        const customerId = $('#selectedCustomerId').val();
+        if (!customerId) {
+            alert('Please select a customer first');
+            return;
+        }
+        
+        const inquiryData = {
+            customerId: customerId,
+            category: $('#inquiryCategory').val(),
+            priority: $('#inquiryPriority').val(),
+            subject: $('#inquirySubject').val(),
+            description: $('#inquiryDescription').val(),
+            channel: $('#inquiryChannel').val(),
+            relatedAccount: $('#relatedAccount').val(),
+            expectedResolution: $('#expectedResolution').val(),
+            customerNotified: $('#customerNotified').is(':checked')
+        };
+        
+        $.ajax({
+            url: '/api/customercare/complaints',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken(),
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(inquiryData),
+            success: function(response) {
+                if (response.success) {
+                    alert('Inquiry submitted successfully!');
+                    window.location.href = '/CustomerCare/Inquiries';
+                } else {
+                    alert('Error submitting inquiry: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                console.error('Submit error:', xhr);
+                alert('Error submitting inquiry. Please try again.');
+            }
+        });
+    }
+    
+    function saveDraft() {
+        // Save form data to localStorage for later
+        const draftData = {
+            customerId: $('#selectedCustomerId').val(),
+            customerSearch: $('#customerSearch').val(),
+            category: $('#inquiryCategory').val(),
+            priority: $('#inquiryPriority').val(),
+            subject: $('#inquirySubject').val(),
+            description: $('#inquiryDescription').val(),
+            channel: $('#inquiryChannel').val(),
+            relatedAccount: $('#relatedAccount').val(),
+            expectedResolution: $('#expectedResolution').val(),
+            customerNotified: $('#customerNotified').is(':checked')
+        };
+        
+        localStorage.setItem('inquiryDraft', JSON.stringify(draftData));
+        alert('Draft saved successfully!');
+    }
+    
+    // Load draft on page load
+    function loadDraft() {
+        const draft = localStorage.getItem('inquiryDraft');
+        if (draft) {
+            const data = JSON.parse(draft);
+            $('#selectedCustomerId').val(data.customerId);
+            $('#customerSearch').val(data.customerSearch);
+            $('#inquiryCategory').val(data.category);
+            $('#inquiryPriority').val(data.priority);
+            $('#inquirySubject').val(data.subject);
+            $('#inquiryDescription').val(data.description);
+            $('#inquiryChannel').val(data.channel);
+            $('#relatedAccount').val(data.relatedAccount);
+            $('#expectedResolution').val(data.expectedResolution);
+            $('#customerNotified').prop('checked', data.customerNotified);
+            
+            if (data.customerId) {
+                loadCustomerDetails(data.customerId);
+            }
+        }
+    }
+    
+    // Utility functions
+    function getAuthToken() {
+        return sessionStorage.getItem('authToken') || getCookie('authToken') || '';
+    }
+    
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+    
+    // Load draft on page load
+    loadDraft();
+});
+</script>
+}

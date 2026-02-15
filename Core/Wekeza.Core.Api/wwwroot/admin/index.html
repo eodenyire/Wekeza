@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wekeza Bank - Administrator Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --wekeza-primary: #2c5aa0;
+            --wekeza-secondary: #f8f9fa;
+            --wekeza-accent: #28a745;
+            --wekeza-warning: #ffc107;
+            --wekeza-danger: #dc3545;
+        }
+        
+        body {
+            background-color: var(--wekeza-secondary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--wekeza-primary) !important;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--wekeza-primary), #1e3d72);
+            min-height: calc(100vh - 56px);
+            color: white;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 2px 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dashboard-card {
+            cursor: pointer;
+            height: 150px;
+        }
+        
+        .dashboard-card .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .dashboard-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--wekeza-primary);
+        }
+        
+        .user-info {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .role-badge {
+            background-color: var(--wekeza-accent);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        
+        .btn-wekeza {
+            background-color: var(--wekeza-primary);
+            border-color: var(--wekeza-primary);
+            color: white;
+        }
+        
+        .btn-wekeza:hover {
+            background-color: #1e3d72;
+            border-color: #1e3d72;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-university me-2"></i>
+                Wekeza Bank - Admin Panel
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown" id="userDropdown" style="display: none;">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>
+                        <span id="currentUsername">User</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="showProfile()">
+                            <i class="fas fa-user me-2"></i>Profile
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div id="loginContainer" class="login-container">
+        <div class="card">
+            <div class="card-header text-center bg-primary text-white">
+                <h4><i class="fas fa-lock me-2"></i>Administrator Login</h4>
+            </div>
+            <div class="card-body">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" required>
+                        <div class="form-text">
+                            Try: admin, teller, loanofficer, riskofficer
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-wekeza w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </button>
+                </form>
+                <div id="loginError" class="alert alert-danger mt-3" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="container-fluid" style="display: none;">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar">
+                    <div class="user-info">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-circle fa-2x text-primary me-3"></i>
+                            <div>
+                                <div class="fw-bold" id="sidebarUsername">User</div>
+                                <div id="userRoles" class="mt-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <nav class="nav flex-column" id="sidebarNav">
+                        <!-- Navigation will be populated dynamically -->
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9 col-lg-10">
+                <div class="p-4">
+                    <div id="contentArea">
+                        <!-- Content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUser = null;
+        let authToken = null;
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/authentication/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    currentUser = data;
+                    
+                    // Store token
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Show main content
+                    showMainContent();
+                    loadDashboard();
+                } else {
+                    showLoginError('Invalid credentials. Please try again.');
+                }
+            } catch (error) {
+                showLoginError('Login failed. Please check your connection.');
+            }
+        });
+
+        // Check for existing session
+        window.addEventListener('load', () => {
+            const storedToken = localStorage.getItem('authToken');
+            const storedUser = localStorage.getItem('currentUser');
+            
+            if (storedToken && storedUser) {
+                authToken = storedToken;
+                currentUser = JSON.parse(storedUser);
+                showMainContent();
+                loadDashboard();
+            }
+        });
+
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showMainContent() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('userDropdown').style.display = 'block';
+            
+            // Update user info
+            document.getElementById('currentUsername').textContent = currentUser.username;
+            document.getElementById('sidebarUsername').textContent = currentUser.username;
+            
+            // Show user roles
+            const rolesContainer = document.getElementById('userRoles');
+            rolesContainer.innerHTML = currentUser.roles.map(role => 
+                `<span class="role-badge">${role}</span>`
+            ).join('');
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/admin', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    renderDashboard(data);
+                    renderNavigation(data.navigation);
+                }
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+            }
+        }
+        function renderDashboard(data) {
+            const contentArea = document.getElementById('contentArea');
+            
+            let dashboardHtml = `
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
+                    <div class="text-muted">Welcome back, ${data.user.username}!</div>
+                </div>
+                
+                <div class="row">
+            `;
+            
+            data.dashboard.forEach(item => {
+                dashboardHtml += `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card dashboard-card" onclick="navigateTo('${item.url}')">
+                            <div class="card-body">
+                                <i class="fas fa-${item.icon} dashboard-icon"></i>
+                                <h5 class="card-title">${item.title}</h5>
+                                <p class="card-text text-muted">${item.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            dashboardHtml += '</div>';
+            contentArea.innerHTML = dashboardHtml;
+        }
+
+        function renderNavigation(navigation) {
+            const sidebarNav = document.getElementById('sidebarNav');
+            
+            let navHtml = '';
+            navigation.forEach(item => {
+                if (item.submenu) {
+                    navHtml += `
+                        <div class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#${item.title.toLowerCase()}Menu">
+                                <i class="fas fa-${item.icon} me-2"></i>
+                                ${item.title}
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="${item.title.toLowerCase()}Menu">
+                    `;
+                    item.submenu.forEach(subItem => {
+                        navHtml += `
+                            <a class="nav-link ps-4" href="#" onclick="navigateTo('${subItem.url}')">
+                                <i class="fas fa-circle me-2" style="font-size: 0.5rem;"></i>
+                                ${subItem.title}
+                            </a>
+                        `;
+                    });
+                    navHtml += '</div></div>';
+                } else {
+                    navHtml += `
+                        <a class="nav-link ${item.active ? 'active' : ''}" href="#" onclick="navigateTo('${item.url}')">
+                            <i class="fas fa-${item.icon} me-2"></i>
+                            ${item.title}
+                        </a>
+                    `;
+                }
+            });
+            
+            sidebarNav.innerHTML = navHtml;
+        }
+
+        async function navigateTo(url) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    renderModuleContent(data);
+                } else if (response.status === 403) {
+                    showAccessDenied();
+                }
+            } catch (error) {
+                console.error('Navigation failed:', error);
+            }
+        }
+        function renderModuleContent(data) {
+            const contentArea = document.getElementById('contentArea');
+            
+            let contentHtml = `
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-cog me-2"></i>${data.title}</h2>
+                    <button class="btn btn-outline-primary" onclick="loadDashboard()">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </button>
+                </div>
+            `;
+            
+            if (data.operations) {
+                contentHtml += `
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-list me-2"></i>Available Operations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                `;
+                
+                data.operations.forEach(operation => {
+                    contentHtml += `
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-tasks fa-2x text-primary mb-3"></i>
+                                    <h6 class="card-title">${operation}</h6>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        Access
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                contentHtml += `
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // User Management specific content
+            if (data.availableRoles) {
+                contentHtml += renderUserManagement(data);
+            }
+            
+            // Staff creation specific content
+            if (data.staffTypes) {
+                contentHtml += renderStaffCreation(data);
+            }
+            
+            contentArea.innerHTML = contentHtml;
+        }
+
+        function renderUserManagement(data) {
+            let html = `
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-users me-2"></i>User Management</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <button class="btn btn-primary" onclick="showCreateUserModal()">
+                                        <i class="fas fa-user-plus me-2"></i>Create New User
+                                    </button>
+                                    <div class="input-group" style="width: 300px;">
+                                        <input type="text" class="form-control" placeholder="Search users...">
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Username</th>
+                                                <th>Email</th>
+                                                <th>Roles</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>john.doe</td>
+                                                <td>john.doe@wekeza.com</td>
+                                                <td><span class="role-badge">Teller</span></td>
+                                                <td><span class="badge bg-success">Active</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
+                                                    <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="fas fa-shield-alt me-2"></i>Available Roles</h6>
+                            </div>
+                            <div class="card-body">
+            `;
+            
+            Object.entries(data.availableRoles).forEach(([category, roles]) => {
+                html += `
+                    <h6 class="text-primary">${category.replace(/([A-Z])/g, ' $1').trim()}</h6>
+                    <ul class="list-unstyled mb-3">
+                `;
+                roles.forEach(role => {
+                    html += `
+                        <li class="mb-2">
+                            <strong>${role.role}</strong><br>
+                            <small class="text-muted">${role.description}</small><br>
+                            <small class="text-info">${role.permissions}</small>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+            });
+            
+            html += `
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+        function renderStaffCreation(data) {
+            let html = `
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-user-plus me-2"></i>Create Banking Staff</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="createStaffForm">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">First Name</label>
+                                                <input type="text" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Phone</label>
+                                                <input type="tel" class="form-control" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Role</label>
+                                                <select class="form-select" required>
+                                                    <option value="">Select Role</option>
+            `;
+            
+            data.staffTypes.forEach(category => {
+                html += `<optgroup label="${category.category}">`;
+                category.roles.forEach(role => {
+                    html += `<option value="${role.role}">${role.role} - ${role.description}</option>`;
+                });
+                html += '</optgroup>';
+            });
+            
+            html += `
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Branch</label>
+                                                <select class="form-select" required>
+                                                    <option value="">Select Branch</option>
+            `;
+            
+            data.branches.forEach(branch => {
+                html += `<option value="${branch.id}">${branch.name} (${branch.code})</option>`;
+            });
+            
+            html += `
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Department</label>
+                                                <select class="form-select" required>
+                                                    <option value="">Select Department</option>
+            `;
+            
+            data.departments.forEach(dept => {
+                html += `<option value="${dept.id}">${dept.name}</option>`;
+            });
+            
+            html += `
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee ID</label>
+                                        <input type="text" class="form-control" placeholder="Auto-generated if left empty">
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-secondary me-2">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>Create Staff Member
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="fas fa-info-circle me-2"></i>Staff Role Information</h6>
+                            </div>
+                            <div class="card-body">
+            `;
+            
+            data.staffTypes.forEach(category => {
+                html += `
+                    <h6 class="text-primary">${category.category}</h6>
+                    <div class="mb-3">
+                `;
+                category.roles.forEach(role => {
+                    html += `
+                        <div class="border rounded p-2 mb-2">
+                            <strong>${role.role}</strong><br>
+                            <small class="text-muted">${role.description}</small><br>
+                            <small class="text-info">Skills: ${role.requiredSkills}</small>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            });
+            
+            html += `
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+        function showAccessDenied() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-lock fa-4x text-danger mb-3"></i>
+                    <h3>Access Denied</h3>
+                    <p class="text-muted">You don't have permission to access this section.</p>
+                    <button class="btn btn-primary" onclick="loadDashboard()">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </button>
+                </div>
+            `;
+        }
+
+        function showCreateUserModal() {
+            // Implementation for create user modal
+            alert('Create User Modal - To be implemented');
+        }
+
+        function showProfile() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="row">
+                    <div class="col-md-8 mx-auto">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-user me-2"></i>User Profile</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 text-center">
+                                        <i class="fas fa-user-circle fa-5x text-primary mb-3"></i>
+                                        <h5>${currentUser.username}</h5>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td><strong>Username:</strong></td>
+                                                <td>${currentUser.username}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>User ID:</strong></td>
+                                                <td>${currentUser.userId}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Roles:</strong></td>
+                                                <td>${currentUser.roles.map(role => `<span class="role-badge">${role}</span>`).join(' ')}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Session Expires:</strong></td>
+                                                <td>${new Date(currentUser.expiresAt).toLocaleString()}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            authToken = null;
+            currentUser = null;
+            
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('userDropdown').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+            
+            // Clear form
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

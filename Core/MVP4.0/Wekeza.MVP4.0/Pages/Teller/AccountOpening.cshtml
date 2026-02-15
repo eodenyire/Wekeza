@@ -1,0 +1,437 @@
+@page
+@model Wekeza.MVP4._0.Pages.Teller.AccountOpeningModel
+@{
+    ViewData["Title"] = "Account Opening";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Teller";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Teller" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Deposit" class="sidebar-menu-link">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposits</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Withdrawal" class="sidebar-menu-link">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdrawals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Transfer" class="sidebar-menu-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfers</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/AccountOpening" class="sidebar-menu-link active">
+            <i class="fas fa-user-plus"></i>
+            <span>Account Opening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/BalanceInquiry" class="sidebar-menu-link">
+            <i class="fas fa-search-dollar"></i>
+            <span>Balance Inquiry</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Statement" class="sidebar-menu-link">
+            <i class="fas fa-file-invoice"></i>
+            <span>Statement</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Account Opening</h3>
+    <p>Open new customer accounts</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        @if (TempData["NewAccountNumber"] != null)
+        {
+            <br><strong>Account Number:</strong> @TempData["NewAccountNumber"]
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-user-plus"></i> New Account Application</h5>
+            <form method="post" id="accountForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Personal Information</h6>
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">First Name *</label>
+                            <input type="text" class="form-control" id="firstName" name="FirstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name *</label>
+                            <input type="text" class="form-control" id="lastName" name="LastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="Email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="Phone" placeholder="+254...">
+                        </div>
+                        <div class="mb-3">
+                            <label for="idNumber" class="form-label">ID Number *</label>
+                            <input type="text" class="form-control" id="idNumber" name="IdNumber" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Account Information</h6>
+                        <div class="mb-3">
+                            <label for="accountType" class="form-label">Account Type *</label>
+                            <select class="form-control" id="accountType" name="AccountType" required onchange="updateMinimumDeposit()">
+                                <option value="">Select account type</option>
+                                <option value="Savings" data-min="100">Savings Account</option>
+                                <option value="Checking" data-min="250">Checking Account</option>
+                                <option value="Business" data-min="500">Business Account</option>
+                                <option value="Student" data-min="50">Student Account</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="initialDeposit" class="form-label">Initial Deposit *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="initialDeposit" name="InitialDeposit" placeholder="0.00" step="0.01" required>
+                            </div>
+                            <small class="form-text text-muted" id="minimumDepositText">Minimum deposit: $100.00</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="Address" rows="3" placeholder="Enter full address"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="termsAccepted" required>
+                                <label class="form-check-label" for="termsAccepted">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> *
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" id="accountSummary" style="display: none;">
+                    <h6><i class="fas fa-info-circle"></i> Account Summary</h6>
+                    <div id="summaryContent"></div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success" id="createBtn">
+                        <i class="fas fa-plus"></i> Create Account
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Accounts</h5>
+            <div class="list-group">
+                @foreach (var account in Model.RecentAccounts)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@account.AccountNumber</h6>
+                            <small>@account.OpenedDate</small>
+                        </div>
+                        <p class="mb-1">@account.CustomerName</p>
+                        <small>
+                            @account.AccountType | 
+                            <span class="badge bg-@(account.Status == "Active" ? "success" : "warning")">@account.Status</span>
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="data-table mt-3">
+            <h5><i class="fas fa-info-circle"></i> Account Types</h5>
+            <div class="list-group list-group-flush">
+                <div class="list-group-item">
+                    <strong>Savings Account</strong><br>
+                    <small>Min. deposit: $100 | Interest: 2.5% APY</small>
+                </div>
+                <div class="list-group-item">
+                    <strong>Checking Account</strong><br>
+                    <small>Min. deposit: $250 | Free checks</small>
+                </div>
+                <div class="list-group-item">
+                    <strong>Business Account</strong><br>
+                    <small>Min. deposit: $500 | Business features</small>
+                </div>
+                <div class="list-group-item">
+                    <strong>Student Account</strong><br>
+                    <small>Min. deposit: $50 | No monthly fees</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Account Opening Terms</h6>
+                <p>By opening an account with Wekeza Bank, you agree to the following terms:</p>
+                <ul>
+                    <li>Minimum deposit requirements must be maintained</li>
+                    <li>Account fees may apply as per fee schedule</li>
+                    <li>Customer information must be accurate and up-to-date</li>
+                    <li>Bank reserves the right to close accounts for policy violations</li>
+                    <li>Interest rates are subject to change without notice</li>
+                </ul>
+                <h6>Privacy Policy</h6>
+                <p>Your personal information is protected and will not be shared with third parties without consent.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="acceptTerms()">Accept Terms</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateMinimumDeposit() {
+            const accountType = document.getElementById('accountType');
+            const selectedOption = accountType.options[accountType.selectedIndex];
+            const minimumDeposit = selectedOption.getAttribute('data-min') || '100';
+            const minimumText = document.getElementById('minimumDepositText');
+            
+            minimumText.textContent = `Minimum deposit: $${minimumDeposit}.00`;
+            
+            // Update form validation
+            const depositField = document.getElementById('initialDeposit');
+            depositField.setAttribute('min', minimumDeposit);
+            
+            updateAccountSummary();
+        }
+
+        function updateAccountSummary() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const accountType = document.getElementById('accountType').value;
+            const initialDeposit = document.getElementById('initialDeposit').value;
+            const summary = document.getElementById('accountSummary');
+            const summaryContent = document.getElementById('summaryContent');
+            
+            if (firstName && lastName && accountType && initialDeposit) {
+                const accountNumber = `100123${Math.floor(Math.random() * 9000) + 1000}`;
+                summaryContent.innerHTML = `
+                    <strong>Account Holder:</strong> ${firstName} ${lastName}<br>
+                    <strong>Account Type:</strong> ${accountType}<br>
+                    <strong>Initial Deposit:</strong> $${parseFloat(initialDeposit).toFixed(2)}<br>
+                    <strong>Proposed Account #:</strong> ${accountNumber}
+                `;
+                summary.style.display = 'block';
+            } else {
+                summary.style.display = 'none';
+            }
+        }
+
+        function acceptTerms() {
+            document.getElementById('termsAccepted').checked = true;
+        }
+
+        function clearForm() {
+            document.getElementById('accountForm').reset();
+            document.getElementById('accountSummary').style.display = 'none';
+            document.getElementById('minimumDepositText').textContent = 'Minimum deposit: $100.00';
+        }
+
+        // Add event listeners for real-time summary updates
+        document.getElementById('firstName').addEventListener('input', updateAccountSummary);
+        document.getElementById('lastName').addEventListener('input', updateAccountSummary);
+        document.getElementById('initialDeposit').addEventListener('input', updateAccountSummary);
+
+        // Handle form submission
+        document.getElementById('accountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const idNumber = document.getElementById('idNumber').value;
+            const accountType = document.getElementById('accountType').value;
+            const initialDeposit = parseFloat(document.getElementById('initialDeposit').value);
+            const termsAccepted = document.getElementById('termsAccepted').checked;
+            
+            if (!firstName || !lastName || !idNumber || !accountType) {
+                showAlert('danger', 'Please fill in all required fields.');
+                return;
+            }
+            
+            if (!termsAccepted) {
+                showAlert('danger', 'Please accept the terms and conditions.');
+                return;
+            }
+            
+            // Check minimum deposit
+            const accountTypeSelect = document.getElementById('accountType');
+            const selectedOption = accountTypeSelect.options[accountTypeSelect.selectedIndex];
+            const minimumDeposit = parseFloat(selectedOption.getAttribute('data-min')) || 100;
+            
+            if (initialDeposit < minimumDeposit) {
+                showAlert('danger', `Minimum initial deposit for ${accountType} account is $${minimumDeposit}.00`);
+                return;
+            }
+            
+            // Simulate processing
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Generate account number
+                const newAccountNumber = `100123${Math.floor(Math.random() * 9000) + 4577}`;
+                const fullName = `${firstName} ${lastName}`;
+                
+                // Save to localStorage for other pages to access
+                saveNewAccount(newAccountNumber, fullName, accountType, initialDeposit);
+                
+                // Show success message
+                showAlert('success', `Account ${newAccountNumber} created successfully for ${fullName}!`);
+                
+                // Add to recent accounts
+                addToRecentAccounts(newAccountNumber, fullName, accountType);
+                
+                // Clear form
+                clearForm();
+            }, 3000);
+        });
+
+        function saveNewAccount(accountNumber, fullName, accountType, initialDeposit) {
+            // Save for simple lookup (Deposit page)
+            const newAccounts = JSON.parse(localStorage.getItem('newAccounts') || '{}');
+            newAccounts[accountNumber] = fullName;
+            localStorage.setItem('newAccounts', JSON.stringify(newAccounts));
+            
+            // Save for balance lookup (Withdrawal, Transfer pages)
+            const newAccountsWithBalance = JSON.parse(localStorage.getItem('newAccountsWithBalance') || '{}');
+            newAccountsWithBalance[accountNumber] = {
+                name: fullName,
+                balance: initialDeposit
+            };
+            localStorage.setItem('newAccountsWithBalance', JSON.stringify(newAccountsWithBalance));
+            
+            // Save for detailed lookup (Balance Inquiry page)
+            const newAccountsDetailed = JSON.parse(localStorage.getItem('newAccountsDetailed') || '{}');
+            newAccountsDetailed[accountNumber] = {
+                name: fullName,
+                balance: initialDeposit,
+                available: initialDeposit,
+                type: accountType,
+                status: 'Active',
+                transactions: [
+                    { date: new Date().toISOString().split('T')[0], description: 'Initial Deposit', type: 'Credit', amount: initialDeposit, balance: initialDeposit }
+                ]
+            };
+            localStorage.setItem('newAccountsDetailed', JSON.stringify(newAccountsDetailed));
+            
+            // Save for statement lookup (Statement page)
+            const newAccountsStatement = JSON.parse(localStorage.getItem('newAccountsStatement') || '{}');
+            newAccountsStatement[accountNumber] = {
+                name: fullName,
+                type: accountType,
+                openingBalance: 0.00,
+                closingBalance: initialDeposit,
+                transactions: [
+                    { date: new Date().toISOString().split('T')[0], description: 'Initial Deposit', reference: 'DEP001', debit: 0, credit: initialDeposit, balance: initialDeposit }
+                ]
+            };
+            localStorage.setItem('newAccountsStatement', JSON.stringify(newAccountsStatement));
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function addToRecentAccounts(accountNumber, customerName, accountType) {
+            const recentList = document.querySelector('.list-group');
+            const newItem = document.createElement('div');
+            newItem.className = 'list-group-item';
+            newItem.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${accountNumber}</h6>
+                    <small>Just now</small>
+                </div>
+                <p class="mb-1">${customerName}</p>
+                <small>
+                    ${accountType} | 
+                    <span class="badge bg-success">Active</span>
+                </small>
+            `;
+            
+            // Add to top of list
+            recentList.insertBefore(newItem, recentList.firstChild);
+            
+            // Remove last item if more than 4 items
+            if (recentList.children.length > 4) {
+                recentList.removeChild(recentList.lastChild);
+            }
+        }
+    </script>
+}

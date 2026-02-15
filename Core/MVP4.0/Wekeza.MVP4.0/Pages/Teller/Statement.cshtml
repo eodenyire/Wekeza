@@ -1,0 +1,542 @@
+@page
+@model Wekeza.MVP4._0.Pages.Teller.StatementModel
+@{
+    ViewData["Title"] = "Account Statement";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Teller";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Teller" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Deposit" class="sidebar-menu-link">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposits</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Withdrawal" class="sidebar-menu-link">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdrawals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Transfer" class="sidebar-menu-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfers</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/AccountOpening" class="sidebar-menu-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Account Opening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/BalanceInquiry" class="sidebar-menu-link">
+            <i class="fas fa-search-dollar"></i>
+            <span>Balance Inquiry</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Statement" class="sidebar-menu-link active">
+            <i class="fas fa-file-invoice"></i>
+            <span>Statement</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Account Statement</h3>
+    <p>Generate and view customer account statements</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-file-invoice"></i> Generate Statement</h5>
+            <form id="statementForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="accountNumber" class="form-label">Account Number</label>
+                            <input type="text" class="form-control" id="accountNumber" placeholder="Enter account number" required onblur="lookupAccount()">
+                        </div>
+                        <div class="mb-3">
+                            <label for="customerName" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customerName" placeholder="Customer name" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="accountType" class="form-label">Account Type</label>
+                            <input type="text" class="form-control" id="accountType" placeholder="Account type" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="statementPeriod" class="form-label">Statement Period</label>
+                            <select class="form-control" id="statementPeriod" required>
+                                <option value="">Select period</option>
+                                <option value="current">Current Month (Jan 2026)</option>
+                                <option value="previous">Previous Month (Dec 2025)</option>
+                                <option value="last3">Last 3 Months</option>
+                                <option value="last6">Last 6 Months</option>
+                                <option value="custom">Custom Date Range</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="customDateRange" style="display: none;">
+                            <label class="form-label">Custom Date Range</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="date" class="form-control" id="startDate" placeholder="Start Date">
+                                </div>
+                                <div class="col-6">
+                                    <input type="date" class="form-control" id="endDate" placeholder="End Date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="statementFormat" class="form-label">Format</label>
+                            <select class="form-control" id="statementFormat" required>
+                                <option value="pdf">PDF Document</option>
+                                <option value="excel">Excel Spreadsheet</option>
+                                <option value="csv">CSV File</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Delivery Options</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="printStatement" checked>
+                        <label class="form-check-label" for="printStatement">
+                            Print Statement
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="emailStatement">
+                        <label class="form-check-label" for="emailStatement">
+                            Email to Customer
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="downloadStatement">
+                        <label class="form-check-label" for="downloadStatement">
+                            Download Copy
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" onclick="generateStatement()">
+                        <i class="fas fa-file-alt"></i> Generate Statement
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="previewStatement()">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Statement Preview -->
+        <div class="data-table mt-4" id="statementPreview" style="display: none;">
+            <h5><i class="fas fa-eye"></i> Statement Preview</h5>
+            <div class="statement-header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Wekeza Bank</h6>
+                        <p class="mb-1">123 Banking Street</p>
+                        <p class="mb-1">Nairobi, Kenya</p>
+                        <p class="mb-1">Phone: +254-700-123456</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <h6>Account Statement</h6>
+                        <p class="mb-1" id="previewPeriod"></p>
+                        <p class="mb-1" id="previewGenerated"></p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong id="previewCustomerName"></strong><br>
+                        <span id="previewAccountNumber"></span><br>
+                        <span id="previewAccountType"></span>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <strong>Opening Balance: <span id="previewOpeningBalance"></span></strong><br>
+                        <strong>Closing Balance: <span id="previewClosingBalance"></span></strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-responsive mt-3">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Reference</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewTransactions">
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="statement-summary mt-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>Total Debits: <span id="totalDebits" class="text-danger"></span></strong>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Total Credits: <span id="totalCredits" class="text-success"></span></strong>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Net Change: <span id="netChange"></span></strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Statements</h5>
+            <div class="list-group">
+                @foreach (var statement in Model.RecentStatements)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@statement.AccountNumber</h6>
+                            <small>@statement.Time</small>
+                        </div>
+                        <p class="mb-1">@statement.CustomerName</p>
+                        <small>
+                            @statement.Period | 
+                            <span class="badge bg-@(statement.Status == "Generated" ? "primary" : statement.Status == "Emailed" ? "success" : "info")">@statement.Status</span>
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="data-table mt-3">
+            <h5><i class="fas fa-info-circle"></i> Statement Info</h5>
+            <div class="list-group list-group-flush">
+                <div class="list-group-item">
+                    <strong>PDF Format</strong><br>
+                    <small>Professional layout with bank letterhead</small>
+                </div>
+                <div class="list-group-item">
+                    <strong>Excel Format</strong><br>
+                    <small>Spreadsheet format for analysis</small>
+                </div>
+                <div class="list-group-item">
+                    <strong>CSV Format</strong><br>
+                    <small>Raw data for import into other systems</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sample customer data with transaction history - synchronized with other pages
+        const customers = {
+            '1001234567': { 
+                name: 'John Smith', 
+                type: 'Savings',
+                openingBalance: 2300.00,
+                closingBalance: 2500.00,
+                transactions: [
+                    { date: '2026-01-22', description: 'ATM Withdrawal', reference: 'ATM001', debit: 200.00, credit: 0, balance: 2500.00 },
+                    { date: '2026-01-21', description: 'Direct Deposit', reference: 'DD001', debit: 0, credit: 1500.00, balance: 2700.00 },
+                    { date: '2026-01-20', description: 'Online Transfer', reference: 'TRF001', debit: 300.00, credit: 0, balance: 1200.00 },
+                    { date: '2026-01-19', description: 'Check Deposit', reference: 'CHK001', debit: 0, credit: 800.00, balance: 1500.00 },
+                    { date: '2026-01-18', description: 'Purchase', reference: 'POS001', debit: 150.00, credit: 0, balance: 700.00 },
+                    { date: '2026-01-17', description: 'Interest Credit', reference: 'INT001', debit: 0, credit: 12.50, balance: 850.00 },
+                    { date: '2026-01-16', description: 'Service Charge', reference: 'FEE001', debit: 5.00, credit: 0, balance: 837.50 }
+                ]
+            },
+            '1001234568': { 
+                name: 'Jane Doe', 
+                type: 'Checking',
+                openingBalance: 2800.00,
+                closingBalance: 5800.00,
+                transactions: [
+                    { date: '2026-01-22', description: 'Salary Deposit', reference: 'SAL001', debit: 0, credit: 3000.00, balance: 5800.00 },
+                    { date: '2026-01-21', description: 'Rent Payment', reference: 'RENT001', debit: 1200.00, credit: 0, balance: 2800.00 },
+                    { date: '2026-01-20', description: 'Grocery Store', reference: 'POS002', debit: 85.50, credit: 0, balance: 4000.00 },
+                    { date: '2026-01-19', description: 'Gas Station', reference: 'POS003', debit: 45.00, credit: 0, balance: 4085.50 },
+                    { date: '2026-01-18', description: 'ATM Deposit', reference: 'ATM002', debit: 0, credit: 500.00, balance: 4130.50 }
+                ]
+            },
+            '1001234569': { 
+                name: 'Mike Johnson', 
+                type: 'Savings',
+                openingBalance: 1687.50,
+                closingBalance: 1200.00,
+                transactions: [
+                    { date: '2026-01-22', description: 'Interest Payment', reference: 'INT002', debit: 0, credit: 12.50, balance: 1200.00 },
+                    { date: '2026-01-21', description: 'Transfer Out', reference: 'TRF002', debit: 500.00, credit: 0, balance: 1187.50 },
+                    { date: '2026-01-20', description: 'Cash Deposit', reference: 'DEP001', debit: 0, credit: 300.00, balance: 1687.50 },
+                    { date: '2026-01-19', description: 'Online Purchase', reference: 'ONL001', debit: 75.00, credit: 0, balance: 1387.50 },
+                    { date: '2026-01-18', description: 'Transfer In', reference: 'TRF003', debit: 0, credit: 200.00, balance: 1462.50 }
+                ]
+            }
+        };
+
+        // Load any newly created accounts from localStorage
+        function loadNewAccounts() {
+            const newAccountsStatement = JSON.parse(localStorage.getItem('newAccountsStatement') || '{}');
+            Object.assign(customers, newAccountsStatement);
+        }
+
+        // Initialize with any new accounts
+        loadNewAccounts();
+
+        function lookupAccount() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            const customerNameField = document.getElementById('customerName');
+            const accountTypeField = document.getElementById('accountType');
+            
+            if (accountNumber && customers[accountNumber]) {
+                customerNameField.value = customers[accountNumber].name;
+                accountTypeField.value = customers[accountNumber].type;
+                customerNameField.style.backgroundColor = '#d4edda';
+                accountTypeField.style.backgroundColor = '#d4edda';
+            } else if (accountNumber) {
+                customerNameField.value = 'Account not found';
+                accountTypeField.value = '';
+                customerNameField.style.backgroundColor = '#f8d7da';
+                accountTypeField.style.backgroundColor = '#f8d7da';
+            } else {
+                customerNameField.value = '';
+                accountTypeField.value = '';
+                customerNameField.style.backgroundColor = '';
+                accountTypeField.style.backgroundColor = '';
+            }
+        }
+
+        // Show/hide custom date range
+        document.getElementById('statementPeriod').addEventListener('change', function() {
+            const customDateRange = document.getElementById('customDateRange');
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+            }
+        });
+
+        function previewStatement() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            const period = document.getElementById('statementPeriod').value;
+            
+            if (!accountNumber || !period) {
+                showAlert('warning', 'Please enter account number and select statement period.');
+                return;
+            }
+            
+            if (!customers[accountNumber]) {
+                showAlert('danger', 'Account not found. Please check the account number.');
+                return;
+            }
+            
+            const customer = customers[accountNumber];
+            
+            // Populate preview
+            document.getElementById('previewCustomerName').textContent = customer.name;
+            document.getElementById('previewAccountNumber').textContent = `Account: ${accountNumber}`;
+            document.getElementById('previewAccountType').textContent = `Type: ${customer.type}`;
+            document.getElementById('previewPeriod').textContent = getPeriodText(period);
+            document.getElementById('previewGenerated').textContent = `Generated: ${new Date().toLocaleDateString()}`;
+            document.getElementById('previewOpeningBalance').textContent = `$${customer.openingBalance.toFixed(2)}`;
+            document.getElementById('previewClosingBalance').textContent = `$${customer.closingBalance.toFixed(2)}`;
+            
+            // Populate transactions
+            const transactionTable = document.getElementById('previewTransactions');
+            transactionTable.innerHTML = '';
+            
+            let totalDebits = 0;
+            let totalCredits = 0;
+            
+            customer.transactions.forEach(transaction => {
+                totalDebits += transaction.debit;
+                totalCredits += transaction.credit;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.date}</td>
+                    <td>${transaction.description}</td>
+                    <td>${transaction.reference}</td>
+                    <td class="text-danger">${transaction.debit > 0 ? '$' + transaction.debit.toFixed(2) : ''}</td>
+                    <td class="text-success">${transaction.credit > 0 ? '$' + transaction.credit.toFixed(2) : ''}</td>
+                    <td>$${transaction.balance.toFixed(2)}</td>
+                `;
+                transactionTable.appendChild(row);
+            });
+            
+            // Update summary
+            document.getElementById('totalDebits').textContent = `$${totalDebits.toFixed(2)}`;
+            document.getElementById('totalCredits').textContent = `$${totalCredits.toFixed(2)}`;
+            const netChange = totalCredits - totalDebits;
+            const netChangeElement = document.getElementById('netChange');
+            netChangeElement.textContent = `$${netChange.toFixed(2)}`;
+            netChangeElement.className = netChange >= 0 ? 'text-success' : 'text-danger';
+            
+            // Show preview
+            document.getElementById('statementPreview').style.display = 'block';
+            
+            showAlert('success', 'Statement preview generated successfully!');
+        }
+
+        function generateStatement() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            const period = document.getElementById('statementPeriod').value;
+            const format = document.getElementById('statementFormat').value;
+            
+            if (!accountNumber || !period) {
+                showAlert('warning', 'Please enter account number and select statement period.');
+                return;
+            }
+            
+            if (!customers[accountNumber]) {
+                showAlert('danger', 'Account not found. Please check the account number.');
+                return;
+            }
+            
+            const printStatement = document.getElementById('printStatement').checked;
+            const emailStatement = document.getElementById('emailStatement').checked;
+            const downloadStatement = document.getElementById('downloadStatement').checked;
+            
+            // Show loading state
+            const generateBtn = document.querySelector('button[onclick="generateStatement()"]');
+            const originalText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            generateBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Reset button
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+                
+                let actions = [];
+                if (printStatement) actions.push('printed');
+                if (emailStatement) actions.push('emailed');
+                if (downloadStatement) actions.push('downloaded');
+                
+                const customer = customers[accountNumber];
+                const actionText = actions.length > 0 ? ` and ${actions.join(', ')}` : '';
+                
+                showAlert('success', `${format.toUpperCase()} statement generated successfully for ${customer.name}${actionText}!`);
+                
+                // Add to recent statements
+                addToRecentStatements(accountNumber, customer.name, getPeriodText(period));
+                
+            }, 2000);
+        }
+
+        function getPeriodText(period) {
+            switch(period) {
+                case 'current': return 'Jan 2026';
+                case 'previous': return 'Dec 2025';
+                case 'last3': return 'Oct-Dec 2025';
+                case 'last6': return 'Jul-Dec 2025';
+                case 'custom': return 'Custom Range';
+                default: return period;
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('statementForm').reset();
+            document.getElementById('customerName').style.backgroundColor = '';
+            document.getElementById('accountType').style.backgroundColor = '';
+            document.getElementById('statementPreview').style.display = 'none';
+            document.getElementById('customDateRange').style.display = 'none';
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function addToRecentStatements(accountNumber, customerName, period) {
+            const recentList = document.querySelector('.list-group');
+            const newItem = document.createElement('div');
+            newItem.className = 'list-group-item';
+            newItem.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${accountNumber}</h6>
+                    <small>Just now</small>
+                </div>
+                <p class="mb-1">${customerName}</p>
+                <small>
+                    ${period} | 
+                    <span class="badge bg-primary">Generated</span>
+                </small>
+            `;
+            
+            // Add to top of list
+            recentList.insertBefore(newItem, recentList.firstChild);
+            
+            // Remove last item if more than 4 items
+            if (recentList.children.length > 4) {
+                recentList.removeChild(recentList.lastChild);
+            }
+        }
+    </script>
+    
+    <style>
+        .statement-header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .statement-summary {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        #statementPreview {
+            border: 2px solid #007bff;
+            border-radius: 8px;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+    </style>
+}

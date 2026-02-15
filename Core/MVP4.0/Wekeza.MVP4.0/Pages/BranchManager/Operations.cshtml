@@ -1,0 +1,332 @@
+@page
+@model Wekeza.MVP4._0.Pages.BranchManager.OperationsModel
+@{
+    ViewData["Title"] = "Branch Operations";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Branch Manager";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Staff" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>Staff Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Performance" class="sidebar-menu-link">
+            <i class="fas fa-chart-line"></i>
+            <span>Performance</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Reports" class="sidebar-menu-link">
+            <i class="fas fa-file-alt"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/BranchManager/Operations" class="sidebar-menu-link active">
+            <i class="fas fa-cogs"></i>
+            <span>Operations</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Risk & Compliance Operations</h3>
+    <p>Monitor risk alerts, compliance issues, and branch security</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>AML ALERTS</h6>
+                <div class="stat-value">@Model.AMLAlerts</div>
+                <div class="stat-change">
+                    <i class="fas fa-shield-alt"></i> Requires review
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>SUSPICIOUS TRANSACTIONS</h6>
+                <div class="stat-value">@Model.SuspiciousTransactions</div>
+                <div class="stat-change">
+                    <i class="fas fa-search"></i> Under investigation
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-eye"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card info">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>DORMANT ACCOUNTS</h6>
+                <div class="stat-value">@Model.DormantAccounts</div>
+                <div class="stat-change">
+                    <i class="fas fa-clock"></i> Needs attention
+                </div>
+            </div>
+            <div class="stat-icon info">
+                <i class="fas fa-user-clock"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>COMPLIANCE SCORE</h6>
+                <div class="stat-value">@Model.ComplianceScore</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i> Excellent
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-award"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Risk & Compliance Actions</h5>
+    <div class="action-buttons">
+        <button class="action-btn" onclick="reviewAMLAlerts()">
+            <i class="fas fa-shield-alt"></i>
+            <span>Review AML Alerts</span>
+        </button>
+        <button class="action-btn" onclick="generateComplianceReport()">
+            <i class="fas fa-file-alt"></i>
+            <span>Compliance Report</span>
+        </button>
+        <button class="action-btn" onclick="lockSuspiciousAccount()">
+            <i class="fas fa-lock"></i>
+            <span>Lock Account</span>
+        </button>
+        <button class="action-btn" onclick="escalateToHeadOffice()">
+            <i class="fas fa-arrow-up"></i>
+            <span>Escalate Issue</span>
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-exclamation-triangle"></i> Risk & Compliance Alerts</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Alert Type</th>
+                        <th>Account/Customer</th>
+                        <th>Details</th>
+                        <th>Risk Level</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge bg-danger">AML Alert</span></td>
+                        <td>1001234567<br><small>John Smith</small></td>
+                        <td>Large cash transaction - $25,000</td>
+                        <td><span class="badge bg-danger">Critical</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="investigateAlert('AML001')">Investigate</button>
+                            <button class="btn btn-sm btn-danger" onclick="escalateAlert('AML001')">Escalate</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge bg-warning">Suspicious Activity</span></td>
+                        <td>1001234568<br><small>Jane Doe</small></td>
+                        <td>Multiple withdrawals in short period</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="investigateAlert('SA002')">Investigate</button>
+                            <button class="btn btn-sm btn-success" onclick="clearAlert('SA002')">Clear</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge bg-info">KYC Update</span></td>
+                        <td>1001234569<br><small>Mike Johnson</small></td>
+                        <td>Customer ID document expired</td>
+                        <td><span class="badge bg-info">Low</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="requestKYCUpdate('KYC003')">Request Update</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge bg-secondary">Dormant Account</span></td>
+                        <td>1001234570<br><small>Sarah Wilson</small></td>
+                        <td>No activity for 6 months</td>
+                        <td><span class="badge bg-secondary">Monitor</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="contactCustomer('DA004')">Contact Customer</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-clipboard-check"></i> Compliance Checklist</h5>
+            <div class="list-group">
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Daily AML Review</span>
+                    <span class="badge bg-success">Complete</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Cash Limit Monitoring</span>
+                    <span class="badge bg-success">Complete</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Suspicious Activity Report</span>
+                    <span class="badge bg-warning">Pending</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>KYC Updates Review</span>
+                    <span class="badge bg-danger">Overdue</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Regulatory Filing</span>
+                    <span class="badge bg-info">Due Tomorrow</span>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <h6><i class="fas fa-lock"></i> Account Locks</h6>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <strong>Account: 1001234571</strong><br>
+                        <small>Locked for investigation - Fraud suspicion</small>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-success" onclick="unlockAccount('1001234571')">Unlock</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        function reviewAMLAlerts() {
+            showAlert('info', 'Opening AML alert review dashboard...');
+            // In a real system, this would open a detailed AML review interface
+        }
+        
+        function generateComplianceReport() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Generating...</span>';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                showAlert('success', 'Compliance report generated and submitted to regulatory authorities');
+            }, 3000);
+        }
+        
+        function lockSuspiciousAccount() {
+            const accountNumber = prompt('Enter account number to lock:');
+            if (accountNumber) {
+                showAlert('warning', `Account ${accountNumber} has been locked pending investigation`);
+            }
+        }
+        
+        function escalateToHeadOffice() {
+            const issue = prompt('Enter issue description to escalate:');
+            if (issue) {
+                showAlert('info', 'Issue escalated to head office compliance team');
+            }
+        }
+        
+        function investigateAlert(alertId) {
+            showAlert('info', `Investigation initiated for alert ${alertId}`);
+            // Mark the row as under investigation
+            const button = event.target;
+            button.innerHTML = '<i class="fas fa-search"></i> Investigating';
+            button.className = 'btn btn-sm btn-info';
+            button.disabled = true;
+        }
+        
+        function escalateAlert(alertId) {
+            showAlert('warning', `Alert ${alertId} escalated to compliance team`);
+            // Remove the row as it's been escalated
+            event.target.closest('tr').remove();
+        }
+        
+        function clearAlert(alertId) {
+            showAlert('success', `Alert ${alertId} cleared successfully`);
+            // Remove the row as it's been cleared
+            event.target.closest('tr').remove();
+        }
+        
+        function requestKYCUpdate(kycId) {
+            showAlert('info', `KYC update request sent to customer for ${kycId}`);
+            // Update the button to show request sent
+            const button = event.target;
+            button.innerHTML = '<i class="fas fa-check"></i> Sent';
+            button.className = 'btn btn-sm btn-success';
+            button.disabled = true;
+        }
+        
+        function contactCustomer(dormantId) {
+            showAlert('info', `Customer contact initiated for dormant account ${dormantId}`);
+            // Update the button to show contact made
+            const button = event.target;
+            button.innerHTML = '<i class="fas fa-phone"></i> Contacted';
+            button.className = 'btn btn-sm btn-success';
+            button.disabled = true;
+        }
+        
+        function unlockAccount(accountNumber) {
+            if (confirm(`Are you sure you want to unlock account ${accountNumber}?`)) {
+                showAlert('success', `Account ${accountNumber} has been unlocked`);
+                // Remove the locked account from the list
+                event.target.closest('.list-group-item').remove();
+            }
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+}

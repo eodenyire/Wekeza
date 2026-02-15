@@ -1,0 +1,311 @@
+@page
+@model Wekeza.MVP4._0.Pages.Admin.AuditModel
+@{
+    ViewData["Title"] = "Audit Logs";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Administrator";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Admin" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Users" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Roles" class="sidebar-menu-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Role Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Settings" class="sidebar-menu-link">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Audit" class="sidebar-menu-link active">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Audit Logs</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Reports" class="sidebar-menu-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Profile" class="sidebar-menu-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Audit Logs</h3>
+    <p>Monitor system activities and user actions</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="data-table">
+            <h5><i class="fas fa-filter"></i> Filter Audit Logs</h5>
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">From Date</label>
+                    <input type="date" class="form-control" name="fromDate" value="@Model.FromDate?.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">To Date</label>
+                    <input type="date" class="form-control" name="toDate" value="@Model.ToDate?.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">User</label>
+                    <select class="form-control" name="userName">
+                        <option value="">All Users</option>
+                        <option value="admin" selected="@(Model.UserNameFilter == "admin")">admin</option>
+                        <option value="system" selected="@(Model.UserNameFilter == "system")">system</option>
+                        <option value="branchmanager1" selected="@(Model.UserNameFilter == "branchmanager1")">branchmanager1</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Action</label>
+                    <select class="form-control" name="action">
+                        <option value="">All Actions</option>
+                        <option value="User Login" selected="@(Model.ActionFilter == "User Login")">User Login</option>
+                        <option value="Authorization Approved" selected="@(Model.ActionFilter == "Authorization Approved")">Authorization Approved</option>
+                        <option value="Risk Alert Created" selected="@(Model.ActionFilter == "Risk Alert Created")">Risk Alert Created</option>
+                        <option value="System Setting Updated" selected="@(Model.ActionFilter == "System Setting Updated")">System Setting Updated</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Filter Logs
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="exportLogs()">
+                        <i class="fas fa-download"></i> Export Logs
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="data-table">
+            <h5><i class="fas fa-clipboard-list"></i> Audit Trail</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>IP Address</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model.AuditLogs)
+                        {
+                            <tr>
+                                <td>
+                                    <small>@log.Timestamp.ToString("MMM dd, yyyy")</small><br>
+                                    <small class="text-muted">@log.Timestamp.ToString("HH:mm:ss")</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@GetUserBadgeClass(log.UserName)">@log.UserName</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@GetActionBadgeClass(log.Action)">@log.Action</span>
+                                </td>
+                                <td>
+                                    @log.EntityType
+                                    @if (!string.IsNullOrEmpty(log.EntityId))
+                                    {
+                                        <br><small class="text-muted">ID: @log.EntityId.Substring(0, Math.Min(8, log.EntityId.Length))...</small>
+                                    }
+                                </td>
+                                <td>@log.IpAddress</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.OldValues) || !string.IsNullOrEmpty(log.NewValues))
+                                    {
+                                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#detailsModal" onclick="showLogDetails('@log.Id', '@log.Action', '@log.OldValues', '@log.NewValues')">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No details</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            @if (!Model.AuditLogs.Any())
+            {
+                <div class="text-center py-4">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No audit logs found for the selected criteria.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Log Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Audit Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Action</h6>
+                        <p id="modalAction">-</p>
+                        
+                        <h6>Old Values</h6>
+                        <pre id="modalOldValues" class="bg-light p-2 rounded">-</pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Log ID</h6>
+                        <p id="modalLogId">-</p>
+                        
+                        <h6>New Values</h6>
+                        <pre id="modalNewValues" class="bg-light p-2 rounded">-</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function clearFilters() {
+            window.location.href = '/Admin/Audit';
+        }
+        
+        function exportLogs() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            button.disabled = true;
+            
+            const fromDate = document.querySelector('input[name="fromDate"]').value;
+            const toDate = document.querySelector('input[name="toDate"]').value;
+            
+            let url = '/api/admin/export-audit-logs';
+            const params = new URLSearchParams();
+            if (fromDate) params.append('fromDate', fromDate);
+            if (toDate) params.append('toDate', toDate);
+            if (params.toString()) url += '?' + params.toString();
+            
+            fetch(url, {
+                method: 'POST'
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('Export failed');
+                }
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `audit_logs_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                showAlert('success', 'Audit logs exported successfully!');
+            })
+            .catch(error => {
+                showAlert('danger', 'Failed to export audit logs.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        function showLogDetails(logId, action, oldValues, newValues) {
+            document.getElementById('modalLogId').textContent = logId;
+            document.getElementById('modalAction').textContent = action;
+            document.getElementById('modalOldValues').textContent = oldValues || 'No old values';
+            document.getElementById('modalNewValues').textContent = newValues || 'No new values';
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+}
+
+@functions {
+    private string GetUserBadgeClass(string userName)
+    {
+        return userName switch
+        {
+            "admin" => "danger",
+            "system" => "secondary",
+            "branchmanager1" => "primary",
+            _ => "info"
+        };
+    }
+    
+    private string GetActionBadgeClass(string action)
+    {
+        return action switch
+        {
+            "User Login" => "success",
+            "Authorization Approved" => "primary",
+            "Risk Alert Created" => "warning",
+            "System Setting Updated" => "info",
+            _ => "secondary"
+        };
+    }
+}

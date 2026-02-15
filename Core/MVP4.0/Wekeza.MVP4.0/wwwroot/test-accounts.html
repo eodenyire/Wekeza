@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Account Test - Wekeza Banking</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .account { background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 3px; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 3px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Wekeza Banking - Account Test Page</h1>
+        
+        <div class="section">
+            <h3>📝 Create Test Account</h3>
+            <input type="text" id="testName" placeholder="Customer Name" value="Test Customer">
+            <input type="text" id="testType" placeholder="Account Type" value="Savings">
+            <input type="number" id="testDeposit" placeholder="Initial Deposit" value="500">
+            <button onclick="createTestAccount()">Create Test Account</button>
+            <div id="createResult"></div>
+        </div>
+
+        <div class="section">
+            <h3>🔍 Test Account Lookup</h3>
+            <input type="text" id="lookupAccount" placeholder="Enter Account Number">
+            <button onclick="testLookup()">Test Lookup</button>
+            <div id="lookupResult"></div>
+        </div>
+
+        <div class="section">
+            <h3>💾 Stored Accounts</h3>
+            <button onclick="showStoredAccounts()">Show All Stored Accounts</button>
+            <button onclick="clearAllAccounts()">Clear All Accounts</button>
+            <div id="storedAccounts"></div>
+        </div>
+
+        <div class="section">
+            <h3>🔗 Quick Links</h3>
+            <a href="/Teller/AccountOpening" target="_blank">Account Opening</a> |
+            <a href="/Teller/Deposit" target="_blank">Deposit</a> |
+            <a href="/Teller/Withdrawal" target="_blank">Withdrawal</a> |
+            <a href="/Teller/Transfer" target="_blank">Transfer</a> |
+            <a href="/Teller/BalanceInquiry" target="_blank">Balance Inquiry</a>
+        </div>
+    </div>
+
+    <script>
+        function createTestAccount() {
+            const name = document.getElementById('testName').value;
+            const type = document.getElementById('testType').value;
+            const deposit = parseFloat(document.getElementById('testDeposit').value);
+            
+            if (!name || !type || !deposit) {
+                document.getElementById('createResult').innerHTML = '<div class="error">Please fill all fields</div>';
+                return;
+            }
+            
+            // Generate account number
+            const accountNumber = `100123${Math.floor(Math.random() * 9000) + 4577}`;
+            
+            // Save to localStorage (same as Account Opening page)
+            saveNewAccount(accountNumber, name, type, deposit);
+            
+            document.getElementById('createResult').innerHTML = `
+                <div class="success">
+                    ✅ Account created successfully!<br>
+                    <strong>Account Number:</strong> ${accountNumber}<br>
+                    <strong>Customer:</strong> ${name}<br>
+                    <strong>Type:</strong> ${type}<br>
+                    <strong>Initial Deposit:</strong> $${deposit.toFixed(2)}
+                </div>
+            `;
+        }
+
+        function saveNewAccount(accountNumber, fullName, accountType, initialDeposit) {
+            // Save for simple lookup (Deposit page)
+            const newAccounts = JSON.parse(localStorage.getItem('newAccounts') || '{}');
+            newAccounts[accountNumber] = fullName;
+            localStorage.setItem('newAccounts', JSON.stringify(newAccounts));
+            
+            // Save for balance lookup (Withdrawal, Transfer pages)
+            const newAccountsWithBalance = JSON.parse(localStorage.getItem('newAccountsWithBalance') || '{}');
+            newAccountsWithBalance[accountNumber] = {
+                name: fullName,
+                balance: initialDeposit
+            };
+            localStorage.setItem('newAccountsWithBalance', JSON.stringify(newAccountsWithBalance));
+            
+            // Save for detailed lookup (Balance Inquiry page)
+            const newAccountsDetailed = JSON.parse(localStorage.getItem('newAccountsDetailed') || '{}');
+            newAccountsDetailed[accountNumber] = {
+                name: fullName,
+                balance: initialDeposit,
+                available: initialDeposit,
+                type: accountType,
+                status: 'Active',
+                transactions: [
+                    { date: new Date().toISOString().split('T')[0], description: 'Initial Deposit', type: 'Credit', amount: initialDeposit, balance: initialDeposit }
+                ]
+            };
+            localStorage.setItem('newAccountsDetailed', JSON.stringify(newAccountsDetailed));
+            
+            // Save for statement lookup (Statement page)
+            const newAccountsStatement = JSON.parse(localStorage.getItem('newAccountsStatement') || '{}');
+            newAccountsStatement[accountNumber] = {
+                name: fullName,
+                type: accountType,
+                openingBalance: 0.00,
+                closingBalance: initialDeposit,
+                transactions: [
+                    { date: new Date().toISOString().split('T')[0], description: 'Initial Deposit', reference: 'DEP001', debit: 0, credit: initialDeposit, balance: initialDeposit }
+                ]
+            };
+            localStorage.setItem('newAccountsStatement', JSON.stringify(newAccountsStatement));
+        }
+
+        function testLookup() {
+            const accountNumber = document.getElementById('lookupAccount').value;
+            if (!accountNumber) {
+                document.getElementById('lookupResult').innerHTML = '<div class="error">Please enter an account number</div>';
+                return;
+            }
+            
+            // Test all storage formats
+            const newAccounts = JSON.parse(localStorage.getItem('newAccounts') || '{}');
+            const newAccountsWithBalance = JSON.parse(localStorage.getItem('newAccountsWithBalance') || '{}');
+            const newAccountsDetailed = JSON.parse(localStorage.getItem('newAccountsDetailed') || '{}');
+            
+            let result = '<h4>Lookup Results:</h4>';
+            
+            if (newAccounts[accountNumber]) {
+                result += `<div class="success">✅ Simple Lookup: ${newAccounts[accountNumber]}</div>`;
+            } else {
+                result += `<div class="error">❌ Simple Lookup: Not found</div>`;
+            }
+            
+            if (newAccountsWithBalance[accountNumber]) {
+                const account = newAccountsWithBalance[accountNumber];
+                result += `<div class="success">✅ Balance Lookup: ${account.name} - $${account.balance.toFixed(2)}</div>`;
+            } else {
+                result += `<div class="error">❌ Balance Lookup: Not found</div>`;
+            }
+            
+            if (newAccountsDetailed[accountNumber]) {
+                const account = newAccountsDetailed[accountNumber];
+                result += `<div class="success">✅ Detailed Lookup: ${account.name} - ${account.type} - $${account.balance.toFixed(2)}</div>`;
+            } else {
+                result += `<div class="error">❌ Detailed Lookup: Not found</div>`;
+            }
+            
+            document.getElementById('lookupResult').innerHTML = result;
+        }
+
+        function showStoredAccounts() {
+            const newAccounts = JSON.parse(localStorage.getItem('newAccounts') || '{}');
+            const newAccountsWithBalance = JSON.parse(localStorage.getItem('newAccountsWithBalance') || '{}');
+            
+            let result = '<h4>All Stored Accounts:</h4>';
+            
+            if (Object.keys(newAccounts).length === 0) {
+                result += '<div>No accounts found in storage</div>';
+            } else {
+                Object.keys(newAccounts).forEach(accountNumber => {
+                    const balance = newAccountsWithBalance[accountNumber]?.balance || 0;
+                    result += `
+                        <div class="account">
+                            <strong>${accountNumber}</strong> - ${newAccounts[accountNumber]} - $${balance.toFixed(2)}
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('storedAccounts').innerHTML = result;
+        }
+
+        function clearAllAccounts() {
+            localStorage.removeItem('newAccounts');
+            localStorage.removeItem('newAccountsWithBalance');
+            localStorage.removeItem('newAccountsDetailed');
+            localStorage.removeItem('newAccountsStatement');
+            
+            document.getElementById('storedAccounts').innerHTML = '<div class="success">✅ All accounts cleared from storage</div>';
+        }
+
+        // Auto-load stored accounts on page load
+        window.onload = function() {
+            showStoredAccounts();
+        };
+    </script>
+</body>
+</html>

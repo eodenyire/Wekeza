@@ -1,0 +1,1 @@
+SELECT "Username", "PasswordHash" FROM "Users" WHERE "Username" IN ('admin', 'teller1') LIMIT 2;

@@ -1,0 +1,485 @@
+@page
+@model Wekeza.MVP4._0.Pages.Teller.CashDrawerModel
+@{
+    ViewData["Title"] = "Cash Drawer";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Teller";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Teller" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Deposit" class="sidebar-menu-link">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposits</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Withdrawal" class="sidebar-menu-link">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdrawals</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Transfer" class="sidebar-menu-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfers</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/AccountOpening" class="sidebar-menu-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Account Opening</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/BalanceInquiry" class="sidebar-menu-link">
+            <i class="fas fa-search-dollar"></i>
+            <span>Balance Inquiry</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/Statement" class="sidebar-menu-link">
+            <i class="fas fa-file-invoice"></i>
+            <span>Statement</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Teller/CashDrawer" class="sidebar-menu-link active">
+            <i class="fas fa-cash-register"></i>
+            <span>Cash Drawer</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Cash Drawer Management</h3>
+    <p>Manage your cash drawer and track transactions</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Cash Drawer Status -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>CURRENT BALANCE</h6>
+                <div class="stat-value">$@Model.CurrentCashBalance</div>
+                <div class="stat-change">
+                    <i class="fas fa-cash-register"></i> In drawer
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>OPENING BALANCE</h6>
+                <div class="stat-value">$@Model.OpeningBalance</div>
+                <div class="stat-change">
+                    <i class="fas fa-play"></i> Start of day
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-play-circle"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card info">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TOTAL DEPOSITS</h6>
+                <div class="stat-value">$@Model.TotalDeposits</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> Today
+                </div>
+            </div>
+            <div class="stat-icon info">
+                <i class="fas fa-plus"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TOTAL WITHDRAWALS</h6>
+                <div class="stat-value">$@Model.TotalWithdrawals</div>
+                <div class="stat-change">
+                    <i class="fas fa-arrow-down"></i> Today
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-minus"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Cash Drawer Actions</h5>
+    <div class="action-buttons">
+        <button class="action-btn" data-bs-toggle="modal" data-bs-target="#openDrawerModal">
+            <i class="fas fa-unlock"></i>
+            <span>Open Drawer</span>
+        </button>
+        <button class="action-btn" data-bs-toggle="modal" data-bs-target="#closeDrawerModal">
+            <i class="fas fa-lock"></i>
+            <span>Close Drawer</span>
+        </button>
+        <button class="action-btn" data-bs-toggle="modal" data-bs-target="#addCashModal">
+            <i class="fas fa-plus-circle"></i>
+            <span>Add Cash</span>
+        </button>
+        <button class="action-btn" data-bs-toggle="modal" data-bs-target="#removeCashModal">
+            <i class="fas fa-minus-circle"></i>
+            <span>Remove Cash</span>
+        </button>
+        <button class="action-btn" onclick="printReconciliation()">
+            <i class="fas fa-print"></i>
+            <span>Print Report</span>
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-list"></i> Today's Cash Transactions</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Customer</th>
+                        <th>Reference</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in Model.CashTransactions)
+                    {
+                        <tr>
+                            <td>@transaction.Time</td>
+                            <td>
+                                <span class="badge bg-@(transaction.Type == "Deposit" ? "success" : "danger")">
+                                    @transaction.Type
+                                </span>
+                            </td>
+                            <td class="@(transaction.Type == "Deposit" ? "text-success" : "text-danger")">
+                                @(transaction.Type == "Deposit" ? "+" : "-")@transaction.Amount
+                            </td>
+                            <td>@transaction.Customer</td>
+                            <td>@transaction.Reference</td>
+                            <td><strong>@transaction.Balance</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-calculator"></i> Cash Breakdown</h5>
+            <div class="cash-breakdown">
+                <div class="denomination">
+                    <span>$100 x 200</span>
+                    <span class="amount">$20,000</span>
+                </div>
+                <div class="denomination">
+                    <span>$50 x 50</span>
+                    <span class="amount">$2,500</span>
+                </div>
+                <div class="denomination">
+                    <span>$20 x 75</span>
+                    <span class="amount">$1,500</span>
+                </div>
+                <div class="denomination">
+                    <span>$10 x 80</span>
+                    <span class="amount">$800</span>
+                </div>
+                <div class="denomination">
+                    <span>$5 x 100</span>
+                    <span class="amount">$500</span>
+                </div>
+                <div class="denomination">
+                    <span>$1 x 150</span>
+                    <span class="amount">$150</span>
+                </div>
+                <hr>
+                <div class="denomination total">
+                    <span><strong>Total Cash</strong></span>
+                    <span class="amount"><strong>$@Model.CurrentCashBalance</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table mt-3">
+            <h5><i class="fas fa-info-circle"></i> Drawer Status</h5>
+            <div class="status-info">
+                <div class="status-item">
+                    <span>Status:</span>
+                    <span class="badge bg-success">@Model.DrawerStatus</span>
+                </div>
+                <div class="status-item">
+                    <span>Last Opened:</span>
+                    <span>08:00 AM</span>
+                </div>
+                <div class="status-item">
+                    <span>Transactions:</span>
+                    <span>@Model.CashTransactions.Count</span>
+                </div>
+                <div class="status-item">
+                    <span>Variance:</span>
+                    <span class="text-success">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Open Drawer Modal -->
+<div class="modal fade" id="openDrawerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Open Cash Drawer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="OpenDrawer">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="openingAmount" class="form-label">Opening Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="openingAmount" name="OpeningAmount" placeholder="0.00" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Count your cash carefully before opening the drawer.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Open Drawer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Close Drawer Modal -->
+<div class="modal fade" id="closeDrawerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Close Cash Drawer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="CloseDrawer">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <strong>Warning:</strong> This will close your cash drawer and generate a reconciliation report.
+                    </div>
+                    <div class="reconciliation-summary">
+                        <h6>End of Day Summary</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Opening Balance:</strong><br>
+                                <strong>Total Deposits:</strong><br>
+                                <strong>Total Withdrawals:</strong><br>
+                                <strong>Expected Balance:</strong>
+                            </div>
+                            <div class="col-6 text-end">
+                                $@Model.OpeningBalance<br>
+                                $@Model.TotalDeposits<br>
+                                $@Model.TotalWithdrawals<br>
+                                <strong>$@Model.CurrentCashBalance</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Close Drawer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Cash Modal -->
+<div class="modal fade" id="addCashModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Cash to Drawer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="AddCash">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="addAmount" class="form-label">Amount to Add</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="addAmount" name="Amount" placeholder="0.00" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addReason" class="form-label">Reason</label>
+                        <select class="form-control" id="addReason" name="Reason" required>
+                            <option value="">Select reason</option>
+                            <option value="Cash replenishment">Cash Replenishment</option>
+                            <option value="Change fund">Change Fund</option>
+                            <option value="Supervisor adjustment">Supervisor Adjustment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Add Cash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Cash Modal -->
+<div class="modal fade" id="removeCashModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Cash from Drawer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="RemoveCash">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="removeAmount" class="form-label">Amount to Remove</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="removeAmount" name="Amount" placeholder="0.00" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="removeReason" class="form-label">Reason</label>
+                        <select class="form-control" id="removeReason" name="Reason" required>
+                            <option value="">Select reason</option>
+                            <option value="Cash pickup">Cash Pickup</option>
+                            <option value="Vault deposit">Vault Deposit</option>
+                            <option value="Supervisor adjustment">Supervisor Adjustment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Remove Cash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function printReconciliation() {
+            showAlert('info', 'Reconciliation report sent to printer...');
+            // In a real application, this would generate and print a reconciliation report
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+    
+    <style>
+        .cash-breakdown {
+            padding: 15px;
+        }
+        
+        .denomination {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .denomination.total {
+            border-top: 2px solid #007bff;
+            border-bottom: none;
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+        
+        .amount {
+            font-weight: bold;
+        }
+        
+        .status-info {
+            padding: 15px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .reconciliation-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+}

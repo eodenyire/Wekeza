@@ -1,0 +1,396 @@
+@page
+@model Wekeza.MVP4._0.Pages.CustomerCare.FeedbackModel
+@{
+    ViewData["Title"] = "Customer Feedback";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Customer Care Officer";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Search" class="sidebar-menu-link">
+            <i class="fas fa-search"></i>
+            <span>Search Customer</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Inquiries" class="sidebar-menu-link">
+            <i class="fas fa-question-circle"></i>
+            <span>Inquiries</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Complaints" class="sidebar-menu-link">
+            <i class="fas fa-comment-dots"></i>
+            <span>Complaints</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/CustomerCare/Feedback" class="sidebar-menu-link active">
+            <i class="fas fa-star"></i>
+            <span>Feedback</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Customer Feedback & Satisfaction</h3>
+    <p>Monitor customer satisfaction and feedback metrics</p>
+</div>
+
+<div class="stats-grid mb-4">
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>OVERALL SATISFACTION</h6>
+                <div class="stat-value">4.2/5</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +0.3 this month
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-star"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TOTAL FEEDBACK</h6>
+                <div class="stat-value">247</div>
+                <div class="stat-change">
+                    <i class="fas fa-comment"></i> This month
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-comments"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>RESPONSE RATE</h6>
+                <div class="stat-value">87%</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-reply"></i> Excellent
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-chart-line"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>NPS SCORE</h6>
+                <div class="stat-value">+42</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-thumbs-up"></i> Good
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-heart"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-star"></i> Recent Feedback</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Rating</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Smith</td>
+                        <td>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                            </div>
+                        </td>
+                        <td>Service Quality</td>
+                        <td>Today</td>
+                    </tr>
+                    <tr>
+                        <td>Mary Johnson</td>
+                        <td>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="far fa-star text-muted"></i>
+                            </div>
+                        </td>
+                        <td>Mobile App</td>
+                        <td>Yesterday</td>
+                    </tr>
+                    <tr>
+                        <td>David Wilson</td>
+                        <td>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="far fa-star text-muted"></i>
+                                <i class="far fa-star text-muted"></i>
+                            </div>
+                        </td>
+                        <td>ATM Experience</td>
+                        <td>2 days ago</td>
+                    </tr>
+                    <tr>
+                        <td>Sarah Brown</td>
+                        <td>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                            </div>
+                        </td>
+                        <td>Branch Service</td>
+                        <td>3 days ago</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-chart-pie"></i> Feedback Categories</h5>
+            <div class="feedback-categories">
+                <div class="category-item">
+                    <div class="category-info">
+                        <span class="category-name">Service Quality</span>
+                        <span class="category-count">89 feedback</span>
+                    </div>
+                    <div class="category-rating">
+                        <span class="rating-score">4.5</span>
+                        <div class="rating-stars">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="category-item">
+                    <div class="category-info">
+                        <span class="category-name">Mobile App</span>
+                        <span class="category-count">67 feedback</span>
+                    </div>
+                    <div class="category-rating">
+                        <span class="rating-score">4.1</span>
+                        <div class="rating-stars">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="far fa-star text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="category-item">
+                    <div class="category-info">
+                        <span class="category-name">ATM Experience</span>
+                        <span class="category-count">45 feedback</span>
+                    </div>
+                    <div class="category-rating">
+                        <span class="rating-score">3.8</span>
+                        <div class="rating-stars">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                            <i class="far fa-star text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="category-item">
+                    <div class="category-info">
+                        <span class="category-name">Branch Service</span>
+                        <span class="category-count">46 feedback</span>
+                    </div>
+                    <div class="category-rating">
+                        <span class="rating-score">4.3</span>
+                        <div class="rating-stars">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="data-table">
+            <h5><i class="fas fa-comments"></i> Recent Comments</h5>
+            <div class="feedback-comments">
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <strong>John Smith</strong>
+                        <span class="comment-rating">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </span>
+                        <small class="text-muted">Today, 2:30 PM</small>
+                    </div>
+                    <div class="comment-text">
+                        "Excellent service at the branch today. The staff was very helpful and professional. The wait time was minimal and the process was smooth."
+                    </div>
+                    <div class="comment-category">
+                        <span class="badge bg-success">Service Quality</span>
+                    </div>
+                </div>
+                
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <strong>Mary Johnson</strong>
+                        <span class="comment-rating">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="far fa-star text-muted"></i>
+                        </span>
+                        <small class="text-muted">Yesterday, 4:15 PM</small>
+                    </div>
+                    <div class="comment-text">
+                        "The mobile app is generally good but sometimes it's slow to load. Would appreciate faster response times."
+                    </div>
+                    <div class="comment-category">
+                        <span class="badge bg-primary">Mobile App</span>
+                    </div>
+                </div>
+                
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <strong>David Wilson</strong>
+                        <span class="comment-rating">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="far fa-star text-muted"></i>
+                            <i class="far fa-star text-muted"></i>
+                        </span>
+                        <small class="text-muted">2 days ago, 10:45 AM</small>
+                    </div>
+                    <div class="comment-text">
+                        "ATM was out of service when I needed it most. Please ensure better maintenance of ATM machines."
+                    </div>
+                    <div class="comment-category">
+                        <span class="badge bg-warning">ATM Experience</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+<style>
+.feedback-categories .category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.feedback-categories .category-item:last-child {
+    border-bottom: none;
+}
+
+.category-info .category-name {
+    font-weight: 600;
+    display: block;
+}
+
+.category-info .category-count {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.category-rating {
+    text-align: right;
+}
+
+.category-rating .rating-score {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-right: 10px;
+}
+
+.feedback-comments .comment-item {
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.comment-text {
+    margin-bottom: 10px;
+    font-style: italic;
+    color: #495057;
+}
+
+.comment-category {
+    text-align: right;
+}
+
+.rating {
+    display: inline-flex;
+    gap: 2px;
+}
+</style>
+}

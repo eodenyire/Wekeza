@@ -1,0 +1,206 @@
+@page
+@model Wekeza.MVP4._0.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Administrator Dashboard";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Administrator";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Admin" class="sidebar-menu-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Users" class="sidebar-menu-link">
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Roles" class="sidebar-menu-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Role Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Settings" class="sidebar-menu-link">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Audit" class="sidebar-menu-link">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Audit Logs</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Reports" class="sidebar-menu-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Profile" class="sidebar-menu-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Welcome back, @Model.UserName!</h3>
+    <p>Here's what's happening in your system today</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TOTAL USERS</h6>
+                <div class="stat-value">@Model.TotalUsers</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 12% this month
+                </div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>ACTIVE ACCOUNTS</h6>
+                <div class="stat-value">@Model.ActiveAccounts</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 8% this month
+                </div>
+            </div>
+            <div class="stat-icon success">
+                <i class="fas fa-wallet"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>TOTAL TRANSACTIONS</h6>
+                <div class="stat-value">@Model.TotalTransactions</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 23% this week
+                </div>
+            </div>
+            <div class="stat-icon warning">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-header">
+            <div class="stat-info">
+                <h6>ACTIVE LOANS</h6>
+                <div class="stat-value">@Model.ActiveLoans</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i> 3% this month
+                </div>
+            </div>
+            <div class="stat-icon danger">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    <div class="action-buttons">
+        <a href="/Admin/Users/Create" class="action-btn">
+            <i class="fas fa-user-plus"></i>
+            <span>Create User</span>
+        </a>
+        <a href="/Admin/Settings" class="action-btn">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+        <a href="/Admin/Reports" class="action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>Generate Report</span>
+        </a>
+        <a href="/Admin/Backup" class="action-btn">
+            <i class="fas fa-database"></i>
+            <span>Database Backup</span>
+        </a>
+    </div>
+</div>
+
+<!-- System Health and Recent Activities -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-heartbeat"></i> System Health</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Status</th>
+                        <th>Last Check</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var health in Model.SystemHealth)
+                    {
+                        <tr>
+                            <td><i class="fas fa-@(health.Component.ToLower() switch { "database" => "database", "api server" => "server", "memory usage" => "memory", "disk space" => "hdd", _ => "cog" })"></i> @health.Component</td>
+                            <td><span class="badge bg-@health.StatusClass">@health.Status</span></td>
+                            <td>@health.LastCheck.ToString("HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5><i class="fas fa-history"></i> Recent Activities</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th>User</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var activity in Model.RecentActivities)
+                    {
+                        <tr>
+                            <td>@activity.Activity</td>
+                            <td>@activity.UserName</td>
+                            <td>@activity.TimeAgo</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Add any dashboard-specific JavaScript here
+        console.log('Administrator Dashboard loaded');
+    </script>
+}

@@ -1,0 +1,1 @@
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20260123164336_AddBranchManagerModels', '8.0.0') ON CONFLICT DO NOTHING;

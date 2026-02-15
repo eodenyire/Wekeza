@@ -1,0 +1,393 @@
+@page
+@model Wekeza.MVP4._0.Pages.Admin.Users.CreateModel
+@{
+    ViewData["Title"] = "Create User";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["UserRole"] = "Administrator";
+    ViewData["UserInitials"] = Model.UserInitials;
+    ViewData["NotificationCount"] = Model.NotificationCount;
+    Layout = "~/Pages/Shared/_DashboardLayout.cshtml";
+}
+
+@section SidebarMenu {
+    <li class="sidebar-menu-item">
+        <a href="/Admin" class="sidebar-menu-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Users" class="sidebar-menu-link active">
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Roles" class="sidebar-menu-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Role Management</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Settings" class="sidebar-menu-link">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Audit" class="sidebar-menu-link">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Audit Logs</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Reports" class="sidebar-menu-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+        </a>
+    </li>
+    <li class="sidebar-menu-item">
+        <a href="/Admin/Profile" class="sidebar-menu-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+}
+
+<div class="page-header">
+    <h3>Create New User</h3>
+    <p>Add a new user to the system</p>
+    <a href="/Admin/Users" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Users
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="data-table">
+            <h5><i class="fas fa-user-plus"></i> User Information</h5>
+            <form id="createUserForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="fullName" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="username" required>
+                            <small class="form-text text-muted">Examples: john.doe, m.smith, sarah.wilson</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Role *</label>
+                            <select class="form-control" id="role" required>
+                                <option value="">Select Role</option>
+                                <option value="Administrator">Administrator</option>
+                                <option value="BranchManager">Branch Manager</option>
+                                <option value="Teller">Teller</option>
+                                <option value="Supervisor">Supervisor</option>
+                                <option value="LoanOfficer">Loan Officer</option>
+                                <option value="CashOfficer">Cash Officer</option>
+                                <option value="BackOfficeStaff">Back Office Staff</option>
+                                <option value="ComplianceOfficer">Compliance Officer</option>
+                                <option value="RiskOfficer">Risk Officer</option>
+                                <option value="Auditor">Auditor</option>
+                                <option value="CustomerCareOfficer">Customer Care Officer</option>
+                                <option value="BancassuranceAgent">Bancassurance Agent</option>
+                                <option value="ITAdministrator">IT Administrator</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" required>
+                            <small class="form-text text-muted">Minimum 6 characters</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password *</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                <label class="form-check-label" for="isActive">
+                                    Active User
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <button type="button" class="btn btn-primary" onclick="createUser()">
+                        <i class="fas fa-save"></i> Create User
+                    </button>
+                    <a href="/Admin/Users" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="data-table">
+            <h5><i class="fas fa-info-circle"></i> User Creation Guidelines</h5>
+            <div class="guidelines">
+                <div class="guideline-item">
+                    <i class="fas fa-check text-success"></i>
+                    <span>Use unique usernames (existing: admin, teller1, branchmanager1, supervisor1, auditor1, cashofficer1)</span>
+                </div>
+                <div class="guideline-item">
+                    <i class="fas fa-check text-success"></i>
+                    <span>Valid email addresses required (avoid @@wekeza.com emails already in use)</span>
+                </div>
+                <div class="guideline-item">
+                    <i class="fas fa-check text-success"></i>
+                    <span>Passwords must be 6+ characters</span>
+                </div>
+                <div class="guideline-item">
+                    <i class="fas fa-check text-success"></i>
+                    <span>Assign appropriate roles</span>
+                </div>
+                <div class="guideline-item">
+                    <i class="fas fa-check text-success"></i>
+                    <span>Users are active by default</span>
+                </div>
+            </div>
+            
+            <div class="username-suggestions mt-3">
+                <h6>Username Suggestions</h6>
+                <div class="suggestion-item">
+                    <strong>Good examples:</strong> john.doe, m.smith, sarah.wilson, newuser2026
+                </div>
+                <div class="suggestion-item">
+                    <strong>Avoid:</strong> admin, teller1, branchmanager1 (already exist)
+                </div>
+            </div>
+            
+            <div class="role-descriptions mt-4">
+                <h6>Role Descriptions</h6>
+                <div class="role-item">
+                    <strong>Administrator:</strong> Full system access
+                </div>
+                <div class="role-item">
+                    <strong>Branch Manager:</strong> Branch operations management
+                </div>
+                <div class="role-item">
+                    <strong>Teller:</strong> Customer transactions
+                </div>
+                <div class="role-item">
+                    <strong>Supervisor:</strong> Staff supervision
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function createUser() {
+            const fullName = document.getElementById('fullName').value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const isActive = document.getElementById('isActive').checked;
+            
+            // Clear any existing error messages
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            // Validation
+            if (!fullName || !username || !email || !role || !password || !confirmPassword) {
+                showAlert('danger', 'Please fill in all required fields.');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showAlert('danger', 'Passwords do not match.');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAlert('danger', 'Password must be at least 6 characters long.');
+                return;
+            }
+            
+            // Check for known existing usernames (from database)
+            const existingUsernames = ['admin', 'teller1', 'branchmanager1', 'supervisor1', 'auditor1', 'cashofficer1', 'administrator', 'root', 'system'];
+            if (existingUsernames.includes(username.toLowerCase())) {
+                showAlert('warning', `Username "${username}" is already taken. Try: ${username}2, ${username}_new, or ${username}${new Date().getFullYear()}`);
+                return;
+            }
+            
+            // Check for known existing emails
+            const existingEmails = ['admin@wekeza.com', 'teller1@wekeza.com', 'branchmanager1@wekeza.com', 'supervisor1@wekeza.com', 'auditor1@wekeza.com', 'cashofficer1@wekeza.com'];
+            if (existingEmails.includes(email.toLowerCase())) {
+                showAlert('warning', `Email "${email}" is already taken. Try a different email address.`);
+                return;
+            }
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+            button.disabled = true;
+            
+            const requestData = {
+                fullName: fullName,
+                username: username,
+                email: email,
+                role: role,
+                password: password,
+                isActive: isActive
+            };
+            
+            console.log('Sending request data:', requestData);
+            console.log('Role value:', role);
+            console.log('Role type:', typeof role);
+            
+            fetch('/api/admin/create-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(async response => {
+                const data = await response.json();
+                console.log('API Response:', data);
+                console.log('Response status:', response.status);
+                
+                if (response.ok && data.success) {
+                    showAlert('success', data.message || 'User created successfully!');
+                    // Clear the form
+                    document.getElementById('createUserForm').reset();
+                    setTimeout(() => {
+                        window.location.href = '/Admin/Users';
+                    }, 2000);
+                } else {
+                    // Handle error response
+                    let errorMessage = 'Failed to create user. Please try again.';
+                    
+                    // Handle ValidationProblemDetails format
+                    if (data.errors) {
+                        const errorMessages = [];
+                        for (const [field, messages] of Object.entries(data.errors)) {
+                            if (Array.isArray(messages)) {
+                                errorMessages.push(`${field}: ${messages.join(', ')}`);
+                            } else {
+                                errorMessages.push(`${field}: ${messages}`);
+                            }
+                        }
+                        errorMessage = errorMessages.join('; ');
+                    } else if (data.message) {
+                        errorMessage = data.message;
+                    } else if (data.title) {
+                        errorMessage = data.title;
+                    }
+                    
+                    console.error('User creation failed:', errorMessage);
+                    console.error('Full error data:', data);
+                    showAlert('danger', errorMessage);
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                showAlert('danger', 'Network error occurred. Please check your connection and try again.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.parentNode.insertBefore(alertDiv, container.nextSibling);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+}
+
+<style>
+    .guidelines {
+        padding: 1rem 0;
+    }
+    
+    .guideline-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .guideline-item i {
+        margin-right: 0.5rem;
+        width: 16px;
+    }
+    
+    .username-suggestions {
+        border-top: 1px solid #e9ecef;
+        padding-top: 1rem;
+    }
+    
+    .suggestion-item {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .suggestion-item strong {
+        color: #495057;
+    }
+    
+    .role-descriptions {
+        border-top: 1px solid #e9ecef;
+        padding-top: 1rem;
+    }
+    
+    .role-item {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .role-item strong {
+        color: #495057;
+    }
+</style>

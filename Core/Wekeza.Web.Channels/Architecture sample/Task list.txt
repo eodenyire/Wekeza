@@ -1,0 +1,517 @@
+# Implementation Plan: Public Sector Portal
+
+## Overview
+
+This implementation plan breaks down the Public Sector Portal into discrete, incremental coding tasks. The portal will be built as a new channel in the Wekeza.Web.Channels project, following the established pattern of personal-banking, corporate-banking, and sme-banking channels. The implementation is organized into modules: Securities Trading, Government Lending, Government Banking Services, and Grants & Philanthropy, with a shared Dashboard.
+
+## Tasks
+
+- [x] 1. Set up Public Sector Portal channel structure
+  - Create `/src/channels/public-sector/` directory
+  - Create main routing component `PublicSectorPortal.tsx`
+  - Create `Layout.tsx` with navigation for all modules
+  - Create `Login.tsx` for authentication
+  - Add route to main `App.tsx`: `/public-sector/*`
+  - Set up TypeScript interfaces in `/src/channels/public-sector/types/`
+  - _Requirements: All modules, NFR4 (Usability)_
+
+- [~] 2. Implement authentication and authorization
+  - [x] 2.1 Create authentication context for public sector users
+    - Extend existing AuthContext to support public sector roles
+    - Add role-based permission checks
+    - Implement JWT token handling with role claims
+    - _Requirements: NFR1 (Security), User Roles_
+  
+  - [~] 2.2 Implement Login component
+    - Create login form with username/password fields
+    - Add form validation using react-hook-form + zod
+    - Integrate with `/api/authentication/login` endpoint
+    - Handle authentication errors and display messages
+    - Redirect to dashboard on successful login
+    - _Requirements: NFR1 (Security)_
+  
+  - [-] 2.3 Implement role-based navigation
+    - Create navigation menu in Layout.tsx based on user role
+    - Treasury Officer: Securities, Dashboard
+    - Credit Officer: Lending, Dashboard
+    - Government Finance Officer: Banking, Dashboard
+    - CSR Manager: Grants, Dashboard
+    - Compliance Officer: All modules (read-only), Dashboard
+    - Senior Management: Dashboard, Analytics
+    - _Requirements: User Roles_
+
+- [~] 3. Implement Securities Trading Module
+  - [~] 3.1 Create TypeScript interfaces for securities
+    - Define TreasuryBill, Bond, Stock, SecurityOrder, Portfolio interfaces
+    - Define API response types
+    - _Requirements: FR1_
+  
+  - [~] 3.2 Implement TreasuryBills.tsx page
+    - Display list of available T-Bills (91-day, 182-day, 364-day)
+    - Show maturity dates, rates, minimum investment
+    - Create order placement form (competitive/non-competitive bids)
+    - Integrate with `GET /api/public-sector/securities/treasury-bills`
+    - Integrate with `POST /api/public-sector/securities/treasury-bills/order`
+    - _Requirements: 1.1, 1.4, FR1.1_
+  
+  - [~] 3.3 Write property test for order submission
+    - **Property 1: Order Submission Completeness**
+    - **Validates: Requirements 1.4, 1.5, 1.6**
+  
+  - [~] 3.4 Implement Bonds.tsx page
+    - Display list of available government bonds
+    - Show coupon rates, maturity dates, face values
+    - Create bond order placement form
+    - Calculate and display accrued interest
+    - Integrate with `GET /api/public-sector/securities/bonds`
+    - Integrate with `POST /api/public-sector/securities/bonds/order`
+    - _Requirements: 1.2, 1.5, FR1.2_
+  
+  - [~] 3.5 Implement Stocks.tsx page
+    - Display NSE-listed government stocks
+    - Implement real-time price updates (polling every 30 seconds)
+    - Create buy/sell order form
+    - Display order book
+    - Integrate with `GET /api/public-sector/securities/stocks`
+    - Integrate with `POST /api/public-sector/securities/stocks/order`
+    - _Requirements: 1.3, 1.6, FR1.3_
+  
+  - [~] 3.6 Implement Portfolio.tsx page
+    - Display consolidated securities portfolio
+    - Show current valuations for all securities
+    - Create maturity calendar component
+    - Calculate and display performance metrics (yield, returns)
+    - Integrate with `GET /api/public-sector/securities/portfolio`
+    - _Requirements: 1.7, 1.8, FR1.3_
+  
+  - [~] 3.7 Write property tests for securities calculations
+    - **Property 2: Interest Calculation Accuracy**
+    - **Property 3: Portfolio Valuation Consistency**
+    - **Validates: Requirements 1.8, 6.1**
+  
+  - [~] 3.8 Write unit tests for securities components
+    - Test T-Bill component rendering with mock data
+    - Test Bond component rendering with mock data
+    - Test Stock component rendering with mock data
+    - Test Portfolio component calculations
+    - _Requirements: 1.1, 1.2, 1.3, 1.7_
+
+- [~] 4. Checkpoint - Ensure securities module tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [~] 5. Implement Government Lending Module
+  - [~] 5.1 Create TypeScript interfaces for lending
+    - Define LoanApplication, GovernmentEntity, CreditAssessment, Loan, RepaymentSchedule interfaces
+    - Define API response types
+    - _Requirements: FR2_
+  
+  - [~] 5.2 Implement Applications.tsx page
+    - Display list of loan applications (National/County governments)
+    - Add filters by status (Pending, Under Review, Approved, Rejected)
+    - Create application details modal/view
+    - Display creditworthiness assessment
+    - Integrate with `GET /api/public-sector/loans/applications`
+    - _Requirements: 2.1, 2.2, 2.3, FR2.1_
+  
+  - [~] 5.3 Implement LoanDetails.tsx page
+    - Display detailed loan information
+    - Show government entity details
+    - Display loan purpose and documentation
+    - Show credit assessment results
+    - Create approval/rejection workflow with comments
+    - Integrate with `POST /api/public-sector/loans/applications/{id}/approve`
+    - Integrate with `POST /api/public-sector/loans/applications/{id}/reject`
+    - _Requirements: 2.4, FR2.1_
+  
+  - [~] 5.4 Write property tests for loan workflows
+    - **Property 4: Creditworthiness Calculation**
+    - **Property 5: Loan Status Transitions**
+    - **Property 7: Lending Limit Enforcement**
+    - **Validates: Requirements 2.3, 2.4, 2.5, 2.9**
+  
+  - [~] 5.5 Implement Disbursements.tsx page
+    - Display list of approved loans pending disbursement
+    - Create disbursement form with account details
+    - Add disbursement confirmation dialog
+    - Display audit trail
+    - Integrate with `POST /api/public-sector/loans/{id}/disburse`
+    - _Requirements: 2.5, FR2.1_
+  
+  - [~] 5.6 Implement loan Portfolio.tsx page
+    - Display all active government loans
+    - Show exposure by government entity
+    - Create repayment tracking table
+    - Highlight non-performing loans
+    - Display risk metrics
+    - Integrate with `GET /api/public-sector/loans/portfolio`
+    - Integrate with `GET /api/public-sector/loans/{id}/schedule`
+    - _Requirements: 2.6, 2.7, 2.8, FR2.3_
+  
+  - [~] 5.7 Write property test for repayment schedules
+    - **Property 6: Repayment Schedule Accuracy**
+    - **Validates: Requirements 2.6**
+  
+  - [~] 5.8 Write unit tests for lending components
+    - Test loan application list rendering
+    - Test loan details display
+    - Test disbursement form validation
+    - Test portfolio calculations
+    - _Requirements: 2.1, 2.2, 2.7_
+
+- [~] 6. Checkpoint - Ensure lending module tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [~] 7. Implement Government Banking Services Module
+  - [~] 7.1 Create TypeScript interfaces for banking
+    - Define GovernmentAccount, BulkPayment, Payment, RevenueCollection interfaces
+    - Define API response types
+    - _Requirements: FR3_
+  
+  - [~] 7.2 Implement Accounts.tsx page
+    - Display list of government accounts
+    - Show account balances and details
+    - Create account statements view
+    - Display transaction history with pagination
+    - Integrate with `GET /api/public-sector/accounts`
+    - Integrate with `GET /api/public-sector/accounts/{id}/transactions`
+    - _Requirements: 3.1, FR3.1_
+  
+  - [~] 7.3 Implement Payments.tsx page
+    - Create bulk payment upload interface (CSV/Excel)
+    - Implement payment file parsing and validation
+    - Display payment preview table
+    - Create payment execution interface
+    - Show IFMIS integration status
+    - Integrate with `POST /api/public-sector/payments/bulk`
+    - _Requirements: 3.2, FR3.2_
+  
+  - [~] 7.4 Write property tests for payment processing
+    - **Property 8: Payment Processing Completeness**
+    - **Property 10: Account Reconciliation Balance**
+    - **Property 11: Multi-Currency Consistency**
+    - **Validates: Requirements 3.2, 3.5, 3.6**
+  
+  - [~] 7.5 Implement Revenues.tsx page
+    - Display revenue collection tracking
+    - Show tax payments, fees, licenses
+    - Create reconciliation interface
+    - Generate collection reports
+    - Integrate with `GET /api/public-sector/revenues`
+    - Integrate with `POST /api/public-sector/revenues/reconcile`
+    - _Requirements: 3.3, 3.5, FR3.3_
+  
+  - [~] 7.6 Write property test for revenue collection
+    - **Property 9: Revenue Collection Recording**
+    - **Validates: Requirements 3.3**
+  
+  - [~] 7.7 Implement Reports.tsx page
+    - Create financial reports generation interface
+    - Implement custom report builder with filters
+    - Add export functionality (PDF, Excel)
+    - Create scheduled reports interface
+    - Integrate with `GET /api/public-sector/reports`
+    - _Requirements: 3.4, FR3_
+  
+  - [~] 7.8 Write unit tests for banking components
+    - Test account list rendering
+    - Test payment file upload and validation
+    - Test revenue reconciliation logic
+    - Test report generation
+    - _Requirements: 3.1, 3.2, 3.3, 3.4_
+
+- [~] 8. Implement audit logging for all transactions
+  - [~] 8.1 Create audit log utility function
+    - Capture user ID, timestamp, action type, transaction details, IP address
+    - Send audit logs to backend API
+    - Handle audit log failures gracefully
+    - _Requirements: 3.7, 5.5, NFR1_
+  
+  - [~] 8.2 Write property test for audit trail
+    - **Property 12: Audit Trail Completeness**
+    - **Validates: Requirements 3.7, 5.5**
+
+- [~] 9. Checkpoint - Ensure banking module tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [~] 10. Implement Grants & Philanthropy Module
+  - [~] 10.1 Create TypeScript interfaces for grants
+    - Define GrantProgram, GrantApplication, Approval, Grant, UtilizationReport interfaces
+    - Define API response types
+    - _Requirements: FR4_
+  
+  - [~] 10.2 Implement Programs.tsx page
+    - Display list of available grant programs
+    - Show program details and eligibility criteria
+    - Display application guidelines
+    - Integrate with `GET /api/public-sector/grants/programs`
+    - _Requirements: 4.1, FR4.1_
+  
+  - [~] 10.3 Implement Applications.tsx page
+    - Create grant application form
+    - Implement document upload functionality
+    - Add form validation
+    - Create application submission interface
+    - Display application tracking
+    - Integrate with `POST /api/public-sector/grants/applications`
+    - Integrate with `GET /api/public-sector/grants/applications`
+    - _Requirements: 4.2, 4.3, FR4.1_
+  
+  - [~] 10.4 Write property test for grant applications
+    - **Property 13: Grant Application Submission**
+    - **Validates: Requirements 4.2, 4.7**
+  
+  - [~] 10.5 Implement Approvals.tsx page
+    - Display pending grant applications
+    - Create application review interface
+    - Implement two-signatory approval workflow
+    - Add approval/rejection with comments
+    - Integrate with `POST /api/public-sector/grants/applications/{id}/approve`
+    - _Requirements: 4.2, 4.3, FR4.1, BR3_
+  
+  - [~] 10.6 Implement Impact.tsx page
+    - Display grant utilization reports
+    - Show impact metrics and KPIs
+    - Create beneficiary stories section
+    - Implement compliance monitoring dashboard
+    - Integrate with `GET /api/public-sector/grants/impact`
+    - _Requirements: 4.5, 4.9, 4.10, FR4.2_
+  
+  - [~] 10.7 Write property tests for grant management
+    - **Property 14: Grant Disbursement Recording**
+    - **Property 15: Grant Compliance Calculation**
+    - **Validates: Requirements 4.4, 4.5, 4.8, 4.9**
+  
+  - [~] 10.8 Write unit tests for grants components
+    - Test grant program list rendering
+    - Test application form validation
+    - Test approval workflow
+    - Test impact report display
+    - _Requirements: 4.1, 4.2, 4.3, 4.10_
+
+- [~] 11. Checkpoint - Ensure grants module tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [~] 12. Implement Dashboard & Analytics
+  - [~] 12.1 Create TypeScript interfaces for dashboard
+    - Define DashboardMetrics interface with all metric categories
+    - Define chart data interfaces
+    - _Requirements: FR6_
+  
+  - [~] 12.2 Implement Dashboard.tsx page
+    - Create key metrics cards (securities, loans, accounts, grants)
+    - Implement charts using Recharts library:
+      - Securities portfolio composition (pie chart)
+      - Loan portfolio by government entity (bar chart)
+      - Revenue trends (line chart)
+      - Grant impact metrics (area chart)
+    - Create recent activities feed
+    - Add quick actions based on user role
+    - Integrate with dashboard API endpoints
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
+  
+  - [~] 12.3 Write property tests for dashboard calculations
+    - **Property 19: Loan Portfolio Aggregation**
+    - **Property 20: Revenue Calculation Accuracy**
+    - **Property 21: Risk Exposure Calculation**
+    - **Validates: Requirements 6.2, 6.5, 6.6**
+  
+  - [~] 12.4 Implement data export functionality
+    - Create export utility for CSV/Excel/PDF
+    - Add export buttons to all data tables
+    - Implement export with filters and date ranges
+    - _Requirements: 6.8_
+  
+  - [~] 12.5 Write property test for data export
+    - **Property 22: Data Export Completeness**
+    - **Validates: Requirements 6.8**
+  
+  - [~] 12.6 Write unit tests for dashboard
+    - Test metrics card rendering
+    - Test chart data transformation
+    - Test export functionality
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.8_
+
+- [~] 13. Implement regulatory compliance features
+  - [~] 13.1 Create compliance validation utilities
+    - Implement CBK regulation checks (minimum investment, trading hours, max transaction)
+    - Implement PFMA requirement checks (approvals, budget allocation)
+    - Create validation error messages
+    - _Requirements: 5.1, 5.2, NFR3_
+  
+  - [~] 13.2 Write property tests for compliance enforcement
+    - **Property 16: CBK Regulation Enforcement**
+    - **Property 17: PFMA Requirement Enforcement**
+    - **Property 18: AML/KYC Data Persistence**
+    - **Validates: Requirements 5.1, 5.2, 5.4**
+  
+  - [~] 13.3 Implement regulatory reports generation
+    - Create CBK report templates
+    - Create Treasury report templates
+    - Add report scheduling functionality
+    - _Requirements: 5.3_
+
+- [~] 14. Implement shared components
+  - [~] 14.1 Create SecurityCard component
+    - Display security information (name, price, quantity)
+    - Show performance indicators
+    - Add action buttons (buy/sell)
+    - _Requirements: FR1_
+  
+  - [~] 14.2 Create LoanCard component
+    - Display loan summary (amount, entity, status)
+    - Show repayment progress
+    - Add action buttons (view details, disburse)
+    - _Requirements: FR2_
+  
+  - [~] 14.3 Create TransactionTable component
+    - Display paginated transaction list
+    - Add sorting and filtering
+    - Implement search functionality
+    - Add export button
+    - _Requirements: FR3_
+  
+  - [~] 14.4 Create GrantCard component
+    - Display grant program information
+    - Show application status
+    - Add action buttons (apply, view details)
+    - _Requirements: FR4_
+  
+  - [~] 14.5 Create ApprovalWorkflow component
+    - Display approval status and history
+    - Show pending approvers
+    - Add approve/reject buttons
+    - Implement two-signatory logic
+    - _Requirements: FR2, FR4, BR3_
+
+- [~] 15. Implement error handling and edge cases
+  - [~] 15.1 Add error boundaries to all modules
+    - Wrap each module in React Error Boundary
+    - Display user-friendly error messages
+    - Log errors to console in development
+    - _Requirements: NFR1_
+  
+  - [~] 15.2 Implement API error handling
+    - Create centralized API error handler
+    - Handle 401 (redirect to login)
+    - Handle 403 (show permission error)
+    - Handle 404 (show not found)
+    - Handle 500 (show server error)
+    - _Requirements: NFR1_
+  
+  - [~] 15.3 Write property tests for edge cases
+    - **Property 23: Empty Portfolio Handling**
+    - **Property 24: Zero-Amount Transaction Rejection**
+    - **Property 25: Expired Grant Program Handling**
+    - **Validates: Requirements 1.7, 3.2, 4.2**
+  
+  - [~] 15.4 Implement loading states
+    - Add loading spinners for all async operations
+    - Implement skeleton screens for data loading
+    - Add progress indicators for file uploads
+    - _Requirements: NFR4_
+
+- [~] 16. Implement external system integration error handling
+  - [~] 16.1 Create integration error handlers
+    - Handle CBK API failures
+    - Handle NSE API failures
+    - Handle IFMIS API failures
+    - Implement retry logic with exponential backoff
+    - _Requirements: 1.9, 1.10, 3.8, FR5.1_
+  
+  - [~] 16.2 Write property tests for integration handling
+    - **Property 26: External API Failure Handling**
+    - **Property 27: Retry Logic Consistency**
+    - **Validates: Requirements 1.9, 1.10, 3.8**
+
+- [~] 17. Implement performance optimizations
+  - [~] 17.1 Add code splitting for modules
+    - Lazy load Securities module
+    - Lazy load Lending module
+    - Lazy load Banking module
+    - Lazy load Grants module
+    - _Requirements: NFR2, NFR5_
+  
+  - [~] 17.2 Optimize component rendering
+    - Add React.memo to expensive components
+    - Use useMemo for expensive calculations
+    - Implement virtual scrolling for large lists
+    - Debounce search inputs
+    - _Requirements: NFR2_
+  
+  - [~] 17.3 Implement caching strategy
+    - Cache dashboard metrics (5 minutes)
+    - Cache securities prices (30 seconds)
+    - Cache user permissions (session)
+    - _Requirements: NFR2_
+
+- [~] 18. Implement accessibility features
+  - [~] 18.1 Add ARIA labels to all interactive elements
+    - Add aria-label to buttons
+    - Add aria-describedby to form fields
+    - Add role attributes to custom components
+    - _Requirements: NFR4_
+  
+  - [~] 18.2 Implement keyboard navigation
+    - Add keyboard shortcuts for common actions
+    - Ensure tab order is logical
+    - Add focus indicators
+    - _Requirements: NFR4_
+  
+  - [~] 18.3 Add screen reader support
+    - Add alt text to images
+    - Add labels to form fields
+    - Announce dynamic content changes
+    - _Requirements: NFR4_
+
+- [~] 19. Implement multi-language support
+  - [~] 19.1 Set up i18n framework
+    - Install and configure react-i18next
+    - Create translation files for English and Swahili
+    - Add language switcher to Layout
+    - _Requirements: NFR4_
+  
+  - [~] 19.2 Translate all UI text
+    - Translate navigation labels
+    - Translate form labels and placeholders
+    - Translate error messages
+    - Translate button text
+    - _Requirements: NFR4_
+
+- [~] 20. Final integration and testing
+  - [~] 20.1 Wire all modules together
+    - Ensure all routes are connected
+    - Verify navigation between modules
+    - Test role-based access control
+    - _Requirements: All_
+  
+  - [~] 20.2 Run full test suite
+    - Run all unit tests
+    - Run all property-based tests
+    - Run integration tests
+    - Fix any failing tests
+    - _Requirements: All_
+  
+  - [~] 20.3 Perform manual testing
+    - Test complete securities trading flow
+    - Test complete loan approval flow
+    - Test complete payment processing flow
+    - Test complete grant application flow
+    - Test dashboard and analytics
+    - _Requirements: All_
+
+- [~] 21. Final checkpoint - Ensure all tests pass
+  - Ensure all tests pass, verify all features work as expected, ask the user if questions arise.
+
+## Notes
+
+- All tasks are required for comprehensive implementation
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- The implementation follows the established Wekeza.Web.Channels architecture pattern
+- All API integrations use the existing Wekeza.Core.Api backend
+- TypeScript is used throughout for type safety
+- React Hook Form + Zod for form validation
+- Recharts for data visualizations
+- Tailwind CSS for styling (following existing pattern)
