@@ -1,4 +1,3 @@
-using Wekeza.Core.Infrastructure.Repositories.Admin;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -575,23 +574,4 @@ public class SecurityAdminService : ISecurityAdminService
         new SecuritySessionDTO { SessionId = session.Id, UserId = session.UserId, StartedAt = session.StartedAt };
 }
 
-// Entity placeholders
-public class UserAccess { public Guid Id { get; set; } public Guid UserId { get; set; } public string Status { get; set; } public DateTime GrantedAt { get; set; } public DateTime? RevokedAt { get; set; } }
-public class SecurityPolicy { public Guid Id { get; set; } public string PolicyCode { get; set; } public string PolicyName { get; set; } public string PolicyType { get; set; } public string Status { get; set; } public DateTime CreatedAt { get; set; } public DateTime ModifiedAt { get; set; } public DateTime? PublishedAt { get; set; } }
-public class SecurityIncident { public Guid Id { get; set; } public string IncidentCode { get; set; } public string Severity { get; set; } public string Status { get; set; } public DateTime ReportedAt { get; set; } public DateTime? ResolvedAt { get; set; } }
-public class SecuritySession { public Guid Id { get; set; } public Guid UserId { get; set; } public DateTime StartedAt { get; set; } }
-
-// DTO placeholders
-public class UserAccessDTO { public Guid UserId { get; set; } public string Status { get; set; } public DateTime GrantedAt { get; set; } }
-public class AccessReviewDTO { public Guid UserId { get; set; } public DateTime ReviewDate { get; set; } }
-public class AccessCertificationDTO { public Guid UserId { get; set; } public string Status { get; set; } public DateTime CertifiedAt { get; set; } }
-public class SODViolationDTO { public Guid UserId { get; set; } public bool ViolationDetected { get; set; } public DateTime CheckedAt { get; set; } }
-public class SecurityPolicyDTO { public Guid Id { get; set; } public string PolicyCode { get; set; } public string PolicyName { get; set; } public string Status { get; set; } }
-public class CreateSecurityPolicyDTO { public string PolicyCode { get; set; } public string PolicyName { get; set; } public string PolicyType { get; set; } }
-public class UpdateSecurityPolicyDTO { public string PolicyName { get; set; } public string Status { get; set; } }
-public class SecurityIncidentDTO { public Guid Id { get; set; } public string IncidentCode { get; set; } public string Severity { get; set; } public string Status { get; set; } }
-public class CreateSecurityIncidentDTO { public string Severity { get; set; } public string Description { get; set; } }
-public class IncidentReportDTO { public int TotalIncidents { get; set; } public int ResolvedIncidents { get; set; } public int OpenIncidents { get; set; } public string ReportPeriod { get; set; } }
-public class SecuritySessionDTO { public Guid SessionId { get; set; } public Guid UserId { get; set; } public DateTime StartedAt { get; set; } }
-public class SessionAnalyticsDTO { public int ActiveSessions { get; set; } public int SuspiciousSessions { get; set; } public decimal AverageSessionDuration { get; set; } public int PeakConcurrentSessions { get; set; } }
-public class SecurityDashboardDTO { public int OpenIncidents { get; set; } public int CriticalIncidents { get; set; } public int ActivePolicies { get; set; } public int ActiveSessions { get; set; } public int PolicyViolations { get; set; } public DateTime LastSecurityAudit { get; set; } }
+// DTOs and Entities are defined in ISecurityAdminService.cs interface

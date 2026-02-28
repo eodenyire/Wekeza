@@ -1,4 +1,3 @@
-using Wekeza.Core.Infrastructure.Repositories.Admin;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -494,19 +493,4 @@ public class RiskManagementService : IRiskManagementService
         new AnomalyRuleDTO { Id = rule.Id, RuleCode = rule.RuleCode, RuleName = rule.RuleName, RuleType = rule.RuleType, Status = rule.Status };
 }
 
-// DTOs (simplified)
-public class LimitDefinitionDTO { public Guid Id { get; set; } public string LimitCode { get; set; } public string LimitType { get; set; } public decimal LimitAmount { get; set; } public string Status { get; set; } }
-public class CreateLimitDTO { public string LimitCode { get; set; } public string LimitType { get; set; } public decimal LimitAmount { get; set; } public string ParentLimitCode { get; set; } }
-public class UpdateLimitDTO { public decimal? LimitAmount { get; set; } public string Status { get; set; } }
-public class LimitApprovalDTO { public Guid LimitId { get; set; } public string ApprovalStatus { get; set; } public DateTime ApprovedAt { get; set; } public string ApprovalComments { get; set; } }
-public class HierarchicalLimitsDTO { public LimitDefinitionDTO ParentLimit { get; set; } public List<LimitDefinitionDTO> ChildLimits { get; set; } }
-public class ThresholdConfigDTO { public Guid Id { get; set; } public string ThresholdCode { get; set; } public string ThresholdType { get; set; } public decimal ThresholdValue { get; set; } public decimal WarningLevel { get; set; } public decimal CriticalLevel { get; set; } }
-public class CreateThresholdDTO { public string ThresholdCode { get; set; } public string ThresholdType { get; set; } public decimal ThresholdValue { get; set; } public decimal WarningLevel { get; set; } public decimal CriticalLevel { get; set; } }
-public class UpdateThresholdDTO { public decimal? ThresholdValue { get; set; } public decimal? WarningLevel { get; set; } public decimal? CriticalLevel { get; set; } }
-public class ThresholdBreachDTO { public Guid ThresholdId { get; set; } public decimal CurrentValue { get; set; } public decimal ThresholdValue { get; set; } public string BreachType { get; set; } public DateTime CheckedAt { get; set; } }
-public class AnomalyDTO { public Guid AnomalyId { get; set; } public string EntityType { get; set; } public Guid EntityId { get; set; } public string Severity { get; set; } public string Status { get; set; } public DateTime DetectedAt { get; set; } }
-public class CreateAnomalyRuleDTO { public string RuleCode { get; set; } public string RuleName { get; set; } public string RuleType { get; set; } public decimal Sensitivity { get; set; } }
-public class AnomalyRuleDTO { public Guid Id { get; set; } public string RuleCode { get; set; } public string RuleName { get; set; } public string RuleType { get; set; } public string Status { get; set; } }
-public class RiskDashboardDTO { public int OverallRiskScore { get; set; } public int OpenAnomalies { get; set; } public int BreachedLimits { get; set; } public string ComplianceStatus { get; set; } public DateTime LastUpdated { get; set; } }
-public class RiskAlertDTO { public Guid AlertId { get; set; } public string AlertType { get; set; } public string Severity { get; set; } public DateTime AlertTime { get; set; } }
-public class ComplianceMetricsDTO { public decimal CompliancePercentage { get; set; } public int OpenViolations { get; set; } public int ResolvedViolations { get; set; } }
+// DTOs are defined in IRiskManagementService.cs interface

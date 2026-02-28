@@ -92,15 +92,7 @@ public class ExecutiveDashboardDTO
     public Dictionary<string, decimal> TopMetrics { get; set; }
 }
 
-public class FinancialHealthDTO
-{
-    public decimal TotalAssets { get; set; }
-    public decimal TotalLiabilities { get; set; }
-    public decimal TotalEquity { get; set; }
-    public double ROA { get; set; }
-    public double ROE { get; set; }
-    public double CapitalRatio { get; set; }
-}
+// FinancialHealthDTO defined in IFinanceAdminService.cs (primary location)
 
 public class KeyMetricsDTO
 {
@@ -195,21 +187,7 @@ public class SLAPerformanceDTO
     public double SLACompliance { get; set; }
 }
 
-public class SecurityDashboardDTO
-{
-    public int ActiveSessions { get; set; }
-    public int FailedLoginAttempts { get; set; }
-    public int SecurityIncidents { get; set; }
-    public double SecurityScore { get; set; }
-    public List<SecurityAlertDTO> CriticalAlerts { get; set; }
-}
-
-public class SecurityAlertDTO
-{
-    public string AlertType { get; set; }
-    public string Description { get; set; }
-    public string Severity { get; set; }
-}
+// SecurityDashboardDTO and SecurityAlertDTO defined in ISecurityAdminService.cs (primary locations)
 
 public class AnomalyDashboardDTO
 {
@@ -218,38 +196,16 @@ public class AnomalyDashboardDTO
     public List<DetectedAnomalyDTO> RecentAnomalies { get; set; }
 }
 
-public class DetectedAnomalyDTO
-{
-    public string AnomalyType { get; set; }
-    public string Description { get; set; }
-    public double Score { get; set; }
-}
+// DetectedAnomalyDTO defined in IRiskManagementService.cs (primary location)
 
-public class ComplianceDashboardDTO
-{
-    public double OverallCompliance { get; set; }
-    public int ComplianceIssues { get; set; }
-    public List<ComplianceIssueDTO> OpenIssues { get; set; }
-}
-
-public class ComplianceIssueDTO
-{
-    public string IssueType { get; set; }
-    public string Description { get; set; }
-}
+// ComplianceDashboardDTO and ComplianceIssueDTO defined in IComplianceAdminService.cs (primary locations)
 
 public class ProductAnalyticsDTO
 {
     public List<ProductMetricDTO> Products { get; set; }
 }
 
-public class ProductMetricDTO
-{
-    public string ProductCode { get; set; }
-    public int Accounts { get; set; }
-    public decimal TotalBalance { get; set; }
-    public decimal GrowthPercentage { get; set; }
-}
+// ProductMetricDTO defined in IProductAdminService.cs (primary location)
 
 public class ProductGrowthDTO
 {

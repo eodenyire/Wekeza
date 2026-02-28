@@ -339,14 +339,7 @@ public class RegulatoryViolationDTO
     public decimal ExcessAmount { get; set; }
 }
 
-public class RegulatoryReportDTO
-{
-    public Guid ReportId { get; set; }
-    public DateTime FromDate { get; set; }
-    public DateTime ToDate { get; set; }
-    public RegulatoryComplianceDTO ComplianceStatus { get; set; }
-    public DateTime GeneratedAt { get; set; }
-}
+// RegulatoryReportDTO defined in IComplianceAdminService.cs (primary location)
 
 public class EscalationConfigDTO
 {
