@@ -89,6 +89,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<AnomalyRule> AnomalyRules => Set<AnomalyRule>();
     public DbSet<CustomDashboard> CustomDashboards => Set<CustomDashboard>();
     public DbSet<KPIDefinition> KPIDefinitions => Set<KPIDefinition>();
+    public DbSet<KYCVerification> KYCVerifications => Set<KYCVerification>();
 
     // Deposits & Investments Module
     public DbSet<FixedDeposit> FixedDeposits => Set<FixedDeposit>();

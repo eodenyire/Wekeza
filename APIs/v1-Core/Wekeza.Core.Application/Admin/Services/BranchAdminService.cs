@@ -1,4 +1,3 @@
-using Wekeza.Core.Application.Admin.DTOs;
 using Wekeza.Core.Infrastructure.Repositories.Admin;
 using Microsoft.Extensions.Logging;
 using System;
