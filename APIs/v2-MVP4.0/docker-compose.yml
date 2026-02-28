@@ -1,0 +1,48 @@
+# Wekeza MVP 4.0 - Docker Compose
+# Lightweight MVP version for testing and demo
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: wekeza-mvp4-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-mvp4-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-mvp4-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Note: Add MVP4.0 API service here when Dockerfile is available
+  # api:
+  #   build:
+  #     context: ./MVP4.0
+  #     dockerfile: Dockerfile
+  #   container_name: wekeza-mvp4-api
+  #   ports:
+  #     - "9080:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - wekeza-mvp4-network
+
+volumes:
+  postgres-mvp4-data:
+
+networks:
+  wekeza-mvp4-network:
+    driver: bridge

@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: wekeza-postgres
+    container_name: wekeza-v1-postgres
     environment:
       POSTGRES_DB: WekezaCoreDB
       POSTGRES_USER: wekeza_app
@@ -13,10 +11,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-v1-data:/var/lib/postgresql/data
     networks:
-      - wekeza-network
+      - wekeza-v1-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB"]
       interval: 10s
@@ -24,16 +21,33 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Wekeza Core API v1 (Production)
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: wekeza-v1-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - wekeza-v1-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Wekeza Core API v1
   api:
     build:
-      context: ./APIs/v1-Core
+      context: .
       dockerfile: Dockerfile
-    container_name: wekeza-api
+    container_name: wekeza-v1-api
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=WekezaCoreDB;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}"
+      ConnectionStrings__Redis: "redis:6379"
+      Redis__ConnectionString: "redis:6379"
       JwtSettings__Secret: ${JWT_SECRET:-WekeZa-BaNk-PrOdUcTiOn-SeCrEt-KeY-2026-ChAnGe-ThIs-In-PrOd!}
       JwtSettings__Issuer: ${JWT_ISSUER:-https://api.wekeza.com}
       JwtSettings__Audience: ${JWT_AUDIENCE:-https://wekeza.com}
@@ -43,53 +57,19 @@ services:
       MpesaConfig__PassKey: ${MPESA_PASSKEY}
     ports:
       - "8080:8080"
+      - "8081:8081"
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
-      - wekeza-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - wekeza-v1-network
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '1'
-          memory: 512M
-
-  # pgAdmin (Optional - for database management)
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: wekeza-pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@wekeza.com
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "5050:80"
-    depends_on:
-      - postgres
-    networks:
-      - wekeza-network
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    restart: unless-stopped
-    profiles:
-      - tools
-
-networks:
-  wekeza-network:
-    driver: bridge
 
 volumes:
-  postgres-data:
-    driver: local
-  pgadmin-data:
-    driver: local
+  postgres-v1-data:
+
+networks:
+  wekeza-v1-network:
+    driver: bridge

@@ -1,0 +1,48 @@
+# Wekeza Database-Focused API - Docker Compose
+# Specialized API for database operations and analytics
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: wekeza-database-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres-database-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-database-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Note: Add Database API service here when available
+  # api:
+  #   build:
+  #     context: ./DatabaseWekezaApi
+  #     dockerfile: Dockerfile
+  #   container_name: wekeza-database-api
+  #   ports:
+  #     - "9083:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - wekeza-database-network
+
+volumes:
+  postgres-database-data:
+
+networks:
+  wekeza-database-network:
+    driver: bridge

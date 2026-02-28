@@ -1,4 +1,4 @@
-# Wekeza Bank - Production Dockerfile
+# Wekeza Core API v1 - Production Dockerfile
 # Multi-stage build for optimized image size
 
 # Stage 1: Build
@@ -6,19 +6,22 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
 # Copy solution and project files
-COPY ["Core/Wekeza.Core.Api/Wekeza.Core.Api.csproj", "Core/Wekeza.Core.Api/"]
-COPY ["Core/Wekeza.Core.Application/Wekeza.Core.Application.csproj", "Core/Wekeza.Core.Application/"]
-COPY ["Core/Wekeza.Core.Domain/Wekeza.Core.Domain.csproj", "Core/Wekeza.Core.Domain/"]
-COPY ["Core/Wekeza.Core.Infrastructure/Wekeza.Core.Infrastructure.csproj", "Core/Wekeza.Core.Infrastructure/"]
+COPY ["Wekeza.Core.Api/Wekeza.Core.Api.csproj", "Wekeza.Core.Api/"]
+COPY ["Wekeza.Core.Application/Wekeza.Core.Application.csproj", "Wekeza.Core.Application/"]
+COPY ["Wekeza.Core.Domain/Wekeza.Core.Domain.csproj", "Wekeza.Core.Domain/"]
+COPY ["Wekeza.Core.Infrastructure/Wekeza.Core.Infrastructure.csproj", "Wekeza.Core.Infrastructure/"]
+COPY ["Wekeza.Nexus.Domain/Wekeza.Nexus.Domain.csproj", "Wekeza.Nexus.Domain/"]
+COPY ["Wekeza.Nexus.Application/Wekeza.Nexus.Application.csproj", "Wekeza.Nexus.Application/"]
+COPY ["Wekeza.Nexus.Infrastructure/Wekeza.Nexus.Infrastructure.csproj", "Wekeza.Nexus.Infrastructure/"]
 
 # Restore dependencies
-RUN dotnet restore "Core/Wekeza.Core.Api/Wekeza.Core.Api.csproj"
+RUN dotnet restore "Wekeza.Core.Api/Wekeza.Core.Api.csproj"
 
 # Copy everything else
 COPY . .
 
 # Build
-WORKDIR "/src/Core/Wekeza.Core.Api"
+WORKDIR "/src/Wekeza.Core.Api"
 RUN dotnet build "Wekeza.Core.Api.csproj" -c Release -o /app/build
 
 # Stage 2: Publish
@@ -28,6 +31,9 @@ RUN dotnet publish "Wekeza.Core.Api.csproj" -c Release -o /app/publish /p:UseApp
 # Stage 3: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
+
+# Install healthcheck dependency
+RUN apk add --no-cache curl
 
 # Create non-root user for security
 RUN addgroup -S -g 1001 wekeza && \

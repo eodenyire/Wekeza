@@ -1,0 +1,196 @@
+# Wekeza Banking System - Master Docker Compose
+# Orchestrates all API versions for testing and deployment
+# Use with: docker-compose -f docker-compose.master.yml up -d
+
+version: '3.8'
+
+services:
+  # =====================================================
+  # v1: WEKEZA CORE API (Production - Main)
+  # =====================================================
+  postgres-v1:
+    image: postgres:15-alpine
+    container_name: wekeza-v1-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-v1-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api-v1:
+    build:
+      context: ./APIs/v1-Core
+      dockerfile: Dockerfile
+    container_name: wekeza-v1-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres-v1;Port=5432;Database=WekezaCoreDB;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}"
+      JwtSettings__Secret: ${JWT_SECRET:-WekeZa-BaNk-PrOdUcTiOn-SeCrEt-KeY-2026-ChAnGe-ThIs-In-PrOd!}
+      JwtSettings__Issuer: ${JWT_ISSUER:-https://api.wekeza.com}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-https://wekeza.com}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-v1:
+        condition: service_healthy
+    networks:
+      - wekeza-network
+    restart: unless-stopped
+    labels:
+      version: "v1-core"
+      description: "Production Core API"
+
+  # =====================================================
+  # v2: MVP 4.0 (Lightweight variant)
+  # =====================================================
+  postgres-v2:
+    image: postgres:15-alpine
+    container_name: wekeza-v2-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-v2-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - multi
+
+  # =====================================================
+  # v3: COMPREHENSIVE API
+  # =====================================================
+  postgres-v3:
+    image: postgres:15-alpine
+    container_name: wekeza-v3-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-v3-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - multi
+
+  # =====================================================
+  # v4: MINIMAL API
+  # =====================================================
+  postgres-v4:
+    image: postgres:15-alpine
+    container_name: wekeza-v4-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-v4-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - multi
+
+  # =====================================================
+  # v5: DATABASE API
+  # =====================================================
+  postgres-v5:
+    image: postgres:15-alpine
+    container_name: wekeza-v5-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres-v5-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - multi
+
+  # =====================================================
+  # v6: ENHANCED API
+  # =====================================================
+  postgres-v6:
+    image: postgres:15-alpine
+    container_name: wekeza-v6-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres-v6-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - multi
+
+volumes:
+  postgres-v1-data:
+  postgres-v2-data:
+  postgres-v3-data:
+  postgres-v4-data:
+  postgres-v5-data:
+  postgres-v6-data:
+
+networks:
+  wekeza-network:
+    driver: bridge

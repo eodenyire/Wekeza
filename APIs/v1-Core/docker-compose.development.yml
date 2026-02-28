@@ -1,0 +1,75 @@
+services:
+  # PostgreSQL Database (Dev)
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: wekeza-v1-postgres-dev
+    environment:
+      POSTGRES_DB: WekezaCoreDB_Dev
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-v1-dev-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-v1-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB_Dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis Cache (Dev)
+  redis-dev:
+    image: redis:7-alpine
+    container_name: wekeza-v1-redis-dev
+    ports:
+      - "6380:6379"
+    networks:
+      - wekeza-v1-dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Wekeza Core API v1 (Development)
+  api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wekeza-v1-api-dev
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres-dev;Port=5432;Database=WekezaCoreDB_Dev;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}"
+      ConnectionStrings__Redis: "redis-dev:6379"
+      Redis__ConnectionString: "redis-dev:6379"
+      JwtSettings__Secret: ${JWT_SECRET:-WekeZa-BaNk-PrOdUcTiOn-SeCrEt-KeY-2026-ChAnGe-ThIs-In-PrOd!}
+      JwtSettings__Issuer: ${JWT_ISSUER:-https://api-dev.wekeza.com}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-https://dev.wekeza.com}
+      MpesaConfig__ConsumerKey: ${MPESA_CONSUMER_KEY}
+      MpesaConfig__ConsumerSecret: ${MPESA_CONSUMER_SECRET}
+      MpesaConfig__ShortCode: ${MPESA_SHORTCODE}
+      MpesaConfig__PassKey: ${MPESA_PASSKEY}
+    ports:
+      - "9080:8080"
+      - "9081:8081"
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+    networks:
+      - wekeza-v1-dev-network
+    restart: unless-stopped
+
+volumes:
+  postgres-v1-dev-data:
+
+networks:
+  wekeza-v1-dev-network:
+    driver: bridge

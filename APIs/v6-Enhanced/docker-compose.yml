@@ -1,0 +1,48 @@
+# Wekeza Enhanced API - Docker Compose
+# Enhanced version with additional features and optimizations
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: wekeza-enhanced-postgres
+    environment:
+      POSTGRES_DB: WekezaCoreDB
+      POSTGRES_USER: wekeza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres-enhanced-data:/var/lib/postgresql/data
+    networks:
+      - wekeza-enhanced-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Note: Add Enhanced API service here when available
+  # api:
+  #   build:
+  #     context: ./EnhancedWekezaApi
+  #     dockerfile: Dockerfile
+  #   container_name: wekeza-enhanced-api
+  #   ports:
+  #     - "9084:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - wekeza-enhanced-network
+
+volumes:
+  postgres-enhanced-data:
+
+networks:
+  wekeza-enhanced-network:
+    driver: bridge
