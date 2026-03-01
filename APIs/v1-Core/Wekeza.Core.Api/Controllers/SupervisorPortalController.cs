@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +18,13 @@ namespace Wekeza.Core.Api.Controllers;
 [Authorize(Roles = "Supervisor,BranchManager")]
 public class SupervisorPortalController : BaseApiController
 {
-    public SupervisorPortalController(IMediator mediator) : base(mediator) { }
+    private readonly IConfiguration _configuration;
+
+    public SupervisorPortalController(IMediator mediator, IConfiguration configuration) 
+        : base(mediator) 
+    {
+        _configuration = configuration;
+    }
 
     #region Team Management
 
@@ -28,51 +36,56 @@ public class SupervisorPortalController : BaseApiController
     {
         try
         {
-            var team = new List<TeamMemberDto>
-            {
-                new TeamMemberDto
-                {
-                    MemberId = "EMP001",
-                    Name = "Jane Kariuki",
-                    Role = "Teller",
-                    Status = "Active",
-                    OnDuty = true,
-                    SessionStarted = DateTime.UtcNow.AddHours(-4),
-                    TransactionsToday = 145,
-                    ErrorsToday = 1
-                },
-                new TeamMemberDto
-                {
-                    MemberId = "EMP003",
-                    Name = "Alice Wanjiru",
-                    Role = "Teller",
-                    Status = "Active",
-                    OnDuty = true,
-                    SessionStarted = DateTime.UtcNow.AddHours(-3),
-                    TransactionsToday = 98,
-                    ErrorsToday = 0
-                },
-                new TeamMemberDto
-                {
-                    MemberId = "EMP004",
-                    Name = "Isaac Kipchoge",
-                    Role = "Teller",
-                    Status = "OnLeave",
-                    OnDuty = false,
-                    SessionStarted = null,
-                    TransactionsToday = 0,
-                    ErrorsToday = 0
-                }
-            };
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            await using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var team = new List<object>();
+
+            // Query real staff data from Users table where Role = Teller or CustomerService
+            var query = @"
+                SELECT 
+                    ""Id""::text as ""MemberId"",
+                    ""FullName"" as ""Name"",
+                    ""Role"",
+                    CASE WHEN ""IsActive"" = true THEN 'Active' ELSE 'Inactive' END as ""Status"",
+                    CASE WHEN ""LastLoginAt"" >= NOW() - INTERVAL '2 hours' THEN true ELSE false END as ""OnDuty"",
+                    ""LastLoginAt"" as ""SessionStarted""
+                FROM ""Users""
+                WHERE ""IsActive"" = true AND (""Role"" = 'Teller' OR ""Role"" = 'CustomerService')";
 
             if (!string.IsNullOrEmpty(status))
-                team = team.Where(t => t.Status == status).ToList();
+            {
+                query += status == "Active" 
+                    ? " AND \"IsActive\" = true" 
+                    : " AND \"IsActive\" = false";
+            }
 
-            return Ok(new { success = true, data = team, count = team.Count });
+            query += " ORDER BY \"FullName\"";
+
+            await using var command = new NpgsqlCommand(query, connection);
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                team.Add(new
+                {
+                    MemberId = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                    Name = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                    Role = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                    Status = reader.IsDBNull(3) ? "Inactive" : reader.GetString(3),
+                    OnDuty = reader.IsDBNull(4) ? false : reader.GetBoolean(4),
+                    SessionStarted = reader.IsDBNull(5) ? (DateTime?)null : reader.GetDateTime(5),
+                    TransactionsToday = 0,  // Can be calculated separately if needed
+                    ErrorsToday = 0         // Can be calculated separately if needed  
+                });
+            }
+
+            return Ok(new { success = true, data = team, count = team.Count, lastUpdated = DateTime.UtcNow });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { error = ex.Message });
+            return StatusCode(500, new { error = "Failed to retrieve team data", details = ex.Message });
         }
     }
 
@@ -395,42 +408,71 @@ public class SupervisorPortalController : BaseApiController
     }
 
     #endregion
+
+    #region DTOs
+
+    public class TeamMemberDto
+    {
+        public string MemberId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public bool OnDuty { get; set; }
+        public DateTime? SessionStarted { get; set; }
+        public int TransactionsToday { get; set; }
+        public int ErrorsToday { get; set; }
+    }
+
+    public class PendingApprovalDto
+    {
+        public string ApprovalId { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string Staff { get; set; } = string.Empty;
+        public string Customer { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public string Reason { get; set; } = string.Empty;
+        public DateTime SubmittedAt { get; set; }
+        public string Priority { get; set; } = string.Empty;
+    }
+
+    public class TransactionApprovalDto
+    {
+        public string? Notes { get; set; }
+    }
+
+    public class TransactionRejectionDto
+    {
+        public string Reason { get; set; } = string.Empty;
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Execute a scalar query and return typed result
+    /// </summary>
+    private static async Task<T> ExecuteScalarAsync<T>(NpgsqlConnection connection, string query)
+    {
+        await using var command = new NpgsqlCommand(query, connection);
+        var result = await command.ExecuteScalarAsync();
+        return result == null || result is DBNull ? default(T)! : (T)Convert.ChangeType(result, typeof(T))!;
+    }
+
+    /// <summary>
+    /// Execute a scalar query with parameters and return typed result
+    /// </summary>
+    private static async Task<T> ExecuteScalarAsync<T>(NpgsqlConnection connection, string query, params (string, object)[] parameters)
+    {
+        await using var command = new NpgsqlCommand(query, connection);
+        foreach (var (paramName, paramValue) in parameters)
+        {
+            command.Parameters.AddWithValue(paramName, paramValue ?? DBNull.Value);
+        }
+        var result = await command.ExecuteScalarAsync();
+        return result == null || result is DBNull ? default(T)! : (T)Convert.ChangeType(result, typeof(T))!;
+    }
+
+    #endregion
 }
 
-#region DTOs
-
-public class TeamMemberDto
-{
-    public string MemberId { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Role { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
-    public bool OnDuty { get; set; }
-    public DateTime? SessionStarted { get; set; }
-    public int TransactionsToday { get; set; }
-    public int ErrorsToday { get; set; }
-}
-
-public class PendingApprovalDto
-{
-    public string ApprovalId { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty;
-    public string Staff { get; set; } = string.Empty;
-    public string Customer { get; set; } = string.Empty;
-    public decimal Amount { get; set; }
-    public string Reason { get; set; } = string.Empty;
-    public DateTime SubmittedAt { get; set; }
-    public string Priority { get; set; } = string.Empty;
-}
-
-public class TransactionApprovalDto
-{
-    public string? Notes { get; set; }
-}
-
-public class TransactionRejectionDto
-{
-    public string Reason { get; set; } = string.Empty;
-}
-
-#endregion

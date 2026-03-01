@@ -1,6 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
+using System.Security.Claims;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.SelfOnboard;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.UpdateProfile;
 using Wekeza.Core.Application.Features.CustomerPortal.Commands.ChangePassword;
@@ -37,7 +40,187 @@ namespace Wekeza.Core.Api.Controllers;
 [Route("api/customer-portal")]
 public class CustomerPortalController : BaseApiController
 {
-    public CustomerPortalController(IMediator mediator) : base(mediator) { }
+    private readonly IConfiguration _configuration;
+
+    public CustomerPortalController(IMediator mediator, IConfiguration configuration) 
+        : base(mediator) 
+    {
+        _configuration = configuration;
+    }
+
+    #region Dashboard - Real Data
+
+    /// <summary>
+    /// Get customer dashboard with real account summary from database
+    /// Returns account balances, recent transactions, and financial overview
+    /// </summary>
+    [HttpGet("dashboard")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> GetDashboard()
+    {
+        try
+        {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            await using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            // Get customer ID from JWT claims
+            var customerIdClaim = User.FindFirst("CustomerId")?.Value 
+                ?? User.FindFirst(ClaimTypes.Name)?.Value;
+            
+            if (string.IsNullOrEmpty(customerIdClaim))
+            {
+                return Unauthorized(new { error = "Customer ID not found in token" });
+            }
+
+            // Get total balance across all accounts
+            var totalBalance = await ExecuteScalarAsync<decimal>(
+                connection,
+                @"SELECT COALESCE(SUM(""Balance""), 0) 
+                  FROM ""Accounts"" 
+                  WHERE ""CustomerId""::text = @customerId AND ""Status"" = 'Active'",
+                ("@customerId", customerIdClaim));
+
+            // Get number of accounts
+            var accountCount = await ExecuteScalarAsync<int>(
+                connection,
+                @"SELECT COUNT(*) 
+                  FROM ""Accounts"" 
+                  WHERE ""CustomerId""::text = @customerId AND ""Status"" = 'Active'",
+                ("@customerId", customerIdClaim));
+
+            // Get recent transactions count (last 30 days)
+            var recentTransactionCount = await ExecuteScalarAsync<int>(
+                connection,
+                @"SELECT COUNT(*) 
+                  FROM ""Transactions"" t
+                  JOIN ""Accounts"" a ON t.""AccountId"" = a.""Id""
+                  WHERE a.""CustomerId""::text = @customerId 
+                  AND t.""CreatedAt"" >= NOW() - INTERVAL '30 days'",
+                ("@customerId", customerIdClaim));
+
+            // Get account details
+            var accounts = new List<dynamic>();
+            var accountQuery = @"
+                SELECT 
+                    ""Id"",
+                    ""AccountNumber"",
+                    ""AccountType"",
+                    ""Balance"",
+                    ""Status"",
+                    ""Currency""
+                FROM ""Accounts""
+                WHERE ""CustomerId""::text = @customerId AND ""Status"" = 'Active'
+                ORDER BY ""CreatedAt"" DESC";
+
+            await using var command = new NpgsqlCommand(accountQuery, connection);
+            command.Parameters.AddWithValue("@customerId", customerIdClaim);
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                accounts.Add(new
+                {
+                    Id = reader.GetGuid(0),
+                    AccountNumber = reader.GetString(1),
+                    AccountType = reader.IsDBNull(2) ? "Savings" : reader.GetString(2),
+                    Balance = reader.GetDecimal(3),
+                    Status = reader.GetString(4),
+                    Currency = reader.IsDBNull(5) ? "KES" : reader.GetString(5)
+                });
+            }
+
+            return Ok(new
+            {
+                totalBalance = totalBalance,
+                accountCount = accountCount,
+                recentTransactionCount = recentTransactionCount,
+                accounts = accounts,
+                customerId = customerIdClaim,
+                lastUpdated = DateTime.UtcNow
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "Failed to retrieve dashboard data", details = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get recent transactions across all customer accounts
+    /// </summary>
+    [HttpGet("transactions/recent")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> GetRecentTransactions([FromQuery] int limit = 10)
+    {
+        try
+        {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            await using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var customerIdClaim = User.FindFirst("CustomerId")?.Value 
+                ?? User.FindFirst(ClaimTypes.Name)?.Value;
+            
+            if (string.IsNullOrEmpty(customerIdClaim))
+            {
+                return Unauthorized(new { error = "Customer ID not found in token" });
+            }
+
+            var transactions = new List<dynamic>();
+            
+            var query = @"
+                SELECT 
+                    t.""Id"",
+                    t.""TransactionReference"" as ""Reference"",
+                    t.""Type"",
+                    a.""AccountNumber"",
+                    t.""Amount"",
+                    t.""CreatedAt"" as ""Timestamp"",
+                    t.""Description"",
+                    CASE WHEN t.""Status"" = 'Completed' THEN 'Success' 
+                         WHEN t.""Status"" = 'Pending' THEN 'Pending'
+                         ELSE t.""Status"" END as ""Status""
+                FROM ""Transactions"" t
+                JOIN ""Accounts"" a ON t.""AccountId"" = a.""Id""
+                WHERE a.""CustomerId""::text = @customerId
+                ORDER BY t.""CreatedAt"" DESC
+                LIMIT @limit";
+
+            await using var command = new NpgsqlCommand(query, connection);
+            command.Parameters.AddWithValue("@customerId", customerIdClaim);
+            command.Parameters.AddWithValue("@limit", limit);
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                transactions.Add(new
+                {
+                    Id = reader.IsDBNull(0) ? Guid.Empty : reader.GetGuid(0),
+                    Reference = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                    Type = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                    AccountNumber = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                    Amount = reader.IsDBNull(4) ? 0m : reader.GetDecimal(4),
+                    Timestamp = reader.IsDBNull(5) ? DateTime.MinValue : reader.GetDateTime(5),
+                    Description = reader.IsDBNull(6) ? "" : reader.GetString(6),
+                    Status = reader.IsDBNull(7) ? "" : reader.GetString(7)
+                });
+            }
+
+            return Ok(new
+            {
+                transactions = transactions,
+                count = transactions.Count,
+                lastUpdated = DateTime.UtcNow
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "Failed to retrieve transactions", details = ex.Message });
+        }
+    }
+
+    #endregion
 
     #region Self-Onboarding
 
@@ -389,6 +572,34 @@ public class CustomerPortalController : BaseApiController
     {
         var result = await Mediator.Send(command);
         return Ok(result);
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Execute a scalar query and return typed result
+    /// </summary>
+    private static async Task<T> ExecuteScalarAsync<T>(NpgsqlConnection connection, string query)
+    {
+        await using var command = new NpgsqlCommand(query, connection);
+        var result = await command.ExecuteScalarAsync();
+        return result == null || result is DBNull ? default(T)! : (T)Convert.ChangeType(result, typeof(T))!;
+    }
+
+    /// <summary>
+    /// Execute a scalar query with parameters and return typed result
+    /// </summary>
+    private static async Task<T> ExecuteScalarAsync<T>(NpgsqlConnection connection, string query, params (string, object)[] parameters)
+    {
+        await using var command = new NpgsqlCommand(query, connection);
+        foreach (var (paramName, paramValue) in parameters)
+        {
+            command.Parameters.AddWithValue(paramName, paramValue ?? DBNull.Value);
+        }
+        var result = await command.ExecuteScalarAsync();
+        return result == null || result is DBNull ? default(T)! : (T)Convert.ChangeType(result, typeof(T))!;
     }
 
     #endregion
