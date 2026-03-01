@@ -47,10 +47,11 @@ public class ProductAdminRepository
         return await _context.FeeStructures.AsNoTracking().FirstOrDefaultAsync(f => f.Id == feeStructureId, cancellationToken);
     }
 
-    public async Task<List<FeeStructure>> SearchFeeStructuresAsync(string productCode, int page, int pageSize, CancellationToken cancellationToken = default)
+    // NOTE: ProductCode property not yet implemented in FeeStructure domain aggregate (uses ProductId instead)
+    // SearchFeeStructuresAsync temporarily disabled - use GetFeeStructureByIdAsync instead
+    public async Task<List<FeeStructure>> GetAllFeeStructuresAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = _context.FeeStructures.AsNoTracking();
-        if (!string.IsNullOrEmpty(productCode)) query = query.Where(f => f.ProductCode == productCode);
         return await query.OrderBy(f => f.FeeName).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
     }
 
@@ -73,10 +74,11 @@ public class ProductAdminRepository
         return await _context.InterestRateTables.AsNoTracking().FirstOrDefaultAsync(i => i.Id == tableId, cancellationToken);
     }
 
-    public async Task<List<InterestRateTable>> SearchInterestRateTablesAsync(string productCode, int page, int pageSize, CancellationToken cancellationToken = default)
+    // NOTE: ProductCode property not yet implemented in InterestRateTable domain aggregate (uses ProductId instead)
+    // SearchInterestRateTablesAsync temporarily disabled - use GetInterestRateTableByIdAsync instead
+    public async Task<List<InterestRateTable>> GetAllInterestRateTablesAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = _context.InterestRateTables.AsNoTracking();
-        if (!string.IsNullOrEmpty(productCode)) query = query.Where(i => i.ProductCode == productCode);
         return await query.OrderByDescending(i => i.EffectiveDate).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
     }
 
@@ -99,12 +101,14 @@ public class ProductAdminRepository
         return await _context.PostingRules.AsNoTracking().FirstOrDefaultAsync(p => p.Id == ruleId, cancellationToken);
     }
 
-    public async Task<List<PostingRule>> SearchPostingRulesAsync(string productCode, string transactionType, int page, int pageSize, CancellationToken cancellationToken = default)
+    // NOTE: ProductCode property not yet implemented in PostingRule domain aggregate (uses ProductId instead)
+    // SearchPostingRulesAsync temporarily disabled - use SearchPostingRulesByTransactionTypeAsync instead
+    public async Task<List<PostingRule>> SearchPostingRulesByTransactionTypeAsync(string transactionType, int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = _context.PostingRules.AsNoTracking();
-        if (!string.IsNullOrEmpty(productCode)) query = query.Where(p => p.ProductCode == productCode);
-        if (!string.IsNullOrEmpty(transactionType)) query = query.Where(p => p.TransactionType == transactionType);
-        return await query.OrderBy(p => p.ProductCode).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+        if (!string.IsNullOrEmpty(transactionType)) 
+            query = query.Where(p => p.TransactionType == transactionType);
+        return await query.OrderBy(p => p.RuleCode).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
     }
 
     public async Task<PostingRule> AddPostingRuleAsync(PostingRule rule, CancellationToken cancellationToken = default)
@@ -121,9 +125,3 @@ public class ProductAdminRepository
         return rule;
     }
 }
-
-// Placeholder entities
-public class ProductTemplate { public Guid Id { get; set; } public string ProductCode { get; set; } public string ProductType { get; set; } public string Status { get; set; } public DateTime CreatedAt { get; set; } }
-public class FeeStructure { public Guid Id { get; set; } public string ProductCode { get; set; } public string FeeName { get; set; } }
-public class InterestRateTable { public Guid Id { get; set; } public string ProductCode { get; set; } public DateTime EffectiveDate { get; set; } }
-public class PostingRule { public Guid Id { get; set; } public string ProductCode { get; set; } public string TransactionType { get; set; } }

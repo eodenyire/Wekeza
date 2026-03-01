@@ -29,4 +29,10 @@
     <ProjectReference Include="..\Wekeza.Core.Domain\Wekeza.Core.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Repositories/Admin/SecurityPolicyRepository.cs" />
+    <Compile Remove="Repositories/Admin/ComplianceRepository.cs" />
+    <Compile Remove="Repositories/Admin/BranchOperationsRepository.cs" />
+  </ItemGroup>
+
 </Project>

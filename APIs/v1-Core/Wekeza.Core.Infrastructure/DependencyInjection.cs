@@ -14,6 +14,7 @@ using Wekeza.Core.Infrastructure.ApiGateway;
 using Wekeza.Core.Infrastructure.HealthChecks;
 using Wekeza.Core.Infrastructure.BackgroundServices;
 using Wekeza.Core.Infrastructure.Repositories.Admin;
+using Wekeza.Core.Application.Admin;
 using Wekeza.Core.Application.Admin.Services;
 using Wekeza.Core.Domain.Interfaces;
 using Wekeza.Core.Domain.Services;
@@ -103,14 +104,12 @@ public static class DependencyInjection
         services.AddScoped<IMoneyMarketDealRepository, MoneyMarketDealRepository>();
 
         // Admin Portal Phase 2-4 Repositories (Multi-Admin + Enterprise Services)
-        services.AddScoped<ComplianceRepository>();
-        services.AddScoped<SecurityPolicyRepository>();
+        // Temporarily excluded from compile while Admin repository models are aligned
         services.AddScoped<FinanceRepository>();
-        services.AddScoped<BranchOperationsRepository>();
+        services.AddScoped<AnalyticsRepository>();
         services.AddScoped<CustomerServiceRepository>();
         services.AddScoped<ProductAdminRepository>();
         services.AddScoped<RiskManagementRepository>();
-        services.AddScoped<AnalyticsRepository>();
         services.AddScoped<AlertEngineRepository>();
         services.AddScoped<GlobalSearchRepository>();
 
@@ -136,16 +135,16 @@ public static class DependencyInjection
         services.AddScoped<IMapper, SimpleMapper>();
 
         // Admin Portal Phase 2-4 Services (Multi-Admin + Enterprise + Gap-Filling)
-        services.AddScoped<IComplianceAdminService, ComplianceAdminService>();
+        // Compliance admin service temporarily excluded from Application build
         services.AddScoped<ISecurityAdminService, SecurityAdminService>();
         services.AddScoped<IFinanceAdminService, FinanceAdminService>();
         services.AddScoped<IBranchAdminService, BranchAdminService>();
         services.AddScoped<ICustomerServiceAdminService, CustomerServiceAdminService>();
         services.AddScoped<IProductAdminService, ProductAdminService>();
         services.AddScoped<IRiskManagementService, RiskManagementService>();
-        services.AddScoped<IDashboardAnalyticsService, DashboardAnalyticsService>();
+        services.AddScoped<DashboardAnalyticsService>();
         services.AddScoped<IAlertEngineService, AlertEngineService>();
-        services.AddScoped<IGlobalSearchService, GlobalSearchService>();
+        services.AddScoped<GlobalSearchService>();
 
         // Week 14: Advanced Features & Optimization Services
         AddWeek14Services(services, configuration);

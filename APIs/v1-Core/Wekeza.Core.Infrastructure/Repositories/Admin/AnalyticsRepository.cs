@@ -1,5 +1,7 @@
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Infrastructure.Persistence;
+using SavedAnalysisEntity = Wekeza.Core.Infrastructure.Persistence.Configurations.SavedAnalysis;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,7 @@ public class AnalyticsRepository
 
     public AnalyticsRepository(ApplicationDbContext context) => _context = context;
 
-    public async Task<CustomDashboard> GetCustomDashboardByIdAsync(Guid dashboardId, CancellationToken cancellationToken = default)
+    public async Task<CustomDashboard?> GetCustomDashboardByIdAsync(Guid dashboardId, CancellationToken cancellationToken = default)
     {
         return await _context.CustomDashboards.AsNoTracking().FirstOrDefaultAsync(d => d.Id == dashboardId, cancellationToken);
     }
@@ -52,7 +54,7 @@ public class AnalyticsRepository
         }
     }
 
-    public async Task<KPIDefinition> GetKPIByIdAsync(Guid kpiId, CancellationToken cancellationToken = default)
+    public async Task<KPIDefinition?> GetKPIByIdAsync(Guid kpiId, CancellationToken cancellationToken = default)
     {
         return await _context.KPIDefinitions.AsNoTracking().FirstOrDefaultAsync(k => k.Id == kpiId, cancellationToken);
     }
@@ -76,7 +78,7 @@ public class AnalyticsRepository
         return kpi;
     }
 
-    public async Task<Report> GetReportByIdAsync(Guid reportId, CancellationToken cancellationToken = default)
+    public async Task<Report?> GetReportByIdAsync(Guid reportId, CancellationToken cancellationToken = default)
     {
         return await _context.Reports.AsNoTracking().FirstOrDefaultAsync(r => r.Id == reportId, cancellationToken);
     }
@@ -84,7 +86,11 @@ public class AnalyticsRepository
     public async Task<List<Report>> SearchReportsAsync(string reportType, int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = _context.Reports.AsNoTracking();
-        if (!string.IsNullOrEmpty(reportType)) query = query.Where(r => r.ReportType == reportType);
+        if (!string.IsNullOrEmpty(reportType) && Enum.TryParse<ReportType>(reportType, true, out var parsedType))
+        {
+            query = query.Where(r => r.ReportType == parsedType);
+        }
+
         return await query.OrderByDescending(r => r.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
     }
 
@@ -102,12 +108,12 @@ public class AnalyticsRepository
         return report;
     }
 
-    public async Task<SavedAnalysis> GetSavedAnalysisByIdAsync(Guid analysisId, CancellationToken cancellationToken = default)
+    public async Task<SavedAnalysisEntity?> GetSavedAnalysisByIdAsync(Guid analysisId, CancellationToken cancellationToken = default)
     {
         return await _context.SavedAnalyses.AsNoTracking().FirstOrDefaultAsync(a => a.Id == analysisId, cancellationToken);
     }
 
-    public async Task<List<SavedAnalysis>> GetUserSavedAnalysesAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<List<SavedAnalysisEntity>> GetUserSavedAnalysesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await _context.SavedAnalyses.AsNoTracking()
             .Where(a => a.UserId == userId)
@@ -115,7 +121,7 @@ public class AnalyticsRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<SavedAnalysis> AddSavedAnalysisAsync(SavedAnalysis analysis, CancellationToken cancellationToken = default)
+    public async Task<SavedAnalysisEntity> AddSavedAnalysisAsync(SavedAnalysisEntity analysis, CancellationToken cancellationToken = default)
     {
         await _context.SavedAnalyses.AddAsync(analysis, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
@@ -124,28 +130,20 @@ public class AnalyticsRepository
 
     public async Task<int> GetActiveCustomersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Customers.CountAsync(c => c.Status == "Active", cancellationToken);
+        return await _context.Customers.CountAsync(c => c.IsActive, cancellationToken);
     }
 
     public async Task<decimal> GetTotalDepositsAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Accounts
-            .Where(a => a.Status == "Active" && a.AccountType == "Deposit")
-            .SumAsync(a => a.CurrentBalance, cancellationToken);
+            .Where(a => a.Status == AccountStatus.Active && a.AccountType == "Deposit")
+            .SumAsync(a => a.Balance.Amount, cancellationToken);
     }
 
     public async Task<decimal> GetTotalLoansAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Accounts
-            .Where(a => a.Status == "Active" && a.AccountType == "Loan")
-            .SumAsync(a => a.CurrentBalance, cancellationToken);
+            .Where(a => a.Status == AccountStatus.Active && a.AccountType == "Loan")
+            .SumAsync(a => a.Balance.Amount, cancellationToken);
     }
 }
-
-// Placeholder entities
-public class CustomDashboard { public Guid Id { get; set; } public Guid UserId { get; set; } public string DashboardName { get; set; } }
-public class KPIDefinition { public Guid Id { get; set; } public string KPICode { get; set; } public string KPIName { get; set; } }
-public class Report { public Guid Id { get; set; } public string ReportType { get; set; } public string Status { get; set; } public DateTime CreatedAt { get; set; } }
-public class SavedAnalysis { public Guid Id { get; set; } public Guid UserId { get; set; } public DateTime SavedAt { get; set; } }
-public class Customer { public Guid Id { get; set; } public string Status { get; set; } }
-public class Account { public Guid Id { get; set; } public string Status { get; set; } public string AccountType { get; set; } public decimal CurrentBalance { get; set; } }

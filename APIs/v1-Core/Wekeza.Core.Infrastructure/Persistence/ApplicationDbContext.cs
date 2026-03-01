@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.Common;
 using Wekeza.Core.Application.Common.Interfaces;
 using System.Reflection;
 ///<summary>
@@ -32,6 +33,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<ApprovalMatrix> ApprovalMatrices => Set<ApprovalMatrix>();
     public DbSet<GLAccount> GLAccounts => Set<GLAccount>();
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
+    public DbSet<Reconciliation> Reconciliations => Set<Reconciliation>();
+    public DbSet<InterestAccrual> InterestAccruals => Set<InterestAccrual>();
     public DbSet<PaymentOrder> PaymentOrders => Set<PaymentOrder>();
     public DbSet<TellerSession> TellerSessions => Set<TellerSession>();
     public DbSet<CashDrawer> CashDrawers => Set<CashDrawer>();
@@ -95,6 +98,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<AnomalyRule> AnomalyRules => Set<AnomalyRule>();
     public DbSet<CustomDashboard> CustomDashboards => Set<CustomDashboard>();
     public DbSet<KPIDefinition> KPIDefinitions => Set<KPIDefinition>();
+    public DbSet<Wekeza.Core.Infrastructure.Persistence.Configurations.SavedAnalysis> SavedAnalyses => Set<Wekeza.Core.Infrastructure.Persistence.Configurations.SavedAnalysis>();
     public DbSet<KYCVerification> KYCVerifications => Set<KYCVerification>();
 
     // Deposits & Investments Module
@@ -164,7 +168,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
         // Ignore shared-type owned navigation issues  
         var types = typeof(ApplicationDbContext).Assembly.GetTypes();
-        foreach (var type in types.Where(t => t.IsClass && !t.IsAbstract && typeof(IEntity).IsAssignableFrom(t)))
+        foreach (var type in types.Where(t => t.IsClass && !t.IsAbstract && typeof(Entity).IsAssignableFrom(t)))
         {
             try
             {

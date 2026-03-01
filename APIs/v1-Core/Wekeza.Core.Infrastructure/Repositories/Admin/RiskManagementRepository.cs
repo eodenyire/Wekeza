@@ -42,6 +42,8 @@ public class RiskManagementRepository
         return limit;
     }
 
+    // NOTE: ThresholdConfig aggregate not yet created - methods disabled until domain model is implemented
+    /*
     public async Task<ThresholdConfig> GetThresholdByIdAsync(Guid thresholdId, CancellationToken cancellationToken = default)
     {
         return await _context.ThresholdConfigs.AsNoTracking().FirstOrDefaultAsync(t => t.Id == thresholdId, cancellationToken);
@@ -67,7 +69,10 @@ public class RiskManagementRepository
         await _context.SaveChangesAsync(cancellationToken);
         return threshold;
     }
+    */
 
+    // NOTE: Anomaly aggregate not yet created - methods disabled until domain model is implemented
+    /*
     public async Task<Anomaly> GetAnomalyByIdAsync(Guid anomalyId, CancellationToken cancellationToken = default)
     {
         return await _context.Anomalies.AsNoTracking().FirstOrDefaultAsync(a => a.Id == anomalyId, cancellationToken);
@@ -116,15 +121,13 @@ public class RiskManagementRepository
         await _context.SaveChangesAsync(cancellationToken);
         return rule;
     }
+    */
 
     public async Task<int> GetCriticalLimitBreachesCountAsync(CancellationToken cancellationToken = default)
     {
         return await _context.LimitDefinitions.CountAsync(l => l.Status == "Breached", cancellationToken);
     }
+    
+    // NOTE: ThresholdConfig, Anomaly, and AnomalyRule aggregates not yet created in Domain layer
+    // Methods using these types are temporarily disabled until domain models are implemented
 }
-
-// Placeholder entities
-public class LimitDefinition { public Guid Id { get; set; } public string LimitType { get; set; } public string Status { get; set; } }
-public class ThresholdConfig { public Guid Id { get; set; } public string ThresholdType { get; set; } }
-public class Anomaly { public Guid Id { get; set; } public string Severity { get; set; } public string Status { get; set; } public DateTime DetectedAt { get; set; } }
-public class AnomalyRule { public Guid Id { get; set; } public string RuleName { get; set; } }

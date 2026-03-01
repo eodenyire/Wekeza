@@ -1,4 +1,5 @@
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Domain.Enums;
 using Wekeza.Core.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,7 +20,7 @@ public class FinanceRepository
     }
 
     // ===== GL Account Operations =====
-    public async Task<GLAccount> GetGLAccountByCodeAsync(string glCode, CancellationToken cancellationToken = default)
+    public async Task<GLAccount?> GetGLAccountByCodeAsync(string glCode, CancellationToken cancellationToken = default)
     {
         return await _context.GLAccounts
             .AsNoTracking()
@@ -30,11 +31,11 @@ public class FinanceRepository
     {
         var query = _context.GLAccounts.AsNoTracking();
 
-        if (!string.IsNullOrEmpty(accountType))
-            query = query.Where(g => g.AccountType == accountType);
+        if (!string.IsNullOrEmpty(accountType) && Enum.TryParse<GLAccountType>(accountType, true, out var parsedType))
+            query = query.Where(g => g.AccountType == parsedType);
 
-        if (!string.IsNullOrEmpty(status))
-            query = query.Where(g => g.Status == status);
+        if (!string.IsNullOrEmpty(status) && Enum.TryParse<GLAccountStatus>(status, true, out var parsedStatus))
+            query = query.Where(g => g.Status == parsedStatus);
 
         return await query
             .OrderBy(g => g.GLCode)
@@ -58,7 +59,7 @@ public class FinanceRepository
     }
 
     // ===== Journal Entry Operations =====
-    public async Task<JournalEntry> GetJournalEntryByIdAsync(Guid journalId, CancellationToken cancellationToken = default)
+    public async Task<JournalEntry?> GetJournalEntryByIdAsync(Guid journalId, CancellationToken cancellationToken = default)
     {
         return await _context.JournalEntries
             .AsNoTracking()
@@ -70,16 +71,16 @@ public class FinanceRepository
         var query = _context.JournalEntries.AsNoTracking();
 
         if (!string.IsNullOrEmpty(glCode))
-            query = query.AsEnumerable().Where(j => j.Lines?.Any(l => l.GLCode == glCode) ?? false).AsQueryable();
+            query = query.AsEnumerable().Where(j => j.Lines.Any(l => l.GLCode == glCode)).AsQueryable();
 
         if (fromDate.HasValue)
-            query = query.Where(j => j.EntryDate >= fromDate.Value);
+            query = query.Where(j => j.PostingDate >= fromDate.Value);
 
         if (toDate.HasValue)
-            query = query.Where(j => j.EntryDate <= toDate.Value);
+            query = query.Where(j => j.PostingDate <= toDate.Value);
 
         return await query
-            .OrderByDescending(j => j.EntryDate)
+            .OrderByDescending(j => j.PostingDate)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -101,11 +102,11 @@ public class FinanceRepository
 
     public async Task<int> GetPendingJournalEntriesCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.JournalEntries.CountAsync(j => j.Status == "Pending", cancellationToken);
+        return await _context.JournalEntries.CountAsync(j => j.Status == JournalStatus.Draft, cancellationToken);
     }
 
     // ===== Reconciliation Operations =====
-    public async Task<Reconciliation> GetReconciliationByIdAsync(Guid reconciliationId, CancellationToken cancellationToken = default)
+    public async Task<Reconciliation?> GetReconciliationByIdAsync(Guid reconciliationId, CancellationToken cancellationToken = default)
     {
         return await _context.Reconciliations
             .AsNoTracking()
@@ -152,7 +153,7 @@ public class FinanceRepository
     }
 
     // ===== Interest Accrual Operations =====
-    public async Task<InterestAccrual> GetAccrualByIdAsync(Guid accrualId, CancellationToken cancellationToken = default)
+    public async Task<InterestAccrual?> GetAccrualByIdAsync(Guid accrualId, CancellationToken cancellationToken = default)
     {
         return await _context.InterestAccruals
             .AsNoTracking()
@@ -195,34 +196,32 @@ public class FinanceRepository
     public async Task<decimal> GetTotalAssetsAsync(DateTime asOfDate, CancellationToken cancellationToken = default)
     {
         return await _context.GLAccounts
-            .Where(g => g.AccountType == "Asset" && g.Status == "Active")
+            .Where(g => g.AccountType == GLAccountType.Asset && g.Status == GLAccountStatus.Active)
             .SumAsync(g => g.DebitBalance, cancellationToken);
     }
 
     public async Task<decimal> GetTotalLiabilitiesAsync(DateTime asOfDate, CancellationToken cancellationToken = default)
     {
         return await _context.GLAccounts
-            .Where(g => g.AccountType == "Liability" && g.Status == "Active")
+            .Where(g => g.AccountType == GLAccountType.Liability && g.Status == GLAccountStatus.Active)
             .SumAsync(g => g.CreditBalance, cancellationToken);
     }
 
     public async Task<decimal> GetTotalEquityAsync(DateTime asOfDate, CancellationToken cancellationToken = default)
     {
         return await _context.GLAccounts
-            .Where(g => g.AccountType == "Equity" && g.Status == "Active")
+            .Where(g => g.AccountType == GLAccountType.Equity && g.Status == GLAccountStatus.Active)
             .SumAsync(g => g.CreditBalance, cancellationToken);
     }
 
     public async Task<int> GetGLAccountCountAsync(string status, CancellationToken cancellationToken = default)
     {
+        if (!Enum.TryParse<GLAccountStatus>(status, true, out var parsedStatus))
+        {
+            return 0;
+        }
+
         return await _context.GLAccounts
-            .CountAsync(g => g.Status == status, cancellationToken);
+            .CountAsync(g => g.Status == parsedStatus, cancellationToken);
     }
 }
-
-// Placeholder domain entities
-public class GLAccount { public string GLCode { get; set; } public string AccountName { get; set; } public string AccountType { get; set; } public decimal DebitBalance { get; set; } public decimal CreditBalance { get; set; } public string Status { get; set; } }
-public class JournalEntry { public Guid Id { get; set; } public string VoucherNumber { get; set; } public DateTime EntryDate { get; set; } public string Status { get; set; } public List<JournalLine> Lines { get; set; } }
-public class JournalLine { public string GLCode { get; set; } public string DebitOrCredit { get; set; } public decimal Amount { get; set; } }
-public class Reconciliation { public Guid Id { get; set; } public DateTime ReconciliationDate { get; set; } public string Status { get; set; } }
-public class InterestAccrual { public Guid Id { get; set; } public string ProductCode { get; set; } public DateTime AccrualDate { get; set; } public string Status { get; set; } public decimal AccrualAmount { get; set; } }

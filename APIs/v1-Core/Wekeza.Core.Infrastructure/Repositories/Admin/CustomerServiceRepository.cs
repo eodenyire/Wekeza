@@ -36,10 +36,13 @@ public class CustomerServiceRepository
                                      EF.Functions.ILike(c.PhoneNumber, $"%{searchTerm}%"));
 
         if (!string.IsNullOrEmpty(status))
-            query = query.Where(c => c.Status == status);
+        {
+            bool isActive = status.Equals("Active", StringComparison.OrdinalIgnoreCase);
+            query = query.Where(c => c.IsActive == isActive);
+        }
 
         return await query
-            .OrderByDescending(c => c.CustomerSince)
+            .OrderByDescending(c => c.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -143,14 +146,14 @@ public class CustomerServiceRepository
     // ===== Customer Feedback Operations =====
     public async Task<Feedback> GetFeedbackByIdAsync(Guid feedbackId, CancellationToken cancellationToken = default)
     {
-        return await _context.Feedback
+        return await _context.Feedbacks
             .AsNoTracking()
             .FirstOrDefaultAsync(f => f.Id == feedbackId, cancellationToken);
     }
 
     public async Task<List<Feedback>> SearchFeedbackAsync(string category, int? rating, int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        var query = _context.Feedback.AsNoTracking();
+        var query = _context.Feedbacks.AsNoTracking();
 
         if (!string.IsNullOrEmpty(category))
             query = query.Where(f => f.Category == category);
@@ -167,14 +170,14 @@ public class CustomerServiceRepository
 
     public async Task<Feedback> AddFeedbackAsync(Feedback feedback, CancellationToken cancellationToken = default)
     {
-        await _context.Feedback.AddAsync(feedback, cancellationToken);
+        await _context.Feedbacks.AddAsync(feedback, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return feedback;
     }
 
     public async Task<double> GetAverageFeedbackRatingAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default)
     {
-        var query = _context.Feedback.AsQueryable();
+        var query = _context.Feedbacks.AsQueryable();
 
         if (fromDate.HasValue)
             query = query.Where(f => f.ProvidedAt >= fromDate.Value);
@@ -212,11 +215,14 @@ public class CustomerServiceRepository
     }
 
     // ===== Customer Segment & Relationship =====
+    // NOTE: Segment property not yet implemented in Customer aggregate
+    // These methods are temporarily disabled until Customer.Segment is added
+    /*
     public async Task<List<Customer>> GetSegmentCustomersAsync(string segmentCode, int page, int pageSize, CancellationToken cancellationToken = default)
     {
         return await _context.Customers
             .AsNoTracking()
-            .Where(c => c.Segment == segmentCode && c.Status == "Active")
+            .Where(c => c.Segment == segmentCode && c.IsActive)
             .OrderBy(c => c.FullName)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -226,13 +232,14 @@ public class CustomerServiceRepository
     public async Task<int> GetCustomerSegmentCountAsync(string segmentCode, CancellationToken cancellationToken = default)
     {
         return await _context.Customers
-            .CountAsync(c => c.Segment == segmentCode && c.Status == "Active", cancellationToken);
+            .CountAsync(c => c.Segment == segmentCode && c.IsActive, cancellationToken);
     }
+    */
 
     // ===== Dashboard Metrics =====
     public async Task<int> GetActiveCustomersCountAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Customers.CountAsync(c => c.Status == "Active", cancellationToken);
+        return await _context.Customers.CountAsync(c => c.IsActive, cancellationToken);
     }
 
     public async Task<int> GetNewCustomersCountAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default)
@@ -240,20 +247,24 @@ public class CustomerServiceRepository
         var query = _context.Customers.AsQueryable();
 
         if (fromDate.HasValue)
-            query = query.Where(c => c.CustomerSince >= fromDate.Value);
+            query = query.Where(c => c.CreatedAt >= fromDate.Value);
 
         if (toDate.HasValue)
-            query = query.Where(c => c.CustomerSince <= toDate.Value);
+            query = query.Where(c => c.CreatedAt <= toDate.Value);
 
         return await query.CountAsync(cancellationToken);
     }
 
+    // NOTE: LifetimeValue property not yet implemented in Customer aggregate
+    // This method is temporarily disabled until Customer.LifetimeValue is added
+    /*
     public async Task<double> GetAverageCustomerLifetimeValueAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Customers
-            .Where(c => c.Status == "Active")
+            .Where(c => c.IsActive)
             .AverageAsync(c => c.LifetimeValue, cancellationToken);
     }
+    */
 }
 
 // NOTE: Placeholder domain entities removed - these should be defined in Wekeza.Core.Domain/Aggregates if needed

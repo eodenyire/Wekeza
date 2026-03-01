@@ -18,13 +18,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wekeza.Core.Domain\Wekeza.Core.Domain.csproj" />
-    <ProjectReference Include="..\Wekeza.Nexus.Domain\Wekeza.Nexus.Domain.csproj" />
-    <ProjectReference Include="..\Wekeza.Nexus.Application\Wekeza.Nexus.Application.csproj" />
   </ItemGroup>
 
   <!-- Exclude ComplianceAdminService pending domain model alignment -->
   <ItemGroup>
     <Compile Remove="Services/Admin/ComplianceAdminService.cs" />
+    <Compile Remove="Features/Transactions/Commands/TransferFunds/TransferFundsCommandWithNexus.cs" />
+    <Compile Remove="Features/Transactions/Commands/TransferFunds/TransferFundsHandlerWithNexus.cs" />
   </ItemGroup>
 
 </Project>
