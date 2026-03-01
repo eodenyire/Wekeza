@@ -23,6 +23,12 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Party> Parties => Set<Party>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<WorkflowInstance> WorkflowInstances => Set<WorkflowInstance>();
+    
+    // Customer Service Entities
+    public DbSet<Complaint> Complaints => Set<Complaint>();
+    public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
+    public DbSet<Feedback> Feedbacks => Set<Feedback>();
+    public DbSet<CommunicationRecord> CommunicationRecords => Set<CommunicationRecord>();
     public DbSet<ApprovalMatrix> ApprovalMatrices => Set<ApprovalMatrix>();
     public DbSet<GLAccount> GLAccounts => Set<GLAccount>();
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
@@ -84,7 +90,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<InterestRateTable> InterestRateTables => Set<InterestRateTable>();
     public DbSet<PostingRule> PostingRules => Set<PostingRule>();
     public DbSet<LimitDefinition> LimitDefinitions => Set<LimitDefinition>();
-    public DbSet<ThresholdConfig> ThresholdConfigs => Set<ThresholdConfig>();
+    // public DbSet<ThresholdConfig> ThresholdConfigs => Set<ThresholdConfig>(); // TODO: Create ThresholdConfig aggregate
     public DbSet<Anomaly> Anomalies => Set<Anomaly>();
     public DbSet<AnomalyRule> AnomalyRules => Set<AnomalyRule>();
     public DbSet<CustomDashboard> CustomDashboards => Set<CustomDashboard>();

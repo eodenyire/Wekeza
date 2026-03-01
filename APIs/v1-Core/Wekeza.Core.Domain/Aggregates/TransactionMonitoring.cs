@@ -20,6 +20,9 @@ public class TransactionMonitoring : AggregateRoot
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
+    // Compatibility property for service layer
+    public DateTime AlertedAt => CreatedAt;
+
     private TransactionMonitoring() : base(Guid.NewGuid()) {
         AppliedRules = new List<string>();
         Alerts = new List<MonitoringAlert>();

@@ -24,6 +24,12 @@ public class AMLCase : AggregateRoot
     public List<AMLNote> Notes { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
+    // Compatibility properties for service layer
+    public string RiskLevel => RiskScore?.Level.ToString() ?? "Unknown";
+    public string Description => Notes.Any() ? Notes.First().Content : string.Empty;
+    public DateTime CreatedAt => CreatedDate;
+    public string CreatedBy => InvestigatorId ?? "SYSTEM";
+
     private AMLCase() : base(Guid.NewGuid())
     {
         Evidence = new List<AMLEvidence>();

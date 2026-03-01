@@ -20,6 +20,12 @@ public class SanctionsScreening : AggregateRoot
     public List<string> ScreenedWatchlists { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
+    // Compatibility properties for service layer
+    public Guid? PartyId => EntityType == EntityType.Party ? EntityId : (Guid?)null;
+    public string PartyName { get; private set; } = string.Empty;
+    public DateTime ScreenedAt => ScreeningDate;
+    public string ScreenedBy { get; private set; } = "SYSTEM";
+
     private SanctionsScreening() : base(Guid.NewGuid()) {
         Matches = new List<WatchlistMatch>();
         ScreenedWatchlists = new List<string>();
@@ -28,7 +34,9 @@ public class SanctionsScreening : AggregateRoot
     public static SanctionsScreening Create(
         EntityType entityType,
         Guid entityId,
-        List<string> watchlistsToScreen)
+        List<string> watchlistsToScreen,
+        string partyName = "",
+        string screenedBy = "SYSTEM")
     {
         if (entityId == Guid.Empty)
             throw new ArgumentException("Entity ID cannot be empty", nameof(entityId));
@@ -44,7 +52,9 @@ public class SanctionsScreening : AggregateRoot
             ScreeningDate = DateTime.UtcNow,
             ScreenedWatchlists = watchlistsToScreen.ToList(),
             Status = ScreeningStatus.InProgress,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            PartyName = partyName,
+            ScreenedBy = screenedBy
         };
 
         screening.AddDomainEvent(new SanctionsScreeningInitiatedDomainEvent(

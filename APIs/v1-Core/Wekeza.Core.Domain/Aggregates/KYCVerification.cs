@@ -43,6 +43,12 @@ public class KYCVerification : AggregateRoot
     public string? ApprovalNotes { get; private set; }
     public Dictionary<string, object> Metadata { get; private set; }
 
+    // Compatibility properties for service layer
+    public string RiskLevel { get; private set; } = "Medium";
+    public DateTime? ApprovedAt { get; private set; }
+    public string? ApprovedBy { get; private set; }
+    public DateTime? ExpiresAt => ExpiryDate;
+
     private KYCVerification() : base(Guid.NewGuid()) 
     { 
         Metadata = new Dictionary<string, object>();
@@ -86,6 +92,8 @@ public class KYCVerification : AggregateRoot
         ApprovalNotes = approvalNotes;
         UpdatedAt = DateTime.UtcNow;
         VerifiedBy = approvedBy;
+        ApprovedAt = DateTime.UtcNow;
+        ApprovedBy = approvedBy;
     }
 
     public void Reject(string reason, string rejectedBy)

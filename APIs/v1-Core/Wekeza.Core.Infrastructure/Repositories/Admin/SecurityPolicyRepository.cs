@@ -1,4 +1,5 @@
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

@@ -33,6 +33,9 @@ public class RegulatoryReport : AggregateRoot
     public DateTime? ApprovedAt { get; private set; }
     public string? Comments { get; private set; }
 
+    // Compatibility property for service layer
+    public string ReportingPeriod => $"{ReportingPeriodStart:yyyy-MM-dd} to {ReportingPeriodEnd:yyyy-MM-dd}";
+
     private readonly List<ReportDataItem> _dataItems = new();
     public IReadOnlyList<ReportDataItem> DataItems => _dataItems.AsReadOnly();
 

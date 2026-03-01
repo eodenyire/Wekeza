@@ -1,4 +1,5 @@
 using Wekeza.Core.Domain.Aggregates;
+using Wekeza.Core.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -255,9 +256,5 @@ public class CustomerServiceRepository
     }
 }
 
-// Placeholder domain entities
-public class Customer { public Guid Id { get; set; } public string FullName { get; set; } public string Email { get; set; } public string PhoneNumber { get; set; } public string Status { get; set; } public string Segment { get; set; } public DateTime CustomerSince { get; set; } public decimal LifetimeValue { get; set; } }
-public class Complaint { public Guid Id { get; set; } public Guid CustomerId { get; set; } public string ComplaintNumber { get; set; } public string Status { get; set; } public string Priority { get; set; } public DateTime CreatedAt { get; set; } }
-public class ServiceRequest { public Guid Id { get; set; } public Guid CustomerId { get; set; } public string RequestNumber { get; set; } public string Status { get; set; } public string RequestType { get; set; } public DateTime CreatedAt { get; set; } }
-public class Feedback { public Guid Id { get; set; } public Guid CustomerId { get; set; } public string Category { get; set; } public int Rating { get; set; } public DateTime ProvidedAt { get; set; } }
-public class CommunicationRecord { public Guid Id { get; set; } public Guid CustomerId { get; set; } public string Channel { get; set; } public DateTime CommunicatedAt { get; set; } }
+// NOTE: Placeholder domain entities removed - these should be defined in Wekeza.Core.Domain/Aggregates if needed
+// Removed: Customer, Complaint, ServiceRequest, Feedback, CommunicationRecord
