@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Npgsql;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Wekeza.Core.Api.Authentication;
 using Wekeza.Core.Domain.Enums;
 
@@ -13,10 +16,12 @@ namespace Wekeza.Core.Api.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly IConfiguration _configuration;
 
-    public AuthenticationController(IJwtTokenGenerator jwtTokenGenerator)
+    public AuthenticationController(IJwtTokenGenerator jwtTokenGenerator, IConfiguration configuration)
     {
         _jwtTokenGenerator = jwtTokenGenerator;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -26,34 +31,60 @@ public class AuthenticationController : ControllerBase
     [AllowAnonymous]
     [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        // TODO: Validate credentials against database
-        // This is a simplified example - in production, validate against user store
-        
-        if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
         {
             return Unauthorized(new { message = "Invalid credentials" });
         }
 
-        // Mock user validation - replace with actual authentication
-        var userId = Guid.NewGuid();
-        var roles = DetermineUserRoles(request.Username);
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Database connection is not configured" });
+        }
+
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var user = await GetUserForLoginAsync(connection, request.Username);
+        if (user is null || !user.IsActive)
+        {
+            return Unauthorized(new { message = "Invalid username or password" });
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        {
+            return Unauthorized(new { message = "Invalid username or password" });
+        }
+
+        var roles = ResolveRoles(user.Role);
+        var permissions = ResolvePermissions(roles);
 
         var token = _jwtTokenGenerator.GenerateToken(
-            userId,
-            request.Username,
-            request.Email ?? $"{request.Username}@wekeza.com",
+            user.Id,
+            user.Username,
+            user.Email,
             roles
         );
+
+        await UpdateLastLoginAsync(connection, user.Id);
 
         return Ok(new LoginResponse
         {
             Token = token,
-            UserId = userId,
-            Username = request.Username,
-            Roles = roles.Select(r => r.ToString()).ToList(),
-            ExpiresAt = DateTime.UtcNow.AddHours(1)
+            RefreshToken = Guid.NewGuid().ToString("N"),
+            ExpiresIn = 3600,
+            User = new AuthUserResponse
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                FullName = user.FullName,
+                Roles = roles.Select(MapRoleToPortalRole).ToList(),
+                Permissions = permissions,
+                Department = user.Department
+            }
         });
     }
 
@@ -62,34 +93,163 @@ public class AuthenticationController : ControllerBase
     /// </summary>
     [HttpGet("me")]
     [Authorize]
-    [ProducesResponseType(typeof(UserInfoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthUserResponse), StatusCodes.Status200OK)]
     public IActionResult GetCurrentUser()
     {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        var username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-        var roles = User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList();
+        var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+            ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var username = User.FindFirst(JwtRegisteredClaimNames.Name)?.Value
+            ?? User.FindFirst(ClaimTypes.Name)?.Value;
+        var email = User.FindFirst(JwtRegisteredClaimNames.Email)?.Value
+            ?? User.FindFirst(ClaimTypes.Email)?.Value
+            ?? string.Empty;
+        var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        var permissions = ResolvePermissions(roles.Select(ParseUserRole));
 
-        return Ok(new UserInfoResponse
+        return Ok(new AuthUserResponse
         {
-            UserId = Guid.Parse(userId!),
-            Username = username!,
-            Email = email!,
-            Roles = roles
+            Id = Guid.TryParse(userId, out var parsedId) ? parsedId : Guid.Empty,
+            Username = username ?? string.Empty,
+            Email = email ?? string.Empty,
+            FullName = username ?? string.Empty,
+            Roles = roles.Select(MapRoleNameToPortalRole).ToList(),
+            Permissions = permissions
         });
     }
 
-    private static IEnumerable<UserRole> DetermineUserRoles(string username)
+    private static async Task<AuthenticatedUser?> GetUserForLoginAsync(NpgsqlConnection connection, string username)
     {
-        // Mock role assignment - replace with database lookup
-        return username.ToLower() switch
+        await using var command = new NpgsqlCommand(@"
+            SELECT ""Id"", ""Username"", ""Email"", ""PasswordHash"", ""FullName"", ""Role"", ""IsActive"", ""Department""
+            FROM ""Users""
+            WHERE lower(""Username"") = lower(@username)
+            LIMIT 1", connection);
+
+        command.Parameters.AddWithValue("username", username);
+
+        await using var reader = await command.ExecuteReaderAsync();
+        if (!await reader.ReadAsync())
         {
-            "admin" => new[] { UserRole.Administrator },
+            return null;
+        }
+
+        return new AuthenticatedUser
+        {
+            Id = reader.GetGuid(reader.GetOrdinal("Id")),
+            Username = reader.GetString(reader.GetOrdinal("Username")),
+            Email = reader.GetString(reader.GetOrdinal("Email")),
+            PasswordHash = reader.GetString(reader.GetOrdinal("PasswordHash")),
+            FullName = reader.GetString(reader.GetOrdinal("FullName")),
+            Role = reader.GetString(reader.GetOrdinal("Role")),
+            IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive")),
+            Department = reader.IsDBNull(reader.GetOrdinal("Department")) ? null : reader.GetString(reader.GetOrdinal("Department"))
+        };
+    }
+
+    private static async Task UpdateLastLoginAsync(NpgsqlConnection connection, Guid userId)
+    {
+        await using var command = new NpgsqlCommand(@"
+            UPDATE ""Users""
+            SET ""LastLoginAt"" = @lastLoginAt,
+                ""UpdatedAt"" = @updatedAt
+            WHERE ""Id"" = @id", connection);
+
+        command.Parameters.AddWithValue("lastLoginAt", DateTime.UtcNow);
+        command.Parameters.AddWithValue("updatedAt", DateTime.UtcNow);
+        command.Parameters.AddWithValue("id", userId);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private static IEnumerable<UserRole> ResolveRoles(string role)
+    {
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            return new[] { UserRole.Customer };
+        }
+
+        return role.Trim().ToLowerInvariant() switch
+        {
+            "administrator" => new[] { UserRole.Administrator },
             "teller" => new[] { UserRole.Teller },
+            "manager" => new[] { UserRole.BranchManager },
+            "branchmanager" => new[] { UserRole.BranchManager },
             "loanofficer" => new[] { UserRole.LoanOfficer },
             "riskofficer" => new[] { UserRole.RiskOfficer },
+            "complianceofficer" => new[] { UserRole.ComplianceOfficer },
             _ => new[] { UserRole.Customer }
         };
+    }
+
+    private static UserRole ParseUserRole(string role)
+    {
+        return Enum.TryParse<UserRole>(role, true, out var parsedRole)
+            ? parsedRole
+            : UserRole.Customer;
+    }
+
+    private static List<string> ResolvePermissions(IEnumerable<UserRole> roles)
+    {
+        var permissionSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "portal:access",
+            "dashboard:view"
+        };
+
+        foreach (var role in roles)
+        {
+            switch (role)
+            {
+                case UserRole.Administrator:
+                    permissionSet.Add("users:manage");
+                    permissionSet.Add("system:configure");
+                    permissionSet.Add("transactions:approve");
+                    break;
+                case UserRole.Teller:
+                    permissionSet.Add("transactions:create");
+                    permissionSet.Add("accounts:view");
+                    break;
+                case UserRole.BranchManager:
+                    permissionSet.Add("branch:manage");
+                    permissionSet.Add("transactions:approve");
+                    break;
+                case UserRole.LoanOfficer:
+                    permissionSet.Add("loans:manage");
+                    break;
+                case UserRole.RiskOfficer:
+                    permissionSet.Add("risk:manage");
+                    break;
+                case UserRole.ComplianceOfficer:
+                    permissionSet.Add("compliance:manage");
+                    break;
+            }
+        }
+
+        return permissionSet.ToList();
+    }
+
+    private static string MapRoleToPortalRole(UserRole role)
+    {
+        return role switch
+        {
+            UserRole.Administrator => "SystemAdministrator",
+            UserRole.Teller => "Teller",
+            UserRole.BranchManager => "BranchManager",
+            UserRole.LoanOfficer => "FinanceController",
+            UserRole.RiskOfficer => "RiskOfficer",
+            UserRole.ComplianceOfficer => "ComplianceManager",
+            _ => "RetailCustomer"
+        };
+    }
+
+    private static string MapRoleNameToPortalRole(string roleName)
+    {
+        if (!Enum.TryParse<UserRole>(roleName, true, out var parsedRole))
+        {
+            return "RetailCustomer";
+        }
+
+        return MapRoleToPortalRole(parsedRole);
     }
 }
 
@@ -97,22 +257,37 @@ public record LoginRequest
 {
     public string Username { get; init; } = string.Empty;
     public string Password { get; init; } = string.Empty;
-    public string? Email { get; init; }
 }
 
 public record LoginResponse
 {
     public string Token { get; init; } = string.Empty;
-    public Guid UserId { get; init; }
-    public string Username { get; init; } = string.Empty;
-    public List<string> Roles { get; init; } = new();
-    public DateTime ExpiresAt { get; init; }
+    public string RefreshToken { get; init; } = string.Empty;
+    public AuthUserResponse User { get; init; } = new();
+    public int ExpiresIn { get; init; }
 }
 
-public record UserInfoResponse
+public record AuthUserResponse
 {
-    public Guid UserId { get; init; }
+    public Guid Id { get; init; }
     public string Username { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;
+    public string FullName { get; init; } = string.Empty;
     public List<string> Roles { get; init; } = new();
+    public List<string> Permissions { get; init; } = new();
+    public string? Department { get; init; }
+    public string? BranchCode { get; init; }
+    public string? BranchName { get; init; }
+}
+
+internal sealed class AuthenticatedUser
+{
+    public Guid Id { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public bool IsActive { get; set; }
+    public string? Department { get; set; }
 }

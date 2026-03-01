@@ -3,6 +3,14 @@ import { useAuthStore } from '@store/authStore';
 import type { AuthResponse, LoginCredentials, User } from '@app-types/index';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const AUTH_MODE = import.meta.env.VITE_AUTH_MODE || 'mock';
+
+interface BackendLoginResponse {
+  token: string;
+  refreshToken: string;
+  expiresIn: number;
+  user: User;
+}
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -37,9 +45,18 @@ apiClient.interceptors.response.use(
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post('/api/Authentication/login', credentials);
-      return response.data;
+      const response = await apiClient.post<BackendLoginResponse>('/api/Authentication/login', credentials);
+      return {
+        token: response.data.token,
+        refreshToken: response.data.refreshToken,
+        user: response.data.user,
+        expiresIn: response.data.expiresIn,
+      };
     } catch {
+      if (AUTH_MODE === 'real') {
+        throw new Error('Authentication failed. Please verify your username/password and backend connectivity.');
+      }
+
       console.warn('Backend login unavailable, using mock authentication for testing');
       
       // Mock authentication for development/testing
@@ -88,6 +105,10 @@ export const authService = {
       const response = await apiClient.get('/api/Authentication/me');
       return response.data;
     } catch {
+      if (AUTH_MODE === 'real') {
+        throw new Error('Unable to load current user profile from backend.');
+      }
+
       // Return mock user for testing
       const authUser = useAuthStore.getState().user;
 

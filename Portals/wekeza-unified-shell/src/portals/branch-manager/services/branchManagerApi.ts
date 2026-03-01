@@ -2,58 +2,74 @@ import { apiClient } from '@services/api';
 
 export const branchManagerApi = {
   // Dashboard APIs
-  async getBranchMetrics() {
-    const response = await apiClient.get('/api/branch/metrics');
+  async getDashboard() {
+    const response = await apiClient.get('/api/branch-manager/dashboard');
     return response.data;
   },
 
-  async getTellerPerformance() {
-    const response = await apiClient.get('/api/branch/teller-performance');
+  async getDailyTransactionSummary(date?: Date) {
+    const params = date ? { date: date.toISOString().split('T')[0] } : {};
+    const response = await apiClient.get('/api/branch-manager/transactions/daily', { params });
+    return response.data;
+  },
+
+  async getTellerPerformance(date?: Date) {
+    const params = date ? { date: date.toISOString().split('T')[0] } : {};
+    const response = await apiClient.get('/api/branch-manager/tellers/performance', { params });
     return response.data;
   },
 
   // Team Management APIs
-  async getStaffList() {
-    const response = await apiClient.get('/api/branch/staff');
-    return response.data;
-  },
-
-  async updateStaffMember(staffId: string, data: any) {
-    const response = await apiClient.put(`/api/branch/staff/${staffId}`, data);
+  async getStaffList(role?: string, status?: string) {
+    const params: Record<string, string> = {};
+    if (role) params.role = role;
+    if (status) params.status = status;
+    const response = await apiClient.get('/api/branch-manager/staff', { params });
     return response.data;
   },
 
   // Cash Management APIs
   async getCashPosition() {
-    const response = await apiClient.get('/api/branch/cash-position');
+    const response = await apiClient.get('/api/branch-manager/cash-position');
     return response.data;
   },
 
-  async requestCIT(amount: number) {
-    const response = await apiClient.post('/api/branch/request-cit', { amount });
+  async requestCashReplenishment(amount: number, reason?: string) {
+    const response = await apiClient.post('/api/branch-manager/cash-replenishment/request', {
+      amount,
+      reason
+    });
     return response.data;
   },
 
-  // Transaction Monitoring APIs
-  async getTransactions(filters?: any) {
-    const response = await apiClient.get('/api/branch/transactions', { params: filters });
+  // Compliance & Audit APIs
+  async getComplianceStatus() {
+    const response = await apiClient.get('/api/branch-manager/compliance');
     return response.data;
   },
 
-  // Reports APIs
-  async getPerformanceReport(period: string) {
-    const response = await apiClient.get(`/api/branch/reports/performance`, { params: { period } });
+  async getAuditTrail(startDate?: Date, endDate?: Date, action?: string, page: number = 1, pageSize: number = 20) {
+    const params: Record<string, any> = { page, pageSize };
+    if (startDate) params.startDate = startDate.toISOString();
+    if (endDate) params.endDate = endDate.toISOString();
+    if (action) params.action = action;
+    const response = await apiClient.get('/api/branch-manager/audit-trail', { params });
     return response.data;
   },
 
-  // Settings APIs
-  async getBranchSettings() {
-    const response = await apiClient.get('/api/branch/settings');
+  // Approvals APIs
+  async getPendingRequests() {
+    const response = await apiClient.get('/api/branch-manager/pending-requests');
     return response.data;
   },
 
-  async updateBranchSettings(settings: any) {
-    const response = await apiClient.put('/api/branch/settings', settings);
+  async approveRequest(requestId: string, reason: string) {
+    const response = await apiClient.post(`/api/branch-manager/pending-requests/${requestId}/approve`, { reason });
+    return response.data;
+  },
+
+  async rejectRequest(requestId: string, reason: string) {
+    const response = await apiClient.post(`/api/branch-manager/pending-requests/${requestId}/reject`, { reason });
     return response.data;
   },
 };
