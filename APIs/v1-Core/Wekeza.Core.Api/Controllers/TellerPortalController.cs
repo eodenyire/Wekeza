@@ -1,6 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
+using System.Security.Claims;
 using Wekeza.Core.Application.Features.Teller.Commands.StartSession;
 using Wekeza.Core.Application.Features.Teller.Commands.EndSession;
 using Wekeza.Core.Application.Features.Teller.Commands.ProcessCashDeposit;
@@ -29,7 +32,13 @@ namespace Wekeza.Core.Api.Controllers;
 [Authorize(Roles = "Teller,Supervisor,BranchManager")]
 public class TellerPortalController : BaseApiController
 {
-    public TellerPortalController(IMediator mediator) : base(mediator) { }
+    private readonly IConfiguration _configuration;
+
+    public TellerPortalController(IMediator mediator, IConfiguration configuration) 
+        : base(mediator) 
+    {
+        _configuration = configuration;
+    }
 
     #region Session Management
 
@@ -81,6 +90,146 @@ public class TellerPortalController : BaseApiController
         var query = new GetCashDrawerBalanceQuery();
         var result = await Mediator.Send(query);
         return Ok(result);
+    }
+
+    #endregion
+
+    #region Dashboard - Real Data
+
+    /// <summary>
+    /// Get teller dashboard data with real metrics from database
+    /// Returns drawer balance, transactions today, customers served, and session duration
+    /// </summary>
+    [HttpGet("dashboard")]
+    public async Task<IActionResult> GetDashboard()
+    {
+        try
+        {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            await using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            // Get drawer balance (sum of all active account balances)
+            var drawerBalance = await ExecuteScalarAsync<decimal>(
+                connection,
+                "SELECT COALESCE(SUM(\"Balance\"), 0) FROM \"Accounts\" WHERE \"Status\" = 'Active'");
+
+            // Get transactions today count
+            var transactionsToday = await ExecuteScalarAsync<int>(
+                connection,
+                "SELECT COUNT(*) FROM \"Transactions\" WHERE DATE(\"CreatedAt\") = CURRENT_DATE");
+
+            // Get unique customers served (from transactions)
+            var customersServed = await ExecuteScalarAsync<int>(
+                connection,
+                @"SELECT COUNT(DISTINCT a.""CustomerId"") 
+                  FROM ""Transactions"" t
+                  JOIN ""Accounts"" a ON t.""AccountId"" = a.""Id""
+                  WHERE DATE(t.""CreatedAt"") = CURRENT_DATE");
+
+            // Get current teller info
+            var tellerFullName = User.FindFirst("FullName")?.Value ?? "Unknown";
+            var tellerId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+
+            // Get session start time (for duration calculation) - use current session or login time
+            var sessionDuration = "Active";
+            try
+            {
+                var sessionStart = await ExecuteScalarAsync<DateTime?>(
+                    connection,
+                    @"SELECT ""CreatedAt"" FROM ""Sessions"" 
+                      WHERE ""UserId"" = @userId AND ""EndTime"" IS NULL
+                      ORDER BY ""CreatedAt"" DESC LIMIT 1",
+                    ("@userId", tellerId));
+
+                if (sessionStart.HasValue)
+                {
+                    var duration = DateTime.UtcNow - sessionStart.Value;
+                    sessionDuration = $"{duration.Hours}h {duration.Minutes}m";
+                }
+            }
+            catch
+            {
+                sessionDuration = "Active";
+            }
+
+            return Ok(new
+            {
+                drawerBalance = drawerBalance,
+                transactionsToday = transactionsToday,
+                customersServed = customersServed,
+                sessionDuration = sessionDuration,
+                tellerName = tellerFullName,
+                lastUpdated = DateTime.UtcNow
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "Failed to retrieve dashboard data", details = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get recent transactions for teller dashboard
+    /// </summary>
+    [HttpGet("transactions/recent")]
+    public async Task<IActionResult> GetRecentTransactions()
+    {
+        try
+        {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            await using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var transactions = new List<dynamic>();
+            
+            var query = @"
+                SELECT 
+                    t.""Id"",
+                    t.""TransactionReference"" as ""Reference"",
+                    t.""Type"",
+                    a.""AccountNumber"",
+                    t.""Amount"",
+                    t.""CreatedAt"" as ""Timestamp"",
+                    t.""Description"",
+                    CASE WHEN t.""Status"" = 'Completed' THEN 'Success' 
+                         WHEN t.""Status"" = 'Pending' THEN 'Pending'
+                         ELSE t.""Status"" END as ""Status""
+                FROM ""Transactions"" t
+                JOIN ""Accounts"" a ON t.""AccountId"" = a.""Id""
+                WHERE DATE(t.""CreatedAt"") = CURRENT_DATE
+                ORDER BY t.""CreatedAt"" DESC
+                LIMIT 10";
+
+            await using var command = new NpgsqlCommand(query, connection);
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                transactions.Add(new
+                {
+                    Id = reader.IsDBNull(0) ? Guid.Empty : reader.GetGuid(0),
+                    Reference = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                    Type = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                    AccountNumber = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                    Amount = reader.IsDBNull(4) ? 0m : reader.GetDecimal(4),
+                    Timestamp = reader.IsDBNull(5) ? DateTime.MinValue : reader.GetDateTime(5),
+                    Description = reader.IsDBNull(6) ? "" : reader.GetString(6),
+                    Status = reader.IsDBNull(7) ? "" : reader.GetString(7)
+                });
+            }
+
+            return Ok(new
+            {
+                transactions = transactions,
+                count = transactions.Count,
+                lastUpdated = DateTime.UtcNow
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "Failed to retrieve transactions", details = ex.Message });
+        }
     }
 
     #endregion
@@ -268,6 +417,34 @@ public class TellerPortalController : BaseApiController
     {
         var result = await Mediator.Send(command);
         return Ok(result);
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Execute a scalar query and return typed result
+    /// </summary>
+    private static async Task<T> ExecuteScalarAsync<T>(NpgsqlConnection connection, string query)
+    {
+        await using var command = new NpgsqlCommand(query, connection);
+        var result = await command.ExecuteScalarAsync();
+        return result == null || result is DBNull ? default(T)! : (T)Convert.ChangeType(result, typeof(T))!;
+    }
+
+    /// <summary>
+    /// Execute a scalar query with parameters and return typed result
+    /// </summary>
+    private static async Task<T> ExecuteScalarAsync<T>(NpgsqlConnection connection, string query, params (string, object)[] parameters)
+    {
+        await using var command = new NpgsqlCommand(query, connection);
+        foreach (var (paramName, paramValue) in parameters)
+        {
+            command.Parameters.AddWithValue(paramName, paramValue ?? DBNull.Value);
+        }
+        var result = await command.ExecuteScalarAsync();
+        return result == null || result is DBNull ? default(T)! : (T)Convert.ChangeType(result, typeof(T))!;
     }
 
     #endregion

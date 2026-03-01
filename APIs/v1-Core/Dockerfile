@@ -10,9 +10,6 @@ COPY ["Wekeza.Core.Api/Wekeza.Core.Api.csproj", "Wekeza.Core.Api/"]
 COPY ["Wekeza.Core.Application/Wekeza.Core.Application.csproj", "Wekeza.Core.Application/"]
 COPY ["Wekeza.Core.Domain/Wekeza.Core.Domain.csproj", "Wekeza.Core.Domain/"]
 COPY ["Wekeza.Core.Infrastructure/Wekeza.Core.Infrastructure.csproj", "Wekeza.Core.Infrastructure/"]
-COPY ["Wekeza.Nexus.Domain/Wekeza.Nexus.Domain.csproj", "Wekeza.Nexus.Domain/"]
-COPY ["Wekeza.Nexus.Application/Wekeza.Nexus.Application.csproj", "Wekeza.Nexus.Application/"]
-COPY ["Wekeza.Nexus.Infrastructure/Wekeza.Nexus.Infrastructure.csproj", "Wekeza.Nexus.Infrastructure/"]
 
 # Restore dependencies
 RUN dotnet restore "Wekeza.Core.Api/Wekeza.Core.Api.csproj"
