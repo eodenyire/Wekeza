@@ -116,16 +116,6 @@ public class LimitLevelDTO
     public decimal AvailableAmount { get; set; }
 }
 
-public class ThresholdConfigDTO
-{
-    public Guid Id { get; set; }
-    public string ThresholdType { get; set; }
-    public string MetricCode { get; set; }
-    public decimal WarningLevel { get; set; }
-    public decimal CriticalLevel { get; set; }
-    public string Status { get; set; }
-}
-
 public class CreateThresholdRequest
 {
     public string ThresholdType { get; set; }
@@ -138,16 +128,6 @@ public class UpdateThresholdRequest
 {
     public decimal WarningLevel { get; set; }
     public decimal CriticalLevel { get; set; }
-}
-
-public class ThresholdBreachDTO
-{
-    public Guid ThresholdId { get; set; }
-    public string ThresholdType { get; set; }
-    public decimal CurrentValue { get; set; }
-    public decimal ThresholdValue { get; set; }
-    public string BreachLevel { get; set; }
-    public DateTime BreachedAt { get; set; }
 }
 
 public class LimitUtilizationDTO

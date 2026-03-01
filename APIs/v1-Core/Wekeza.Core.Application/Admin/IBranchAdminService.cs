@@ -61,7 +61,7 @@ public interface IBranchAdminService
     // ===== Branch Reporting =====
     Task<BranchDailyReportDTO> GenerateDailyReportAsync(Guid branchId, DateTime reportDate, Guid generatedByUserId);
     Task<List<BranchPerformanceMetricDTO>> GetBranchMetricsAsync(Guid branchId, DateTime? fromDate = null, DateTime? toDate = null);
-    Task<BranchComplianceReportDTO> GenerateComplianceReportAsync(Guid branchId, DateTime? fromDate = null, DateTime? toDate = null, Guid generatedByUserId);
+    Task<BranchComplianceReportDTO> GenerateComplianceReportAsync(Guid branchId, Guid generatedByUserId, DateTime? fromDate = null, DateTime? toDate = null);
 
     // ===== Branch Dashboard =====
     Task<BranchDashboardDTO> GetBranchDashboardAsync(Guid branchId);
