@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Wekeza.Core.Application.Admin;
 
-namespace Wekeza.Core.Application.Admin.Services;
+namespace Wekeza.Core.Application.Admin;
 
 public partial class BranchAdminService : IBranchAdminService
 {

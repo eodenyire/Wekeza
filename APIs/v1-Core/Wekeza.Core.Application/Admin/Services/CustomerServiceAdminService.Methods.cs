@@ -1,44 +1,156 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Wekeza.Core.Application.Admin;
 
-namespace Wekeza.Core.Application.Admin.Services;
+namespace Wekeza.Core.Application.Admin;
 
-public partial class CustomerServiceAdminService : ICustomerServiceAdminService
+/// <summary>
+/// Customer Service Admin Service - Method Implementations
+/// </summary>
+public partial class CustomerServiceAdminService
 {
-    public Task<CustomerServiceRequestDTO> GetRequestAsync(Guid requestId) => Task.FromResult(new CustomerServiceRequestDTO());
-    public Task<List<CustomerServiceRequestDTO>> SearchRequestsAsync(string status, int page = 1, int pageSize = 50) => Task.FromResult(new List<CustomerServiceRequestDTO>());
-    public Task<CustomerServiceRequestDTO> CreateRequestAsync(CreateServiceRequestRequest request, Guid createdByUserId) => Task.FromResult(new CustomerServiceRequestDTO());
-    public Task<CustomerServiceRequestDTO> UpdateRequestAsync(Guid requestId, UpdateServiceRequestRequest request, Guid updatedByUserId) => Task.FromResult(new CustomerServiceRequestDTO());
-    public Task AssignRequestAsync(Guid requestId, Guid assignedToUserId, Guid assignedByUserId) => Task.CompletedTask;
-    public Task CloseRequestAsync(Guid requestId, string resolution, Guid closedByUserId) => Task.CompletedTask;
-    
-    public Task<CustomerComplaintDTO> GetComplaintAsync(Guid complaintId) => Task.FromResult(new CustomerComplaintDTO());
-    public Task<List<CustomerComplaintDTO>> SearchComplaintsAsync(string status, int page = 1, int pageSize = 50) => Task.FromResult(new List<CustomerComplaintDTO>());
-    public Task<CustomerComplaintDTO> FileComplaintAsync(FileComplaintRequest request, Guid filedByUserId) => Task.FromResult(new CustomerComplaintDTO());
-    public Task<CustomerComplaintDTO> UpdateComplaintAsync(Guid complaintId, UpdateComplaintRequest request, Guid updatedByUserId) => Task.FromResult(new CustomerComplaintDTO());
-    public Task<ComplaintResolutionDTO> ResolveComplaintAsync(Guid complaintId, string resolution, Guid resolvedByUserId) => Task.FromResult(new ComplaintResolutionDTO());
-    public Task<List<ComplaintResolutionDTO>> GetComplaintResolutionHistoryAsync(Guid complaintId) => Task.FromResult(new List<ComplaintResolutionDTO>());
-    
-    public Task<ServiceLevelAgreementDTO> GetSLAAsync(Guid slaId) => Task.FromResult(new ServiceLevelAgreementDTO());
-    public Task<List<ServiceLevelAgreementDTO>> GetAllSLAsAsync() => Task.FromResult(new List<ServiceLevelAgreementDTO>());
-    public Task<SLAComplianceDTO> CheckSLAComplianceAsync(Guid requestId) => Task.FromResult(new SLAComplianceDTO());
-    public Task<List<SLAViolationDTO>> GetSLAViolationsAsync(DateTime? fromDate = null, DateTime? toDate = null) => Task.FromResult(new List<SLAViolationDTO>());
-    
-    public Task<ServiceQualityMetricsDTO> GetQualityMetricsAsync(DateTime? fromDate = null, DateTime? toDate = null) => Task.FromResult(new ServiceQualityMetricsDTO());
-    public Task<CustomerSatisfactionDTO> GetCustomerSatisfactionAsync(Guid customerId) => Task.FromResult(new CustomerSatisfactionDTO());
-    public Task<SurveyResponseDTO> RecordSurveyResponseAsync(Guid requestId, SurveyResponseRequest request) => Task.FromResult(new SurveyResponseDTO());
-    public Task<List<SurveyResponseDTO>> GetSurveyResponsesAsync(DateTime? fromDate = null, DateTime? toDate = null) => Task.FromResult(new List<SurveyResponseDTO>());
-    
-    public Task<CustomerServiceDashboardDTO> GetDashboardAsync() => Task.FromResult(new CustomerServiceDashboardDTO());
-    public Task<List<CustomerServiceAlertDTO>> GetAlertsAsync() => Task.FromResult(new List<CustomerServiceAlertDTO>());
-    
-    public Task<ServiceChannelDTO> GetChannelAsync(Guid channelId) => Task.FromResult(new ServiceChannelDTO());
-    public Task<List<ServiceChannelDTO>> GetAllChannelsAsync() => Task.FromResult(new List<ServiceChannelDTO>());
-    public Task<ChannelMetricsDTO> GetChannelMetricsAsync(Guid channelId, DateTime? fromDate = null, DateTime? toDate = null) => Task.FromResult(new ChannelMetricsDTO());
-    
-    public Task<CustomerFeedbackDTO> RecordFeedbackAsync(RecordFeedbackRequest request, Guid recordedByUserId) => Task.FromResult(new CustomerFeedbackDTO());
-    public Task<List<CustomerFeedbackDTO>> GetFeedbackAsync(DateTime? fromDate = null, DateTime? toDate = null) => Task.FromResult(new List<CustomerFeedbackDTO>());
-    public Task<FeedbackAnalysisDTO> AnalyzeFeedbackAsync(DateTime? fromDate = null, DateTime? toDate = null) => Task.FromResult(new FeedbackAnalysisDTO());
+    // ===== Customer Management =====
+    public Task<CustomerServiceDTO> GetCustomerAsync(Guid customerId) 
+        => Task.FromResult(new CustomerServiceDTO());
+
+    public Task<List<CustomerServiceDTO>> SearchCustomersAsync(string? searchTerm = null, string? status = null, int page = 1, int pageSize = 50) 
+        => Task.FromResult(new List<CustomerServiceDTO>());
+
+    public Task<CustomerServiceDTO> UpdateCustomerAsync(Guid customerId, UpdateCustomerRequest request, Guid updatedByUserId) 
+        => Task.FromResult(new CustomerServiceDTO());
+
+    public Task<CustomerProfileDTO> GetCustomerProfileAsync(Guid customerId) 
+        => Task.FromResult(new CustomerProfileDTO());
+
+    public Task UpdateCustomerProfileAsync(Guid customerId, UpdateCustomerProfileRequest request, Guid updatedByUserId) 
+        => Task.CompletedTask;
+
+    public Task<CustomerPreferencesDTO> GetCustomerPreferencesAsync(Guid customerId) 
+        => Task.FromResult(new CustomerPreferencesDTO());
+
+    public Task UpdateCustomerPreferencesAsync(Guid customerId, UpdateCustomerPreferencesRequest request) 
+        => Task.CompletedTask;
+
+    // ===== Complaint Management =====
+    public Task<ComplaintDTO> GetComplaintAsync(Guid complaintId) 
+        => Task.FromResult(new ComplaintDTO());
+
+    public Task<List<ComplaintDTO>> SearchComplaintsAsync(string? status = null, string? priority = null, int page = 1, int pageSize = 50) 
+        => Task.FromResult(new List<ComplaintDTO>());
+
+    public Task<ComplaintDTO> CreateComplaintAsync(CreateComplaintRequest request, Guid createdByUserId) 
+        => Task.FromResult(new ComplaintDTO());
+
+    public Task<ComplaintDTO> UpdateComplaintAsync(Guid complaintId, UpdateComplaintRequest request, Guid updatedByUserId) 
+        => Task.FromResult(new ComplaintDTO());
+
+    public Task AssignComplaintAsync(Guid complaintId, Guid assigneeUserId, string reason, Guid assignedByUserId) 
+        => Task.CompletedTask;
+
+    public Task ReassignComplaintAsync(Guid complaintId, Guid newAssigneeUserId, string reason, Guid reassignedByUserId) 
+        => Task.CompletedTask;
+
+    public Task AddComplaintNoteAsync(Guid complaintId, string note, Guid addedByUserId) 
+        => Task.CompletedTask;
+
+    public Task ResolveComplaintAsync(Guid complaintId, string resolution, string resolutionCategory, Guid resolvedByUserId) 
+        => Task.CompletedTask;
+
+    public Task CloseComplaintAsync(Guid complaintId, Guid closedByUserId) 
+        => Task.CompletedTask;
+
+    public Task EscalateComplaintAsync(Guid complaintId, string escalationReason, Guid escalatedByUserId) 
+        => Task.CompletedTask;
+
+    public Task<ComplaintResolutionSummaryDTO> GetResolutionSummaryAsync(Guid complaintId) 
+        => Task.FromResult(new ComplaintResolutionSummaryDTO());
+
+    // ===== Customer Service Requests =====
+    public Task<ServiceRequestDTO> GetServiceRequestAsync(Guid requestId) 
+        => Task.FromResult(new ServiceRequestDTO());
+
+    public Task<List<ServiceRequestDTO>> SearchServiceRequestsAsync(string? status = null, string? requestType = null, int page = 1, int pageSize = 50) 
+        => Task.FromResult(new List<ServiceRequestDTO>());
+
+    public Task<ServiceRequestDTO> CreateServiceRequestAsync(CreateServiceRequestRequest request, Guid createdByUserId) 
+        => Task.FromResult(new ServiceRequestDTO());
+
+    public Task<ServiceRequestDTO> UpdateServiceRequestAsync(Guid requestId, UpdateServiceRequestRequest request, Guid updatedByUserId) 
+        => Task.FromResult(new ServiceRequestDTO());
+
+    public Task FulfillServiceRequestAsync(Guid requestId, ServiceRequestFulfillmentRequest request, Guid fulfilledByUserId) 
+        => Task.CompletedTask;
+
+    public Task<List<ServiceRequestDTO>> GetPendingRequestsAsync(Guid? customerId = null, int pageSize = 50) 
+        => Task.FromResult(new List<ServiceRequestDTO>());
+
+    public Task<ServiceRequestPerformanceDTO> GetServiceRequestPerformanceAsync(DateTime? fromDate = null, DateTime? toDate = null) 
+        => Task.FromResult(new ServiceRequestPerformanceDTO());
+
+    // ===== Customer Feedback =====
+    public Task<FeedbackDTO> GetFeedbackAsync(Guid feedbackId) 
+        => Task.FromResult(new FeedbackDTO());
+
+    public Task<List<FeedbackDTO>> SearchFeedbackAsync(string? category = null, int? rating = null, int page = 1, int pageSize = 50) 
+        => Task.FromResult(new List<FeedbackDTO>());
+
+    public Task<FeedbackDTO> CreateFeedbackAsync(CreateFeedbackRequest request, Guid customerId) 
+        => Task.FromResult(new FeedbackDTO());
+
+    public Task AnalyzeFeedbackAsync(Guid feedbackId, Guid analyzedByUserId) 
+        => Task.CompletedTask;
+
+    public Task<FeedbackAnalysisDTO> GetFeedbackAnalysisAsync(DateTime? fromDate = null, DateTime? toDate = null) 
+        => Task.FromResult(new FeedbackAnalysisDTO());
+
+    public Task<List<FeedbackTrendDTO>> GetFeedbackTrendsAsync(int periodMonths = 12) 
+        => Task.FromResult(new List<FeedbackTrendDTO>());
+
+    // ===== Customer Communication =====
+    public Task<CommunicationRecordDTO> GetCommunicationRecordAsync(Guid recordId) 
+        => Task.FromResult(new CommunicationRecordDTO());
+
+    public Task<List<CommunicationRecordDTO>> GetCustomerCommunicationAsync(Guid customerId, int page = 1, int pageSize = 50) 
+        => Task.FromResult(new List<CommunicationRecordDTO>());
+
+    public Task LogCommunicationAsync(Guid customerId, LogCommunicationRequest request, Guid loggedByUserId) 
+        => Task.CompletedTask;
+
+    public Task SendNotificationAsync(Guid customerId, SendNotificationRequest request, Guid sentByUserId) 
+        => Task.CompletedTask;
+
+    public Task<CommunicationPreferenceDTO> GetCommunicationPreferenceAsync(Guid customerId) 
+        => Task.FromResult(new CommunicationPreferenceDTO());
+
+    public Task UpdateCommunicationPreferenceAsync(Guid customerId, UpdateCommunicationPreferenceRequest request) 
+        => Task.CompletedTask;
+
+    // ===== Customer Relationship Management =====
+    public Task<CustomerSegmentDTO> GetCustomerSegmentAsync(Guid customerId) 
+        => Task.FromResult(new CustomerSegmentDTO());
+
+    public Task<List<CustomerDTO>> GetSegmentCustomersAsync(string segmentCode, int page = 1, int pageSize = 50) 
+        => Task.FromResult(new List<CustomerDTO>());
+
+    public Task<CustomerLifetimeValueDTO> GetLifetimeValueAsync(Guid customerId) 
+        => Task.FromResult(new CustomerLifetimeValueDTO());
+
+    public Task<List<CustomerOfferDTO>> RecommendOfferAsync(Guid customerId) 
+        => Task.FromResult(new List<CustomerOfferDTO>());
+
+    public Task<CustomerRiskAssessmentDTO> AssessCustomerRiskAsync(Guid customerId) 
+        => Task.FromResult(new CustomerRiskAssessmentDTO());
+
+    // ===== Customer Service Dashboard =====
+    public Task<CustomerServiceDashboardDTO> GetDashboardAsync(DateTime? fromDate = null, DateTime? toDate = null) 
+        => Task.FromResult(new CustomerServiceDashboardDTO());
+
+    public Task<CustomerServiceMetricsDTO> GetMetricsAsync(DateTime? fromDate = null, DateTime? toDate = null) 
+        => Task.FromResult(new CustomerServiceMetricsDTO());
+
+    public Task<List<CustomerServiceAlertDTO>> GetAlertsAsync() 
+        => Task.FromResult(new List<CustomerServiceAlertDTO>());
+
+    public Task<CustomerSatisfactionDTO> GetSatisfactionScoresAsync(DateTime? fromDate = null, DateTime? toDate = null) 
+        => Task.FromResult(new CustomerSatisfactionDTO());
 }
