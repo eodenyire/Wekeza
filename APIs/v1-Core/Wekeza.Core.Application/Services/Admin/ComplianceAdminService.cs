@@ -10,10 +10,10 @@ namespace Wekeza.Core.Application.Services.Admin;
 
 public class ComplianceAdminService : IComplianceAdminService
 {
-    private readonly ComplianceRepository _repository;
+    private readonly dynamic _repository;
     private readonly ILogger<ComplianceAdminService> _logger;
 
-    public ComplianceAdminService(ComplianceRepository repository, ILogger<ComplianceAdminService> logger)
+    public ComplianceAdminService(dynamic repository, ILogger<ComplianceAdminService> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

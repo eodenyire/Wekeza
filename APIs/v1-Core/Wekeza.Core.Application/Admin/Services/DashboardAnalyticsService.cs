@@ -7,7 +7,7 @@ namespace Wekeza.Core.Application.Admin.Services;
 /// DashboardAnalyticsService Stub Implementation
 /// Actual methods are in DashboardAnalyticsService.Stub.cs
 /// </summary>
-public partial class DashboardAnalyticsService : IDashboardAnalyticsService
+public partial class DashboardAnalyticsService
 {
     private readonly ILogger<DashboardAnalyticsService> _logger;
 

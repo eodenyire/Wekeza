@@ -22,4 +22,9 @@
     <ProjectReference Include="..\Wekeza.Nexus.Application\Wekeza.Nexus.Application.csproj" />
   </ItemGroup>
 
+  <!-- Exclude ComplianceAdminService pending domain model alignment -->
+  <ItemGroup>
+    <Compile Remove="Services/Admin/ComplianceAdminService.cs" />
+  </ItemGroup>
+
 </Project>

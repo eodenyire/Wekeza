@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Wekeza.Core.Application.Admin;
+namespace Wekeza.Core.Application.Admin.Services;
 
 /// <summary>
 /// Customer Service Admin Service - Method Implementations

@@ -8,7 +8,7 @@ namespace Wekeza.Core.Application.Admin;
 /// Dashboard & Analytics Service - KPI Dashboards, Business Metrics, Real-time Analytics
 /// Analytics portal providing unified dashboards for business, operations, and security KPIs with custom widgets
 /// </summary>
-public interface IDashboardAndAnalyticsService
+public interface IDashboardAnalyticsService
 {
     // ===== Executive Dashboard =====
     Task<ExecutiveDashboardDTO> GetExecutiveDashboardAsync(DateTime? asOfDate = null);

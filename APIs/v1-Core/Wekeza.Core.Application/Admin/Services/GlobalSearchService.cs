@@ -7,7 +7,7 @@ namespace Wekeza.Core.Application.Admin.Services;
 /// GlobalSearchService Stub Implementation
 /// Actual methods are in GlobalSearchService.Stub.cs
 /// </summary>
-public partial class GlobalSearchService : IGlobalSearchService
+public partial class GlobalSearchService
 {
     private readonly ILogger<GlobalSearchService> _logger;
 
