@@ -11,7 +11,7 @@ namespace Wekeza.Core.Api.Controllers;
 /// Inspired by Finacle Teller and T24 TELLER APIs
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/teller-core")]
 [Produces("application/json")]
 public class TellerController : BaseApiController
 {

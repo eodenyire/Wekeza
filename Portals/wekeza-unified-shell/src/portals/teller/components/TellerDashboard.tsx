@@ -6,11 +6,6 @@ import {
   UserOutlined,
   ClockCircleOutlined,
   ReloadOutlined,
-  DeleteOutlined,
-  FileOutlined,
-  CheckCircleOutlined,
-  ExclamationCircleOutlined,
-  ClockCircleOutlined as ClockIcon,
 } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -124,12 +119,6 @@ export const TellerDashboard: React.FC = () => {
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
-
-  // Format currency
-  const formatCurrency = (value: number | undefined) => {
-    if (value === undefined || value === null) return 'N/A';
-    return `KES ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
 
   return (
     <div>

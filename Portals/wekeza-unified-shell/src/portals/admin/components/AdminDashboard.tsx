@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Col, Row, Statistic, Table, Tag, Button, Spin, Alert } from 'antd';
-import { SafetyOutlined, TeamOutlined, DatabaseOutlined, WarningOutlined, ReloadOutlined } from '@ant-design/icons';
+import { TeamOutlined, DatabaseOutlined, WarningOutlined, ReloadOutlined } from '@ant-design/icons';
 
 interface DashboardStats {
 	activeUsers: number;
@@ -30,12 +30,23 @@ const AdminDashboard: React.FC = () => {
 		setError(null);
 		try {
 			const token = localStorage.getItem('authToken');
-			const response = await fetch('/admin/dashboard/stats', {
+			const response = await fetch('/api/administrator/system/stats', {
 				headers: { 'Authorization': `Bearer ${token}` }
 			});
 			if (!response.ok) throw new Error('Failed to fetch dashboard stats');
 			const data = await response.json();
-			setStats(data);
+			const payload = data?.value || data?.Value || data;
+			setStats({
+				activeUsers: payload?.activeUsers ?? payload?.ActiveUsers ?? 0,
+				totalCustomers: payload?.totalCustomers ?? payload?.TotalCustomers ?? 0,
+				totalAccounts: payload?.totalAccounts ?? payload?.TotalAccounts ?? 0,
+				totalBalance: payload?.totalDeposits ?? payload?.TotalDeposits ?? 0,
+				transactionsToday: payload?.totalTransactions ?? payload?.TotalTransactions ?? 0,
+				pendingApprovals: 0,
+				systemHealth: 100,
+				incidents: [],
+				lastUpdated: new Date().toISOString(),
+			});
 		} catch (err: any) {
 			setError(err.message || 'Failed to load dashboard data');
 		} finally {

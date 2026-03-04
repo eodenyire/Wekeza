@@ -4,6 +4,7 @@ import { TellerDashboard } from './components/TellerDashboard';
 import { TellerSessionPanel } from './components/TellerSessionPanel';
 import { CashOperationsPanel } from './components/CashOperationsPanel';
 import { CustomerServicesPanel } from './components/CustomerServicesPanel';
+import { VifAssistedJourneyPanel } from './components/VifAssistedJourneyPanel';
 
 export const TellerPortalPage: React.FC = () => {
   return (
@@ -30,6 +31,11 @@ export const TellerPortalPage: React.FC = () => {
             key: 'customer',
             label: 'Customer Services',
             children: <CustomerServicesPanel />,
+          },
+          {
+            key: 'vif',
+            label: 'VIF Assisted Journey',
+            children: <VifAssistedJourneyPanel />,
           },
         ]}
       />

@@ -81,6 +81,8 @@ public class AdminSessionConfiguration : IEntityTypeConfiguration<AdminSession>
             a.Property(x => x.ResourceId).HasMaxLength(100);
             a.Property(x => x.OperationType).HasMaxLength(50);
             a.Property(x => x.Status).HasMaxLength(50);
+            a.Ignore(x => x.Details);
+            a.Ignore(x => x.ChangedFields);
         });
 
         builder.Property(s => s.AccessedModules)

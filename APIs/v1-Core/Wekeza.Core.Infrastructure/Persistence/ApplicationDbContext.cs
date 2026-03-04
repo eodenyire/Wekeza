@@ -155,15 +155,36 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
         builder.Entity<ATMTransaction>(entity =>
         {
+            entity.Ignore(t => t.Amount);
+            entity.Ignore(t => t.AccountBalanceBefore);
+            entity.Ignore(t => t.AccountBalanceAfter);
             entity.Ignore(t => t.ATMFee);
             entity.Ignore(t => t.InterchangeFee);
         });
 
         builder.Entity<POSTransaction>(entity =>
         {
+            entity.Ignore(t => t.TotalAmount);
+            entity.Ignore(t => t.AccountBalanceBefore);
+            entity.Ignore(t => t.AccountBalanceAfter);
             entity.Ignore(t => t.InterchangeFee);
             entity.Ignore(t => t.MerchantFee);
             entity.Ignore(t => t.NetworkFee);
+        });
+
+        builder.Entity<InterestAccrualEngine>(entity =>
+        {
+            entity.Ignore(e => e.AccrualEntries);
+        });
+
+        builder.Entity<SystemMonitor>(entity =>
+        {
+            entity.Ignore(m => m.MonitoringRules);
+            entity.Ignore(m => m.Thresholds);
+            entity.Ignore(m => m.AlertRules);
+            entity.Ignore(m => m.NotificationChannels);
+            entity.Ignore(m => m.LastCheckResult);
+            entity.Ignore(m => m.Metadata);
         });
 
         // Ignore shared-type owned navigation issues  
