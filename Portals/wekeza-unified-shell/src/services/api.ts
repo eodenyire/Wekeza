@@ -45,16 +45,23 @@ apiClient.interceptors.response.use(
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
+      console.log('[AUTH DEBUG] Attempting login to:', `${API_BASE_URL}/api/authentication/login`);
+      console.log('[AUTH DEBUG] AUTH_MODE:', AUTH_MODE);
+      console.log('[AUTH DEBUG] Credentials:', credentials);
       const response = await apiClient.post<BackendLoginResponse>('/api/authentication/login', credentials);
+      console.log('[AUTH DEBUG] Login successful:', response.data);
       return {
         token: response.data.token,
         refreshToken: response.data.refreshToken,
         user: response.data.user,
         expiresIn: response.data.expiresIn,
       };
-    } catch {
+    } catch (error: any) {
+      console.error('[AUTH DEBUG] Login failed:', error);
+      console.error('[AUTH DEBUG] Error response:', error.response?.data);
+      console.error('[AUTH DEBUG] Error status:', error.response?.status);
       if (AUTH_MODE === 'real') {
-        throw new Error('Authentication failed. Please verify your username/password and backend connectivity.');
+        throw error;
       }
 
       console.warn('Backend login unavailable, using mock authentication for testing');
