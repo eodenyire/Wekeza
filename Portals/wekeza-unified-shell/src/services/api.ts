@@ -45,7 +45,7 @@ apiClient.interceptors.response.use(
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<BackendLoginResponse>('/api/Authentication/login', credentials);
+      const response = await apiClient.post<BackendLoginResponse>('/api/authentication/login', credentials);
       return {
         token: response.data.token,
         refreshToken: response.data.refreshToken,
@@ -94,7 +94,7 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
-      await apiClient.post('/api/Authentication/logout');
+      await apiClient.post('/api/authentication/logout');
     } catch {
       // Silent fail for mock mode
     }
@@ -102,7 +102,7 @@ export const authService = {
 
   async getCurrentUser(): Promise<User> {
     try {
-      const response = await apiClient.get('/api/Authentication/me');
+      const response = await apiClient.get('/api/authentication/me');
       return response.data;
     } catch {
       if (AUTH_MODE === 'real') {

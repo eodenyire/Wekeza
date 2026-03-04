@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using MediatR;
+using Npgsql;
 using Wekeza.Core.Application.Features.Accounts.Commands.OpenAccount;
 using Wekeza.Core.Application.Features.Accounts.Commands.OpenProductBasedAccount;
 using Wekeza.Core.Application.Features.Accounts.Commands.RegisterBusiness;
@@ -16,6 +19,137 @@ namespace Wekeza.Core.Api.Controllers;
 /// </summary>
 public class AccountsController : BaseApiController
 {
+    private readonly IConfiguration _configuration;
+
+    public AccountsController(IMediator mediator, IConfiguration configuration) : base(mediator)
+    {
+        _configuration = configuration;
+    }
+
+    /// <summary>
+    /// QUERY: Retrieves a paginated list of all accounts with filters.
+    /// </summary>
+    [HttpGet("list")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? searchTerm = null)
+    {
+        try
+        {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            await using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var offset = (pageNumber - 1) * pageSize;
+            
+            var query = @"
+                SELECT ""Id"", ""AccountNumber"", ""AccountType"", ""Balance"", ""Currency"", ""Status"", ""CreatedAt""
+                FROM ""Accounts""
+                WHERE ""Balance"" > 0" +
+                (string.IsNullOrWhiteSpace(searchTerm) ? "" : @" AND (""AccountNumber"" ILIKE @search OR ""AccountType"" ILIKE @search)") +
+                @" ORDER BY ""CreatedAt"" DESC
+                LIMIT @pageSize OFFSET @offset;
+                
+                SELECT COUNT(*) as total FROM ""Accounts"" WHERE ""Balance"" > 0" +
+                (string.IsNullOrWhiteSpace(searchTerm) ? "" : @" AND (""AccountNumber"" ILIKE @search OR ""AccountType"" ILIKE @search)");
+
+            await using var command = new NpgsqlCommand(query, connection);
+            command.Parameters.AddWithValue("@pageSize", pageSize);
+            command.Parameters.AddWithValue("@offset", offset);
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                command.Parameters.AddWithValue("@search", "%" + searchTerm + "%");
+            }
+
+            await using var reader = await command.ExecuteReaderAsync();
+            var accounts = new List<object>();
+            
+            while (await reader.ReadAsync())
+            {
+                accounts.Add(new
+                {
+                    id = reader.GetGuid(0),
+                    accountNumber = reader.GetString(1),
+                    accountType = reader.GetString(2),
+                    balance = reader.GetDecimal(3),
+                    currency = reader.GetString(4),
+                    status = reader.GetString(5),
+                    createdAt = reader.GetDateTime(6)
+                });
+            }
+
+            await reader.NextResultAsync();
+            int total = 0;
+            if (await reader.ReadAsync())
+            {
+                total = reader.GetInt32(0);
+            }
+
+            return Ok(new
+            {
+                data = accounts,
+                pagination = new
+                {
+                    pageNumber = pageNumber,
+                    pageSize = pageSize,
+                    totalRecords = total,
+                    totalPages = (total + pageSize - 1) / pageSize
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "Failed to retrieve accounts", details = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// QUERY: Retrieves a single account by account number.
+    /// </summary>
+    [HttpGet("{accountNumber}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByNumber(string accountNumber)
+    {
+        try
+        {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            await using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            await using var command = new NpgsqlCommand(
+                @"SELECT ""Id"", ""AccountNumber"", ""AccountType"", ""Balance"", ""Currency"", ""Status"", ""CreatedAt""
+                  FROM ""Accounts""
+                  WHERE ""AccountNumber"" = @accountNumber",
+                connection);
+            command.Parameters.AddWithValue("@accountNumber", accountNumber);
+
+            await using var reader = await command.ExecuteReaderAsync();
+            
+            if (await reader.ReadAsync())
+            {
+                return Ok(new
+                {
+                    id = reader.GetGuid(0),
+                    accountNumber = reader.GetString(1),
+                    accountType = reader.GetString(2),
+                    balance = reader.GetDecimal(3),
+                    currency = reader.GetString(4),
+                    status = reader.GetString(5),
+                    createdAt = reader.GetDateTime(6)
+                });
+            }
+
+            return NotFound(new { error = "Account not found", accountNumber = accountNumber });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "Failed to retrieve account", details = ex.Message });
+        }
+    }
+
     /// <summary>
     /// RETAIL: Opens a standard individual savings or current account.
     /// </summary>
@@ -51,9 +185,20 @@ public class AccountsController : BaseApiController
     }
 
     /// <summary>
+    /// VISIBILITY: Fetches the real-time summary of an account.
+    /// </summary>
+    [HttpGet("{accountNumber}/summary")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<AccountSummaryDto>> GetSummary(string accountNumber)
+    {
+        return Ok(await Mediator.Send(new GetAccountSummaryQuery { AccountNumber = accountNumber }));
+    }
+
+    /// <summary>
     /// SECURITY: Freezes an account immediately (Managerial/Risk Engine Action).
     /// </summary>
     [HttpPatch("{accountNumber}/freeze")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<bool>> Freeze(string accountNumber, [FromBody] string reason)
     {
         return Ok(await Mediator.Send(new FreezeAccountCommand(accountNumber, reason)));
@@ -63,17 +208,9 @@ public class AccountsController : BaseApiController
     /// LIFECYCLE: Permanently closes an account (Only if balance is zero).
     /// </summary>
     [HttpDelete("{accountNumber}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<bool>> Close(string accountNumber)
     {
         return Ok(await Mediator.Send(new CloseAccountCommand(accountNumber)));
-    }
-
-    /// <summary>
-    /// VISIBILITY: Fetches the real-time summary of an account.
-    /// </summary>
-    [HttpGet("{accountNumber}/summary")]
-    public async Task<ActionResult<AccountSummaryDto>> GetSummary(string accountNumber)
-    {
-        return Ok(await Mediator.Send(new GetAccountSummaryQuery { AccountNumber = accountNumber }));
     }
 }
