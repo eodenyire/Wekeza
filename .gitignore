@@ -195,8 +195,8 @@ storage_version.txt
 ## Frontend build output (not needed in VCS)
 Portals/wekeza-unified-shell/dist/
 
-## Playwright screenshots and reports (generated locally, not committed)
-docs/screenshots/*.png
+## Playwright screenshots — committed for reference (un-ignore)
+# docs/screenshots/*.png   ← KEEP in git (real-data portal screenshots)
 playwright-report/
 test-results/
 

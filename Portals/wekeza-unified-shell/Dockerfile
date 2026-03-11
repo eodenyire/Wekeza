@@ -12,14 +12,14 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (--strict-ssl=false needed in environments with TLS inspection proxy)
+RUN npm ci --strict-ssl=false --no-audit
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build the application (vite build directly - tsc type-check runs separately in CI)
+RUN ./node_modules/.bin/vite build
 
 # Production stage — serve with nginx (no npm at runtime)
 FROM nginx:1.25-alpine

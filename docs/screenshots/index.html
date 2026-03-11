@@ -2,107 +2,71 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Wekeza Portal Screenshots — 2026-03-11T17:16:11.538Z</title>
+<title>Wekeza Portal Screenshots — Real Data</title>
 <style>
   body{font-family:system-ui,sans-serif;margin:0;padding:20px;background:#f0f2f5}
   h1{color:#1890ff;margin-bottom:4px}
   h2{color:#555;font-weight:400;margin-top:0}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px;margin-top:20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:16px;margin-top:20px}
   .card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.15)}
   .card img{width:100%;display:block;border-bottom:1px solid #eee}
   .card-title{padding:10px 14px;font-weight:700;font-size:.9rem;background:#1890ff;color:#fff}
-  .card-title.err{background:#ff4d4f}
   .meta{padding:6px 14px;font-size:.8rem;color:#888}
+  .creds{background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:12px 16px;margin:16px 0;font-size:.85rem}
+  .creds code{background:#d9f7be;padding:2px 6px;border-radius:3px;font-family:monospace}
   footer{text-align:right;color:#aaa;font-size:.8rem;margin-top:20px}
 </style>
 </head>
 <body>
-<h1>🏦 Wekeza Banking System</h1>
-<h2>Portal Screenshots — 2026-03-11T17:16:11.538Z</h2>
-<p>Frontend: <code>http://localhost:3001</code> &nbsp;|&nbsp; 
-   Portals captured: <strong>16</strong> / 16</p>
+<h1>🏦 Wekeza Bank — Tier-1 Core Banking Platform</h1>
+<h2>Portal Screenshots — All portals running with real seeded data</h2>
+<div class="creds">
+  <strong>Quick Start:</strong>
+  <code>docker compose -f docker-compose.full.yml up -d</code>
+  &nbsp;then open&nbsp;
+  <code>http://localhost</code>
+  &nbsp;·&nbsp;
+  All portal passwords: <code>Admin@123</code>
+  &nbsp;·&nbsp;
+  See <a href="../../GETTING-STARTED.md">GETTING-STARTED.md</a> for full instructions.
+</div>
 <div class="grid">
-<div class="card">
-  <div class="card-title ">login page</div>
-  <a href="00-login-page.png" target="_blank"><img src="00-login-page.png" alt="00-login-page" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
+  <div class="card">
+    <div class="card-title">01 — Login Page</div>
+    <a href="01-login-page.png" target="_blank"><img src="01-login-page.png" alt="Login Page" loading="lazy"/></a>
+    <div class="meta">Connected to Core Banking APIs · All 12 portal users verified</div>
+  </div>
+  <div class="card">
+    <div class="card-title">02 — Admin: System Overview</div>
+    <a href="02-admin-system-overview.png" target="_blank"><img src="02-admin-system-overview.png" alt="Admin Portal" loading="lazy"/></a>
+    <div class="meta">admin / Admin@123 · 12 Users · 23 Customers · 100% Health · 28 Txns · KES 2,567,000</div>
+  </div>
+  <div class="card">
+    <div class="card-title">03 — Teller Dashboard</div>
+    <a href="03-teller-dashboard.png" target="_blank"><img src="03-teller-dashboard.png" alt="Teller Dashboard" loading="lazy"/></a>
+    <div class="meta">teller1 / Admin@123 · KES 9,149,888.50 drawer · 26 txns today · 12 customers served</div>
+  </div>
+  <div class="card">
+    <div class="card-title">04 — Branch Manager Dashboard</div>
+    <a href="04-branch-manager-dashboard.png" target="_blank"><img src="04-branch-manager-dashboard.png" alt="Branch Manager" loading="lazy"/></a>
+    <div class="meta">manager1 / Admin@123 · 26 Today's Txns · 9.1M Cash Position · Branch Health: Fair</div>
+  </div>
+  <div class="card">
+    <div class="card-title">05 — Customer Digital Portal (Alice Customer)</div>
+    <a href="05-customer-digital-portal.png" target="_blank"><img src="05-customer-digital-portal.png" alt="Customer Portal" loading="lazy"/></a>
+    <div class="meta">customer1 / Admin@123 · KES 227,184.50 total · 2 accounts · 7 transactions (30 days)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">06 — Compliance &amp; Risk Portal</div>
+    <a href="06-compliance-risk-portal.png" target="_blank"><img src="06-compliance-risk-portal.png" alt="Compliance Portal" loading="lazy"/></a>
+    <div class="meta">compliance1 / Admin@123 · AML Alerts · Risk Metrics · Regulatory Reporting</div>
+  </div>
+  <div class="card">
+    <div class="card-title">07 — Executive &amp; Board Portal</div>
+    <a href="07-executive-board-portal.png" target="_blank"><img src="07-executive-board-portal.png" alt="Executive Portal" loading="lazy"/></a>
+    <div class="meta">executive1 / Admin@123 · 23 Customers · 28 Accounts · 28 Txns · 5 Branches · ROE 18.4%</div>
+  </div>
 </div>
-<div class="card">
-  <div class="card-title ">dashboard</div>
-  <a href="00-dashboard.png" target="_blank"><img src="00-dashboard.png" alt="00-dashboard" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">admin portal</div>
-  <a href="01-admin-portal.png" target="_blank"><img src="01-admin-portal.png" alt="01-admin-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">executive portal</div>
-  <a href="02-executive-portal.png" target="_blank"><img src="02-executive-portal.png" alt="02-executive-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">branch manager portal</div>
-  <a href="03-branch-manager-portal.png" target="_blank"><img src="03-branch-manager-portal.png" alt="03-branch-manager-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">branch operations portal</div>
-  <a href="04-branch-operations-portal.png" target="_blank"><img src="04-branch-operations-portal.png" alt="04-branch-operations-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">teller portal</div>
-  <a href="05-teller-portal.png" target="_blank"><img src="05-teller-portal.png" alt="05-teller-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">supervisor portal</div>
-  <a href="06-supervisor-portal.png" target="_blank"><img src="06-supervisor-portal.png" alt="06-supervisor-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">compliance portal</div>
-  <a href="07-compliance-portal.png" target="_blank"><img src="07-compliance-portal.png" alt="07-compliance-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">treasury portal</div>
-  <a href="08-treasury-portal.png" target="_blank"><img src="08-treasury-portal.png" alt="08-treasury-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">trade finance portal</div>
-  <a href="09-trade-finance-portal.png" target="_blank"><img src="09-trade-finance-portal.png" alt="09-trade-finance-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">product gl portal</div>
-  <a href="10-product-gl-portal.png" target="_blank"><img src="10-product-gl-portal.png" alt="10-product-gl-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">payments portal</div>
-  <a href="11-payments-portal.png" target="_blank"><img src="11-payments-portal.png" alt="11-payments-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">customer portal</div>
-  <a href="12-customer-portal.png" target="_blank"><img src="12-customer-portal.png" alt="12-customer-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">staff portal</div>
-  <a href="13-staff-portal.png" target="_blank"><img src="13-staff-portal.png" alt="13-staff-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-<div class="card">
-  <div class="card-title ">workflow portal</div>
-  <a href="14-workflow-portal.png" target="_blank"><img src="14-workflow-portal.png" alt="14-workflow-portal" loading="lazy"/></a>
-  <div class="meta">✔ captured</div>
-</div>
-</div>
-<footer>Generated by scripts/screenshot-portals-local.js on 2026-03-11T17:16:11.538Z</footer>
+<footer>Wekeza Bank Tier-1 Core Banking Platform — © 2026 eodenyire · Generated 2026-03-11</footer>
 </body>
 </html>
