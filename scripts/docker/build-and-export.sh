@@ -111,7 +111,7 @@ if [[ "$DO_EXPORT" == true ]]; then
 
     # App images
     for name in "${REMOTE_NAMES[@]}"; do
-        local_img="wekeza-${name##*/}:local"   # e.g. wekeza-api:local
+        local_img="${name}:local"   # e.g. wekeza-api:local
         out="${EXPORT_DIR}/${name}-${TAG}.tar.gz"
         echo "  Saving ${local_img} → $(basename "${out}")"
         docker save "${local_img}" | gzip -9 > "${out}"
