@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
 namespace Wekeza.Core.Infrastructure.Persistence.Migrations;
 
 /// <inheritdoc />
+[DbContext(typeof(ApplicationDbContext))]
+[Migration("20260117180000_AddTradeFinanceTables")]
 public partial class AddTradeFinanceTables : Migration
 {
     /// <inheritdoc />

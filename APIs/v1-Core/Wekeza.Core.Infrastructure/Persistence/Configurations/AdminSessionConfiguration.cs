@@ -75,7 +75,8 @@ public class AdminSessionConfiguration : IEntityTypeConfiguration<AdminSession>
         builder.OwnsMany(s => s.Actions, a =>
         {
             a.ToJson();
-            a.Property(x => x.Module).HasMaxLength(100);
+                a.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                a.Property(x => x.Module).HasMaxLength(100);
             a.Property(x => x.Action).HasMaxLength(100);
             a.Property(x => x.Resource).HasMaxLength(200);
             a.Property(x => x.ResourceId).HasMaxLength(100);

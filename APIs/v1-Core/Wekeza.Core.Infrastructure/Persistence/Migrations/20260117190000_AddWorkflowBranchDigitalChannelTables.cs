@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
@@ -7,6 +8,8 @@ namespace Wekeza.Core.Infrastructure.Persistence.Migrations;
 /// <summary>
 /// Migration to add Workflow, Branch Operations, and Digital Channel tables for 200% completion
 /// </summary>
+[DbContext(typeof(ApplicationDbContext))]
+[Migration("20260117190000_AddWorkflowBranchDigitalChannelTables")]
 public partial class AddWorkflowBranchDigitalChannelTables : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -127,44 +130,41 @@ public partial class AddWorkflowBranchDigitalChannelTables : Migration
             });
 
         // Branches table
-        migrationBuilder.CreateTable(
-            name: "Branches",
-            columns: table => new
-            {
-                Id = table.Column<Guid>(type: "uuid", nullable: false),
-                BranchCode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                BranchName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                Address = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                Country = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                BranchType = table.Column<int>(type: "integer", nullable: false),
-                Status = table.Column<int>(type: "integer", nullable: false),
-                OpeningDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                ClosingDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                TimeZone = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                BusinessHoursStart = table.Column<TimeSpan>(type: "interval", nullable: false),
-                BusinessHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
-                ManagerId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                DeputyManagerId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                CashLimit = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                CashLimitCurrency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
-                TransactionLimit = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                TransactionLimitCurrency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
-                IsEODCompleted = table.Column<bool>(type: "boolean", nullable: false),
-                LastEODDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                IsBODCompleted = table.Column<bool>(type: "boolean", nullable: false),
-                LastBODDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                ModifiedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Branches", x => x.Id);
-            });
+        migrationBuilder.Sql(
+            @"
+CREATE TABLE IF NOT EXISTS ""Branches"" (
+    ""Id"" uuid NOT NULL,
+    ""BranchCode"" character varying(20) NOT NULL,
+    ""BranchName"" character varying(200) NOT NULL,
+    ""Address"" character varying(500) NOT NULL,
+    ""City"" character varying(100) NOT NULL,
+    ""Country"" character varying(100) NOT NULL,
+    ""PhoneNumber"" character varying(20) NOT NULL,
+    ""Email"" character varying(100) NOT NULL,
+    ""BranchType"" integer NOT NULL,
+    ""Status"" integer NOT NULL,
+    ""OpeningDate"" timestamp with time zone NOT NULL,
+    ""ClosingDate"" timestamp with time zone NULL,
+    ""TimeZone"" character varying(50) NOT NULL,
+    ""BusinessHoursStart"" interval NOT NULL,
+    ""BusinessHoursEnd"" interval NOT NULL,
+    ""ManagerId"" character varying(100) NOT NULL,
+    ""DeputyManagerId"" character varying(100) NULL,
+    ""CashLimit"" numeric(18,2) NOT NULL,
+    ""CashLimitCurrency"" character varying(3) NOT NULL,
+    ""TransactionLimit"" numeric(18,2) NOT NULL,
+    ""TransactionLimitCurrency"" character varying(3) NOT NULL,
+    ""IsEODCompleted"" boolean NOT NULL,
+    ""LastEODDate"" timestamp with time zone NULL,
+    ""IsBODCompleted"" boolean NOT NULL,
+    ""LastBODDate"" timestamp with time zone NULL,
+    ""CreatedBy"" character varying(100) NOT NULL,
+    ""CreatedAt"" timestamp with time zone NOT NULL,
+    ""ModifiedBy"" character varying(100) NULL,
+    ""ModifiedAt"" timestamp with time zone NULL,
+    CONSTRAINT ""PK_Branches"" PRIMARY KEY (""Id"")
+);
+");
 
         // BranchVaults table
         migrationBuilder.CreateTable(
@@ -357,26 +357,10 @@ public partial class AddWorkflowBranchDigitalChannelTables : Migration
             table: "ApprovalWorkflows",
             column: "DueDate");
 
-        migrationBuilder.CreateIndex(
-            name: "IX_Branches_BranchCode",
-            table: "Branches",
-            column: "BranchCode",
-            unique: true);
-
-        migrationBuilder.CreateIndex(
-            name: "IX_Branches_Status",
-            table: "Branches",
-            column: "Status");
-
-        migrationBuilder.CreateIndex(
-            name: "IX_Branches_BranchType",
-            table: "Branches",
-            column: "BranchType");
-
-        migrationBuilder.CreateIndex(
-            name: "IX_Branches_ManagerId",
-            table: "Branches",
-            column: "ManagerId");
+        migrationBuilder.Sql("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Branches_BranchCode\" ON \"Branches\" (\"BranchCode\");");
+        migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Branches_Status\" ON \"Branches\" (\"Status\");");
+        migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Branches_BranchType\" ON \"Branches\" (\"BranchType\");");
+        migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Branches_ManagerId\" ON \"Branches\" (\"ManagerId\");");
 
         migrationBuilder.CreateIndex(
             name: "IX_DigitalChannels_ChannelCode",

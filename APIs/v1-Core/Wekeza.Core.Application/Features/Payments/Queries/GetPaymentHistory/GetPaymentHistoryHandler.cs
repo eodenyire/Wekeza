@@ -29,33 +29,40 @@ public class GetPaymentHistoryHandler : IRequestHandler<GetPaymentHistoryQuery, 
 
         // Get payments based on criteria
         IEnumerable<Domain.Aggregates.PaymentOrder> payments;
-
-        if (request.CustomerId.HasValue)
+        try
         {
-            payments = await _paymentOrderRepository.GetByCustomerAsync(
-                request.CustomerId.Value, 
-                request.PageSize * 2, // Get more to filter
-                1);
+            if (request.CustomerId.HasValue)
+            {
+                payments = await _paymentOrderRepository.GetByCustomerAsync(
+                    request.CustomerId.Value,
+                    request.PageSize * 2, // Get more to filter
+                    1);
+            }
+            else if (accountId.HasValue)
+            {
+                payments = await _paymentOrderRepository.GetByAccountIdAsync(
+                    accountId.Value,
+                    request.FromDate,
+                    request.ToDate);
+            }
+            else if (request.FromDate.HasValue && request.ToDate.HasValue)
+            {
+                payments = await _paymentOrderRepository.GetByDateRangeAsync(
+                    request.FromDate.Value,
+                    request.ToDate.Value);
+            }
+            else
+            {
+                // Default to recent payments
+                payments = await _paymentOrderRepository.GetByDateRangeAsync(
+                    DateTime.UtcNow.AddDays(-30),
+                    DateTime.UtcNow);
+            }
         }
-        else if (accountId.HasValue)
+        catch (Exception ex) when (ex.Message.Contains("relation \"PaymentOrders\" does not exist", StringComparison.OrdinalIgnoreCase))
         {
-            payments = await _paymentOrderRepository.GetByAccountIdAsync(
-                accountId.Value,
-                request.FromDate,
-                request.ToDate);
-        }
-        else if (request.FromDate.HasValue && request.ToDate.HasValue)
-        {
-            payments = await _paymentOrderRepository.GetByDateRangeAsync(
-                request.FromDate.Value,
-                request.ToDate.Value);
-        }
-        else
-        {
-            // Default to recent payments
-            payments = await _paymentOrderRepository.GetByDateRangeAsync(
-                DateTime.UtcNow.AddDays(-30),
-                DateTime.UtcNow);
+            // PaymentOrders table is missing in some legacy datasets; return empty history.
+            payments = Enumerable.Empty<Domain.Aggregates.PaymentOrder>();
         }
 
         // Apply filters

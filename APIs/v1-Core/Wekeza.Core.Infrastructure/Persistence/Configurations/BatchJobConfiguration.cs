@@ -108,7 +108,8 @@ public class BatchJobConfiguration : IEntityTypeConfiguration<BatchJob>
         builder.OwnsMany(j => j.ExecutionHistory, e =>
         {
             e.ToJson();
-            e.Property(x => x.StartedAt).IsRequired();
+                e.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                e.Property(x => x.StartedAt).IsRequired();
             e.Property(x => x.Status).HasMaxLength(50);
             e.Property(x => x.ErrorMessage).HasMaxLength(2000);
             e.Ignore(x => x.RuntimeParameters);
@@ -125,7 +126,8 @@ public class BatchJobConfiguration : IEntityTypeConfiguration<BatchJob>
         builder.OwnsMany(j => j.Errors, e =>
         {
             e.ToJson();
-            e.Property(x => x.ErrorMessage).HasMaxLength(2000).IsRequired();
+                e.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                e.Property(x => x.ErrorMessage).HasMaxLength(2000).IsRequired();
             e.Property(x => x.ErrorTime).IsRequired();
             e.Property(x => x.RetryCount).IsRequired();
             e.Ignore(x => x.StackTrace);

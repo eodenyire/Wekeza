@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
@@ -7,6 +8,8 @@ namespace Wekeza.Core.Infrastructure.Persistence.Migrations
     /// <summary>
     /// Initial database schema for Wekeza Bank
     /// </summary>
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20260117000001_InitialCreate")]
     public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

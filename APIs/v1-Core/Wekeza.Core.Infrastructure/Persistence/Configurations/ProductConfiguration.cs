@@ -11,6 +11,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
         builder.ToTable("Products");
 
+        // Legacy schema uses CreatedDate/LastModifiedDate and does not store base audit columns.
+        builder.Ignore(p => p.CreatedAt);
+        builder.Ignore(p => p.UpdatedAt);
+        builder.Ignore(p => p.UpdatedBy);
+
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.ProductCode)

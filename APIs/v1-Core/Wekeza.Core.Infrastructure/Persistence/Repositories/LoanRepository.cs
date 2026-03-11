@@ -21,18 +21,12 @@ public class LoanRepository : ILoanRepository
     public async Task<Loan?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
-            .Include(l => l.DisbursementAccount)
             .FirstOrDefaultAsync(l => l.Id == id, ct);
     }
 
     public async Task<Loan?> GetByLoanNumberAsync(string loanNumber, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
-            .Include(l => l.DisbursementAccount)
             .FirstOrDefaultAsync(l => l.LoanNumber == loanNumber, ct);
     }
 
@@ -60,7 +54,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Product)
             .Where(l => l.CustomerId == customerId)
             .OrderByDescending(l => l.ApplicationDate)
             .ToListAsync(ct);
@@ -69,7 +62,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetActiveLoansForCustomerAsync(Guid customerId, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Product)
             .Where(l => l.CustomerId == customerId && l.Status == LoanStatus.Active)
             .ToListAsync(ct);
     }
@@ -78,8 +70,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetByStatusAsync(LoanStatus status, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.Status == status)
             .OrderByDescending(l => l.ApplicationDate)
             .ToListAsync(ct);
@@ -88,8 +78,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetBySubStatusAsync(LoanSubStatus subStatus, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.SubStatus == subStatus)
             .OrderByDescending(l => l.ApplicationDate)
             .ToListAsync(ct);
@@ -98,8 +86,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetPendingDisbursalAsync(CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.Status == LoanStatus.Approved && l.SubStatus == LoanSubStatus.AwaitingDisbursement)
             .OrderBy(l => l.ApprovalDate)
             .ToListAsync(ct);
@@ -108,8 +94,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetPendingApprovalsAsync(CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.Status == LoanStatus.Applied)
             .OrderBy(l => l.ApplicationDate)
             .ToListAsync(ct);
@@ -119,8 +103,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetByRiskGradeAsync(CreditRiskGrade riskGrade, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.RiskGrade == riskGrade)
             .ToListAsync(ct);
     }
@@ -128,8 +110,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetPastDueLoansAsync(int daysPastDue = 1, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.Status == LoanStatus.Active && l.DaysPastDue >= daysPastDue)
             .OrderByDescending(l => l.DaysPastDue)
             .ToListAsync(ct);
@@ -138,8 +118,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetNonPerformingLoansAsync(CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.Status == LoanStatus.Active && l.SubStatus == LoanSubStatus.NonPerforming)
             .OrderByDescending(l => l.DaysPastDue)
             .ToListAsync(ct);
@@ -148,8 +126,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetLoansForProvisioningAsync(DateTime asOfDate, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.Status == LoanStatus.Active && 
                        (l.LastProvisionDate == null || l.LastProvisionDate < asOfDate.Date))
             .ToListAsync(ct);
@@ -159,8 +135,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetByProductIdAsync(Guid productId, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.ProductId == productId)
             .OrderByDescending(l => l.ApplicationDate)
             .ToListAsync(ct);
@@ -180,8 +154,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetByApplicationDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.ApplicationDate.Date >= fromDate.Date && l.ApplicationDate.Date <= toDate.Date)
             .OrderByDescending(l => l.ApplicationDate)
             .ToListAsync(ct);
@@ -190,8 +162,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetByDisbursementDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.DisbursementDate.HasValue && 
                        l.DisbursementDate.Value.Date >= fromDate.Date && 
                        l.DisbursementDate.Value.Date <= toDate.Date)
@@ -202,8 +172,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetMaturityDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.MaturityDate.HasValue && 
                        l.MaturityDate.Value.Date >= fromDate.Date && 
                        l.MaturityDate.Value.Date <= toDate.Date)
@@ -214,8 +182,6 @@ public class LoanRepository : ILoanRepository
     public async Task<IEnumerable<Loan>> GetLoansByDateRangeAsync(DateTime fromDate, DateTime toDate, CancellationToken ct = default)
     {
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.ApplicationDate.Date >= fromDate.Date && l.ApplicationDate.Date <= toDate.Date)
             .OrderByDescending(l => l.ApplicationDate)
             .ToListAsync(ct);
@@ -234,8 +200,6 @@ public class LoanRepository : ILoanRepository
     {
         // This would require schedule data - simplified for now
         return await _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
             .Where(l => l.Status == LoanStatus.Active)
             .ToListAsync(ct);
     }
@@ -279,17 +243,12 @@ public class LoanRepository : ILoanRepository
         int pageNumber = 1,
         CancellationToken ct = default)
     {
-        var query = _context.Loans
-            .Include(l => l.Customer)
-            .Include(l => l.Product)
-            .AsQueryable();
+        var query = _context.Loans.AsQueryable();
 
         // Apply filters
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(l => 
-                l.LoanNumber.Contains(searchTerm) ||
-                (l.Customer != null && l.Customer.FullName.Contains(searchTerm)));
+            query = query.Where(l => l.LoanNumber.Contains(searchTerm));
         }
 
         if (status.HasValue)

@@ -19,7 +19,21 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
         builder.HasIndex(t => new { t.AccountId, t.Timestamp })
                .HasDatabaseName("IX_Transactions_AccountId_Timestamp");
 
-        builder.Property(t => t.Amount).HasPrecision(18, 2);
+        builder.OwnsOne(t => t.Amount, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("Amount")
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("Currency")
+                    .HasMaxLength(3)
+                    .IsRequired();
+            });
+        });
         builder.Property(t => t.Type).HasConversion<string>().HasMaxLength(20);
         builder.Property(t => t.CorrelationId).IsRequired();
     }

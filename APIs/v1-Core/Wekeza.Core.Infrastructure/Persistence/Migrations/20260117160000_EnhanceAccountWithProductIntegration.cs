@@ -1,180 +1,113 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
 namespace Wekeza.Core.Infrastructure.Persistence.Migrations;
 
 /// <inheritdoc />
+[DbContext(typeof(ApplicationDbContext))]
+[Migration("20260117160000_EnhanceAccountWithProductIntegration")]
 public partial class EnhanceAccountWithProductIntegration : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        // Add new columns to Accounts table for Product Factory integration
-        migrationBuilder.AddColumn<Guid>(
-            name: "ProductId",
-            table: "Accounts",
-            type: "uuid",
-            nullable: false,
-            defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+        migrationBuilder.Sql(
+            @"
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'ProductId') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""ProductId"" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'Status') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""Status"" integer NOT NULL DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'OpenedDate') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""OpenedDate"" timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'ClosedDate') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""ClosedDate"" timestamp with time zone NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'OpenedBy') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""OpenedBy"" character varying(100) NOT NULL DEFAULT 'SYSTEM';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'ClosedBy') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""ClosedBy"" character varying(100) NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'InterestRate') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""InterestRate"" numeric(5,4) NOT NULL DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'LastInterestCalculationDate') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""LastInterestCalculationDate"" timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'AccruedInterest_Amount') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""AccruedInterest_Amount"" numeric(18,2) NOT NULL DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'AccruedInterest_Currency_Code') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""AccruedInterest_Currency_Code"" character varying(3) NOT NULL DEFAULT 'KES';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'DailyTransactionLimit_Amount') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""DailyTransactionLimit_Amount"" numeric(18,2) NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'DailyTransactionLimit_Currency_Code') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""DailyTransactionLimit_Currency_Code"" character varying(3) NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'MonthlyTransactionLimit_Amount') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""MonthlyTransactionLimit_Amount"" numeric(18,2) NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'MonthlyTransactionLimit_Currency_Code') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""MonthlyTransactionLimit_Currency_Code"" character varying(3) NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'MinimumBalance_Amount') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""MinimumBalance_Amount"" numeric(18,2) NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'MinimumBalance_Currency_Code') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""MinimumBalance_Currency_Code"" character varying(3) NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'CustomerGLCode') THEN
+        ALTER TABLE ""Accounts"" ADD COLUMN ""CustomerGLCode"" character varying(20) NOT NULL DEFAULT '';
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Accounts' AND column_name = 'IsFrozen') THEN
+        ALTER TABLE ""Accounts"" DROP COLUMN ""IsFrozen"";
+    END IF;
+END $$;
+");
 
-        migrationBuilder.AddColumn<int>(
-            name: "Status",
-            table: "Accounts",
-            type: "integer",
-            nullable: false,
-            defaultValue: 0);
+        migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Accounts_ProductId\" ON \"Accounts\" (\"ProductId\");");
+        migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Accounts_CustomerGLCode\" ON \"Accounts\" (\"CustomerGLCode\");");
+        migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Accounts_Status\" ON \"Accounts\" (\"Status\");");
 
-        migrationBuilder.AddColumn<DateTime>(
-            name: "OpenedDate",
-            table: "Accounts",
-            type: "timestamp with time zone",
-            nullable: false,
-            defaultValueSql: "CURRENT_TIMESTAMP");
-
-        migrationBuilder.AddColumn<DateTime>(
-            name: "ClosedDate",
-            table: "Accounts",
-            type: "timestamp with time zone",
-            nullable: true);
-
-        migrationBuilder.AddColumn<string>(
-            name: "OpenedBy",
-            table: "Accounts",
-            type: "character varying(100)",
-            maxLength: 100,
-            nullable: false,
-            defaultValue: "SYSTEM");
-
-        migrationBuilder.AddColumn<string>(
-            name: "ClosedBy",
-            table: "Accounts",
-            type: "character varying(100)",
-            maxLength: 100,
-            nullable: true);
-
-        migrationBuilder.AddColumn<decimal>(
-            name: "InterestRate",
-            table: "Accounts",
-            type: "numeric(5,4)",
-            precision: 5,
-            scale: 4,
-            nullable: false,
-            defaultValue: 0m);
-
-        migrationBuilder.AddColumn<DateTime>(
-            name: "LastInterestCalculationDate",
-            table: "Accounts",
-            type: "timestamp with time zone",
-            nullable: false,
-            defaultValueSql: "CURRENT_TIMESTAMP");
-
-        migrationBuilder.AddColumn<decimal>(
-            name: "AccruedInterest_Amount",
-            table: "Accounts",
-            type: "numeric(18,2)",
-            precision: 18,
-            scale: 2,
-            nullable: false,
-            defaultValue: 0m);
-
-        migrationBuilder.AddColumn<string>(
-            name: "AccruedInterest_Currency_Code",
-            table: "Accounts",
-            type: "character varying(3)",
-            maxLength: 3,
-            nullable: false,
-            defaultValue: "KES");
-
-        migrationBuilder.AddColumn<decimal>(
-            name: "DailyTransactionLimit_Amount",
-            table: "Accounts",
-            type: "numeric(18,2)",
-            precision: 18,
-            scale: 2,
-            nullable: true);
-
-        migrationBuilder.AddColumn<string>(
-            name: "DailyTransactionLimit_Currency_Code",
-            table: "Accounts",
-            type: "character varying(3)",
-            maxLength: 3,
-            nullable: true);
-
-        migrationBuilder.AddColumn<decimal>(
-            name: "MonthlyTransactionLimit_Amount",
-            table: "Accounts",
-            type: "numeric(18,2)",
-            precision: 18,
-            scale: 2,
-            nullable: true);
-
-        migrationBuilder.AddColumn<string>(
-            name: "MonthlyTransactionLimit_Currency_Code",
-            table: "Accounts",
-            type: "character varying(3)",
-            maxLength: 3,
-            nullable: true);
-
-        migrationBuilder.AddColumn<decimal>(
-            name: "MinimumBalance_Amount",
-            table: "Accounts",
-            type: "numeric(18,2)",
-            precision: 18,
-            scale: 2,
-            nullable: true);
-
-        migrationBuilder.AddColumn<string>(
-            name: "MinimumBalance_Currency_Code",
-            table: "Accounts",
-            type: "character varying(3)",
-            maxLength: 3,
-            nullable: true);
-
-        migrationBuilder.AddColumn<string>(
-            name: "CustomerGLCode",
-            table: "Accounts",
-            type: "character varying(20)",
-            maxLength: 20,
-            nullable: false,
-            defaultValue: "");
-
-        // Remove the old IsFrozen column as it's replaced by Status
-        migrationBuilder.DropColumn(
-            name: "IsFrozen",
-            table: "Accounts");
-
-        // Create foreign key relationship with Products
-        migrationBuilder.CreateIndex(
-            name: "IX_Accounts_ProductId",
-            table: "Accounts",
-            column: "ProductId");
-
-        migrationBuilder.CreateIndex(
-            name: "IX_Accounts_CustomerGLCode",
-            table: "Accounts",
-            column: "CustomerGLCode");
-
-        migrationBuilder.CreateIndex(
-            name: "IX_Accounts_Status",
-            table: "Accounts",
-            column: "Status");
-
-        migrationBuilder.AddForeignKey(
-            name: "FK_Accounts_Products_ProductId",
-            table: "Accounts",
-            column: "ProductId",
-            principalTable: "Products",
-            principalColumn: "Id",
-            onDelete: ReferentialAction.Restrict);
-
-        migrationBuilder.AddForeignKey(
-            name: "FK_Accounts_GLAccounts_CustomerGLCode",
-            table: "Accounts",
-            column: "CustomerGLCode",
-            principalTable: "GLAccounts",
-            principalColumn: "GLCode",
-            onDelete: ReferentialAction.Restrict);
+        migrationBuilder.Sql(
+            @"
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'FK_Accounts_Products_ProductId')
+             AND NOT EXISTS (
+                     SELECT 1
+                     FROM ""Accounts"" a
+                     LEFT JOIN ""Products"" p ON p.""Id"" = a.""ProductId""
+                     WHERE a.""ProductId"" IS NOT NULL
+                         AND p.""Id"" IS NULL
+             ) THEN
+        ALTER TABLE ""Accounts""
+            ADD CONSTRAINT ""FK_Accounts_Products_ProductId""
+            FOREIGN KEY (""ProductId"") REFERENCES ""Products"" (""Id"") ON DELETE RESTRICT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'FK_Accounts_GLAccounts_CustomerGLCode')
+             AND NOT EXISTS (
+                     SELECT 1
+                     FROM ""Accounts"" a
+                     LEFT JOIN ""GLAccounts"" g ON g.""GLCode"" = a.""CustomerGLCode""
+                     WHERE a.""CustomerGLCode"" IS NOT NULL
+                         AND g.""GLCode"" IS NULL
+             ) THEN
+        ALTER TABLE ""Accounts""
+            ADD CONSTRAINT ""FK_Accounts_GLAccounts_CustomerGLCode""
+            FOREIGN KEY (""CustomerGLCode"") REFERENCES ""GLAccounts"" (""GLCode"") ON DELETE RESTRICT;
+    END IF;
+END $$;
+");
     }
 
     /// <inheritdoc />

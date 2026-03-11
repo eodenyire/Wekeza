@@ -146,7 +146,8 @@ public class ExceptionCaseConfiguration : IEntityTypeConfiguration<ExceptionCase
         builder.OwnsMany(c => c.Comments, comm =>
         {
             comm.ToJson();
-            comm.Property(x => x.CommentedBy).HasMaxLength(200).IsRequired();
+                comm.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                comm.Property(x => x.CommentedBy).HasMaxLength(200).IsRequired();
             comm.Property(x => x.CommentText).HasMaxLength(2000).IsRequired();
             comm.Property(x => x.IsInternalNote).IsRequired();
         });
@@ -154,7 +155,8 @@ public class ExceptionCaseConfiguration : IEntityTypeConfiguration<ExceptionCase
         builder.OwnsMany(c => c.Attachments, att =>
         {
             att.ToJson();
-            att.Property(x => x.FileName).HasMaxLength(500).IsRequired();
+                att.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                att.Property(x => x.FileName).HasMaxLength(500).IsRequired();
             att.Property(x => x.FileUrl).HasMaxLength(1000).IsRequired();
             att.Property(x => x.UploadedBy).HasMaxLength(200).IsRequired();
             att.Property(x => x.FileSizeBytes).IsRequired();
@@ -163,7 +165,8 @@ public class ExceptionCaseConfiguration : IEntityTypeConfiguration<ExceptionCase
         builder.OwnsMany(c => c.AssignmentHistory, ah =>
         {
             ah.ToJson();
-            ah.Property(x => x.UserName).HasMaxLength(200).IsRequired();
+                ah.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                ah.Property(x => x.UserName).HasMaxLength(200).IsRequired();
             ah.Property(x => x.UserId).IsRequired();
             ah.Property(x => x.AssignedBy).HasMaxLength(200).IsRequired();
         });
@@ -171,7 +174,8 @@ public class ExceptionCaseConfiguration : IEntityTypeConfiguration<ExceptionCase
         builder.OwnsMany(c => c.ApprovalChain, ac =>
         {
             ac.ToJson();
-            ac.Property(x => x.ApproverId).IsRequired();
+                ac.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                ac.Property(x => x.ApproverId).IsRequired();
             ac.Property(x => x.ApprovedBy).HasMaxLength(200);
             ac.Property(x => x.RequestedBy).HasMaxLength(200).IsRequired();
             ac.Property(x => x.Status).IsRequired();

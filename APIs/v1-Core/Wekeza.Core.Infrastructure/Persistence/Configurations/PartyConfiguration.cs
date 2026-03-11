@@ -14,6 +14,12 @@ public class PartyConfiguration : IEntityTypeConfiguration<Party>
     {
         builder.ToTable("Parties");
 
+        // Legacy schema uses CreatedDate/LastModifiedDate and does not store base audit columns.
+        builder.Ignore(p => p.CreatedAt);
+        builder.Ignore(p => p.UpdatedAt);
+        builder.Ignore(p => p.UpdatedBy);
+        builder.Ignore(p => p.AMLRiskRating);
+
         builder.HasKey(p => p.Id);
 
         // Party Number - Unique identifier (like CIF number)

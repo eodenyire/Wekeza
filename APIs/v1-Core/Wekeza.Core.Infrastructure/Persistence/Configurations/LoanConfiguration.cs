@@ -16,6 +16,10 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
         builder.ToTable("Loans");
         builder.HasKey(l => l.Id);
 
+        builder.Ignore(l => l.CreatedAt);
+        builder.Ignore(l => l.UpdatedAt);
+        builder.Ignore(l => l.UpdatedBy);
+
         // Basic loan information
         builder.Property(l => l.LoanNumber)
             .IsRequired()
@@ -46,6 +50,8 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
                     .HasColumnName("PrincipalCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+                currency.Ignore(c => c.Symbol);
+                currency.Ignore(c => c.DecimalPlaces);
             });
         });
 
@@ -62,6 +68,8 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
                     .HasColumnName("OutstandingPrincipalCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+                currency.Ignore(c => c.Symbol);
+                currency.Ignore(c => c.DecimalPlaces);
             });
         });
 
@@ -118,6 +126,8 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
                     .HasColumnName("AccruedInterestCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+                currency.Ignore(c => c.Symbol);
+                currency.Ignore(c => c.DecimalPlaces);
             });
         });
 
@@ -134,6 +144,8 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
                     .HasColumnName("TotalInterestPaidCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+                currency.Ignore(c => c.Symbol);
+                currency.Ignore(c => c.DecimalPlaces);
             });
         });
 
@@ -150,6 +162,8 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
                     .HasColumnName("TotalFeesPaidCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+                currency.Ignore(c => c.Symbol);
+                currency.Ignore(c => c.DecimalPlaces);
             });
         });
 
@@ -170,6 +184,8 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
                     .HasColumnName("TotalAmountPaidCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+                currency.Ignore(c => c.Symbol);
+                currency.Ignore(c => c.DecimalPlaces);
             });
         });
 
@@ -189,6 +205,8 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
                     .HasColumnName("PastDueAmountCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+                currency.Ignore(c => c.Symbol);
+                currency.Ignore(c => c.DecimalPlaces);
             });
         });
 
@@ -216,6 +234,8 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
                     .HasColumnName("ProvisionAmountCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+                currency.Ignore(c => c.Symbol);
+                currency.Ignore(c => c.DecimalPlaces);
             });
         });
 
@@ -248,6 +268,11 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
             schedule.Property(s => s.DueDate).IsRequired();
             schedule.Property(s => s.IsPaid).IsRequired();
             schedule.Property(s => s.PaidDate);
+            schedule.Ignore(s => s.PrincipalAmount);
+            schedule.Ignore(s => s.InterestAmount);
+            schedule.Ignore(s => s.TotalAmount);
+            schedule.Ignore(s => s.OutstandingBalance);
+            schedule.Ignore(s => s.PaidAmount);
         });
 
         // Collaterals as JSON
@@ -259,6 +284,7 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
             collateral.Property(c => c.Description).HasMaxLength(500).IsRequired();
             collateral.Property(c => c.ValuationDate).IsRequired();
             collateral.Property(c => c.ValuedBy).HasMaxLength(100);
+            collateral.Ignore(c => c.Value);
         });
 
         // Guarantors as JSON
@@ -269,6 +295,7 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
             guarantor.Property(g => g.GuarantorName).HasMaxLength(200).IsRequired();
             guarantor.Property(g => g.GuaranteeDate).IsRequired();
             guarantor.Property(g => g.GuaranteeDocument).HasMaxLength(200);
+            guarantor.Ignore(g => g.GuaranteeAmount);
         });
 
         // Conditions as JSON

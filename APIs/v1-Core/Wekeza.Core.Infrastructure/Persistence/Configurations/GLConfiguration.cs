@@ -11,6 +11,11 @@ public class GLAccountConfiguration : IEntityTypeConfiguration<GLAccount>
     {
         builder.ToTable("GLAccounts");
 
+        // Legacy schema uses CreatedDate/LastModifiedDate and does not store base audit columns.
+        builder.Ignore(g => g.CreatedAt);
+        builder.Ignore(g => g.UpdatedAt);
+        builder.Ignore(g => g.UpdatedBy);
+
         builder.HasKey(g => g.Id);
 
         builder.Property(g => g.GLCode)

@@ -129,6 +129,18 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        // === Step 1: Ignore ALL ValueObject subtypes at model level ===
+        // ValueObjects are domain concepts, not database entities.
+        // Ignoring them here prevents EF from discovering them via navigation properties
+        // and throwing "requires a primary key" errors.
+        foreach (var voType in typeof(Wekeza.Core.Domain.Common.ValueObject).Assembly
+            .GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && typeof(Wekeza.Core.Domain.Common.ValueObject).IsAssignableFrom(t)))
+        {
+            try { builder.Ignore(voType); } catch { /* already registered or not reachable */ }
+        }
+
+        // === Step 2: Apply entity type configurations from Infrastructure assembly ===
         // This scans the Infrastructure assembly for "IEntityTypeConfiguration" classes.
         // It keeps this file clean and moves table definitions to the "Configurations" folder.
         try
@@ -145,10 +157,16 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         // until proper configurations are created
         builder.Entity<APIGateway>(entity =>
         {
+            entity.Ignore(g => g.Routes);
             entity.Ignore(g => g.RateLimits);
             entity.Ignore(g => g.AuthConfigs);
             entity.Ignore(g => g.CacheConfigs);
+            entity.Ignore(g => g.UpstreamServers);
+            entity.Ignore(g => g.HealthCheck);
+            entity.Ignore(g => g.AllowedOrigins);
             entity.Ignore(g => g.SecurityHeaders);
+            entity.Ignore(g => g.Metrics);
+            entity.Ignore(g => g.RecentLogs);
             entity.Ignore(g => g.CircuitBreakerStates);
             entity.Ignore(g => g.Metadata);
         });
@@ -282,6 +300,17 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Ignore(r => r.Metadata);
         });
 
+        builder.Entity<AMLCase>(entity =>
+        {
+            // RiskScore contains dictionary factors and is currently domain-only.
+            entity.Ignore(a => a.RiskScore);
+        });
+
+        builder.Entity<TransactionMonitoring>(entity =>
+        {
+            entity.Ignore(t => t.RiskScore);
+        });
+
         builder.Entity<CardApplication>(entity =>
         {
             // Card application requested limits are domain value-objects and not fully configured yet.
@@ -313,7 +342,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                    type == typeof(byte[]);
         }
 
-        var allDomainEntities = typeof(ApplicationDbContext).Assembly.GetTypes()
+        var allDomainEntities = typeof(Entity).Assembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && typeof(Entity).IsAssignableFrom(t));
 
         foreach (var entityType in allDomainEntities.Where(t => !configuredEntityTypes.Contains(t)))
@@ -345,7 +374,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         }
 
         // Ignore shared-type owned navigation issues  
-        var types = typeof(ApplicationDbContext).Assembly.GetTypes();
+        var types = typeof(Entity).Assembly.GetTypes();
         foreach (var type in types.Where(t => t.IsClass && !t.IsAbstract && typeof(Entity).IsAssignableFrom(t)))
         {
             try

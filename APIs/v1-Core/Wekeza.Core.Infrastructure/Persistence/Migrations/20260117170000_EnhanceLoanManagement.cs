@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
@@ -9,14 +10,14 @@ namespace Wekeza.Core.Infrastructure.Persistence.Migrations;
 /// Adds comprehensive loan management capabilities with credit scoring,
 /// repayment schedules, collaterals, guarantors, and GL integration
 /// </summary>
+[DbContext(typeof(ApplicationDbContext))]
+[Migration("20260117170000_EnhanceLoanManagement")]
 public partial class EnhanceLoanManagement : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         // Drop existing Loans table if it exists (for clean migration)
-        migrationBuilder.DropTable(
-            name: "Loans",
-            schema: null);
+        migrationBuilder.Sql("DROP TABLE IF EXISTS \"Loans\";");
 
         // Create enhanced Loans table
         migrationBuilder.CreateTable(

@@ -119,7 +119,8 @@ public class SystemConfigurationConfiguration : IEntityTypeConfiguration<SystemC
         builder.OwnsMany(c => c.ApprovalHistory, a =>
         {
             a.ToJson();
-            a.Property(x => x.RequestedBy).HasMaxLength(200);
+                a.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                a.Property(x => x.RequestedBy).HasMaxLength(200);
             a.Property(x => x.ApprovedBy).HasMaxLength(200);
             a.Property(x => x.Status).IsRequired();
             a.Property(x => x.Comments).HasMaxLength(1000);
@@ -128,9 +129,12 @@ public class SystemConfigurationConfiguration : IEntityTypeConfiguration<SystemC
         builder.OwnsMany(c => c.ChangeHistory, ch =>
         {
             ch.ToJson();
-            ch.Property(x => x.Version).HasMaxLength(50);
+                ch.Ignore(x => x.Id); // Guid Id conflicts with ToJson implicit ordinal key
+                ch.Property(x => x.Version).HasMaxLength(50);
             ch.Property(x => x.ChangedBy).HasMaxLength(200);
             ch.Property(x => x.ChangeReason).HasMaxLength(1000);
+            ch.Ignore(x => x.PreviousData);
+            ch.Ignore(x => x.NewData);
         });
 
         // Indexes for performance
