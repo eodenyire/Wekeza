@@ -67,11 +67,11 @@ const PaymentsPortalPage: React.FC = () => {
   }, []);
 
   const rtgsColumns = [
-    { title: 'Operation ID', dataIndex: 'OperationId', key: 'OperationId' },
-    { title: 'Type', dataIndex: 'Type', key: 'Type' },
-    { title: 'Destination', dataIndex: 'Destination', key: 'Destination' },
-    { title: 'Amount', dataIndex: 'Amount', key: 'Amount', render: (val: number) => `KES ${val.toLocaleString()}` },
-    { title: 'Status', dataIndex: 'Status', key: 'Status' }
+    { title: 'Operation ID', dataIndex: "operationId", key: "operationId" },
+    { title: 'Type', dataIndex: "type", key: "type" },
+    { title: 'Destination', dataIndex: "destination", key: "destination" },
+    { title: 'Amount', dataIndex: "amount", key: "amount", render: (val: number) => `KES ${val.toLocaleString()}` },
+    { title: 'Status', dataIndex: "status", key: "status" }
   ];
 
   return (
@@ -116,7 +116,7 @@ const PaymentsPortalPage: React.FC = () => {
                     <Card>
                       <Statistic 
                         title="Success Rate" 
-                        value={paymentStatus.SuccessRate.toFixed(1)}
+                        value={paymentStatus.successRate?.toFixed(1)}
                         suffix="%"
                         valueStyle={{ color: paymentStatus.SuccessRate >= 99 ? 'green' : 'orange' }}
                       />
@@ -137,7 +137,7 @@ const PaymentsPortalPage: React.FC = () => {
             {
               key: '2',
               label: 'RTGS/SWIFT',
-              children: <Table columns={rtgsColumns} dataSource={rtgsSWIFT} rowKey="OperationId" pagination={false} />
+              children: <Table columns={rtgsColumns} dataSource={rtgsSWIFT} rowKey="operationId" pagination={false} />
             },
             {
               key: '3',

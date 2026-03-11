@@ -61,11 +61,27 @@ public class AuthenticationController : ControllerBase
         var roles = ResolveRoles(user.Role);
         var permissions = ResolvePermissions(roles);
 
+        // For customer users, look up their CustomerId from the Customers table
+        // and include it as a claim so the CustomerPortalController can use it
+        List<Claim>? extraClaims = null;
+        if (roles.Contains(UserRole.Customer))
+        {
+            await using var cmd = new NpgsqlCommand(
+                @"SELECT ""Id"" FROM ""Customers"" WHERE ""Email"" = @email LIMIT 1",
+                connection);
+            cmd.Parameters.AddWithValue("email", user.Email);
+            var customerId = await cmd.ExecuteScalarAsync();
+            // Fallback: use userId as customerId for demo customer accounts
+            var customerIdValue = customerId?.ToString() ?? user.Id.ToString();
+            extraClaims = new List<Claim> { new("CustomerId", customerIdValue) };
+        }
+
         var token = _jwtTokenGenerator.GenerateToken(
             user.Id,
             user.Username,
             user.Email,
-            roles
+            roles,
+            extraClaims
         );
 
         await UpdateLastLoginAsync(connection, user.Id);
@@ -266,23 +282,29 @@ public class AuthenticationController : ControllerBase
     {
         return role switch
         {
-            UserRole.Administrator => "SystemAdministrator",
-            UserRole.Teller => "Teller",
-            UserRole.BranchManager => "BranchManager",
-            UserRole.Supervisor => "Supervisor",
-            UserRole.LoanOfficer => "FinanceController",
-            UserRole.RiskOfficer => "RiskOfficer",
-            UserRole.ComplianceOfficer => "ComplianceOfficer",
-            UserRole.TreasuryDealer => "TreasuryDealer",
-            UserRole.TradeFinanceOfficer => "TradeFinanceOfficer",
-            UserRole.PaymentsOfficer => "PaymentsOfficer",
-            UserRole.ClearingOfficer => "ClearingOfficer",
-            UserRole.ProductManager => "ProductManager",
-            UserRole.VaultOfficer => "VaultOfficer",
+            // Must match allowedRoles in frontend src/config/portals.ts exactly
+            UserRole.Administrator      => "SystemAdministrator",
+            UserRole.ITAdministrator    => "ITSecurityAdmin",
+            UserRole.CEO                => "CEO",
+            UserRole.BranchManager      => "BranchManager",
+            UserRole.RegionalManager    => "RegionalManager",
+            UserRole.Supervisor         => "Supervisor",
+            UserRole.Teller             => "Teller",
+            UserRole.VaultOfficer       => "VaultOfficer",
+            UserRole.ComplianceOfficer  => "ComplianceManager",   // portal expects ComplianceManager
+            UserRole.RiskOfficer        => "RiskOfficer",
+            UserRole.TreasuryDealer     => "TreasuryDealer",
+            UserRole.TradeFinanceOfficer=> "TradeFinanceOfficer",
             UserRole.CorporateBankingOfficer => "CorporateBankingOfficer",
-            UserRole.CEO => "CEO",
-            UserRole.Customer => "Customer",
-            _ => "Customer"
+            UserRole.ProductManager     => "ProductManager",
+            UserRole.LoanOfficer        => "FinanceController",
+            UserRole.FinanceController  => "FinanceController",
+            UserRole.PaymentsOfficer    => "PaymentsOfficer",
+            UserRole.ClearingOfficer    => "ClearingOfficer",
+            UserRole.Customer           => "RetailCustomer",      // portal expects RetailCustomer
+            UserRole.BackOfficeStaff    => "BackOfficeStaff",
+            UserRole.CustomerService    => "CustomerService",
+            _ => "RetailCustomer"
         };
     }
 

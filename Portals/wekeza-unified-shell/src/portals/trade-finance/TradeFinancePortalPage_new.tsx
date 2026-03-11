@@ -66,24 +66,24 @@ const TradeFinancePortalPage: React.FC = () => {
   }, []);
 
   const lcColumns = [
-    { title: 'LC ID', dataIndex: 'LCId', key: 'LCId' },
-    { title: 'Beneficiary', dataIndex: 'Beneficiary', key: 'Beneficiary' },
-    { title: 'Amount', dataIndex: 'Amount', key: 'Amount', render: (val: number) => `USD ${val.toLocaleString()}` },
-    { title: 'Status', dataIndex: 'Status', key: 'Status' }
+    { title: 'LC ID', dataIndex: "lcId", key: "lcId" },
+    { title: 'Beneficiary', dataIndex: "beneficiary", key: "beneficiary" },
+    { title: 'Amount', dataIndex: "amount", key: "amount", render: (val: number) => `USD ${val.toLocaleString()}` },
+    { title: 'Status', dataIndex: "status", key: "status" }
   ];
 
   const guarColumns = [
-    { title: 'Guarantee ID', dataIndex: 'GuaranteeId', key: 'GuaranteeId' },
-    { title: 'Beneficiary', dataIndex: 'Beneficiary', key: 'Beneficiary' },
-    { title: 'Amount', dataIndex: 'Amount', key: 'Amount', render: (val: number) => `KES ${val.toLocaleString()}` },
-    { title: 'Type', dataIndex: 'Type', key: 'Type' }
+    { title: 'Guarantee ID', dataIndex: "guaranteeId", key: "guaranteeId" },
+    { title: 'Beneficiary', dataIndex: "beneficiary", key: "beneficiary" },
+    { title: 'Amount', dataIndex: "amount", key: "amount", render: (val: number) => `KES ${val.toLocaleString()}` },
+    { title: 'Type', dataIndex: "type", key: "type" }
   ];
 
   const collColumns = [
-    { title: 'Collection ID', dataIndex: 'CollectionId', key: 'CollectionId' },
-    { title: 'Applicant', dataIndex: 'Applicant', key: 'Applicant' },
-    { title: 'Amount', dataIndex: 'Amount', key: 'Amount', render: (val: number) => val.toLocaleString() },
-    { title: 'Status', dataIndex: 'Status', key: 'Status' }
+    { title: 'Collection ID', dataIndex: "collectionId", key: "collectionId" },
+    { title: 'Applicant', dataIndex: "applicant", key: "applicant" },
+    { title: 'Amount', dataIndex: "amount", key: "amount", render: (val: number) => val.toLocaleString() },
+    { title: 'Status', dataIndex: "status", key: "status" }
   ];
 
   return (
@@ -105,17 +105,17 @@ const TradeFinancePortalPage: React.FC = () => {
             {
               key: '1',
               label: 'Letters of Credit',
-              children: <Table columns={lcColumns} dataSource={lcs} rowKey="LCId" pagination={false} />
+              children: <Table columns={lcColumns} dataSource={lcs} rowKey="lcId" pagination={false} />
             },
             {
               key: '2',
               label: 'Bank Guarantees',
-              children: <Table columns={guarColumns} dataSource={guarantees} rowKey="GuaranteeId" pagination={false} />
+              children: <Table columns={guarColumns} dataSource={guarantees} rowKey="guaranteeId" pagination={false} />
             },
             {
               key: '3',
               label: 'Documentary Collections',
-              children: <Table columns={collColumns} dataSource={collections} rowKey="CollectionId" pagination={false} />
+              children: <Table columns={collColumns} dataSource={collections} rowKey="collectionId" pagination={false} />
             }
           ]}
         />
