@@ -116,7 +116,7 @@ const PaymentsPortalPage: React.FC = () => {
                     <Card>
                       <Statistic 
                         title="Success Rate" 
-                        value={paymentStatus.successRate?.toFixed(1)}
+                        value={paymentStatus.SuccessRate?.toFixed(1)}
                         suffix="%"
                         valueStyle={{ color: paymentStatus.SuccessRate >= 99 ? 'green' : 'orange' }}
                       />

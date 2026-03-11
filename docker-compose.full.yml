@@ -62,6 +62,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
       - ./scripts/seed-banking-data.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+      - ./scripts/seed-comprehensive-data.sql:/docker-entrypoint-initdb.d/03_comprehensive.sql:ro
     networks:
       - wekeza-net
     healthcheck:
