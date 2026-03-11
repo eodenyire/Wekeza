@@ -69,6 +69,7 @@ export const authService = {
       // Mock authentication for development/testing
       // This allows testing the portal UI while backend is being fixed
       const mockRoles: Record<string, User['roles']> = {
+        // Legacy short-form usernames
         'admin': ['SystemAdministrator'],
         'teller': ['Teller'],
         'loanofficer': ['FinanceController'],
@@ -77,6 +78,19 @@ export const authService = {
         'branchmanager': ['BranchManager'],
         'compliance': ['ComplianceManager'],
         'treasury': ['TreasuryDealer'],
+        // Numbered portal-specific test accounts (matching seed SQL)
+        'admin1': ['SystemAdministrator'],
+        'manager1': ['BranchManager'],
+        'teller1': ['Teller'],
+        'supervisor1': ['Supervisor'],
+        'compliance1': ['ComplianceManager'],
+        'treasury1': ['TreasuryDealer'],
+        'tradefinance1': ['TradeFinanceOfficer'],
+        'payments1': ['PaymentsOfficer'],
+        'productgl1': ['ProductManager'],
+        'customer1': ['RetailCustomer'],
+        'vaultofficer1': ['VaultOfficer'],
+        'executive1': ['CEO'],
       };
 
       const roles = mockRoles[credentials.username.toLowerCase()] || ['RetailCustomer'];

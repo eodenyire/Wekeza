@@ -12,7 +12,7 @@ This folder captures the exact categories of scripts used during portal verifica
 - `02_smoke_health.sh` - basic container + API health verification
 - `03_run_sql_checks.sh` - runs SQL checks and resolves an active account number
 - `04_portal_smoke_tests.py` - runs admin/manager/teller login + endpoint smoke matrix
-- `05_run_all_tests.sh` - orchestrates all steps above
+- `05_run_all_tests.sh` - orchestrates full test pipeline (smoke + form matrix + e2e regression)
 - `06_setup_database_1000_records.sh` - heavy database bootstrap + seeds >=1000 records for core entities
 - `07_verify_database_1000.sh` - verifies 1000-record threshold and prints all table names
 - `08_export_table_structures.sh` - exports full schema/column/constraint structure for all tables
@@ -21,8 +21,9 @@ This folder captures the exact categories of scripts used during portal verifica
 - `11_setup_daily_seed_cron.sh` - installs a cron schedule for daily Python realtime seeding
 - `12_backend_frontend_regression.py` - broad backend API regression from frontend-facing endpoints
 - `13_run_backend_frontend_regression.sh` - wrapper to run full regression setup + execution
-- `14_frontend_form_matrix.py` - targeted form/API payload matrix checks
+- `14_frontend_form_matrix.py` - targeted form/API payload matrix checks (20 portal API flows)
 - `15_vif_customer_journey.py` - end-to-end VIF assisted customer journey (CIF, account, transactions, services)
+- `16_all_portal_e2e_regression.py` - **comprehensive all-14-portal regression** with per-portal test users
 - `99_stop_stack.sh` - stops the v1-Core stack
 - `sql/01_list_test_users.sql`
 - `sql/00_seed_test_users_legacy.sql`
@@ -104,13 +105,33 @@ CRON_SCHEDULE="15 1 * * *" PYTHON_BIN="/workspaces/Wekeza/.venv/bin/python" ./sc
 
 # VIF assisted-customer journey
 python3 scripts/15_vif_customer_journey.py
+
+# All-portal end-to-end regression (recommended before client delivery)
+python3 scripts/16_all_portal_e2e_regression.py
 ```
 
-## Default Credentials Used by Smoke Script
+## Portal Test Credentials
 
-- Admin: `admin / Admin@123`
-- Manager: `manager1 / Manager@123`
-- Teller: `teller1 / Teller@123`
+All 14 portals have dedicated test users seeded by `sql/10_setup_all_tables_and_seed_1000.sql`.
+
+| Portal               | Username        | Password         | Role                  |
+|----------------------|-----------------|------------------|-----------------------|
+| Enterprise Admin     | `admin`         | `Admin@123`      | Administrator         |
+| Executive & Board    | `executive1`    | `Executive@123`  | CEO                   |
+| Branch Manager       | `manager1`      | `Manager@123`    | Manager               |
+| Branch Operations    | `vaultOfficer1` | `Vault@123`      | VaultOfficer          |
+| Teller               | `teller1`       | `Teller@123`     | Teller                |
+| Supervisor           | `supervisor1`   | `Supervisor@123` | Supervisor            |
+| Compliance & Risk    | `compliance1`   | `Compliance@123` | ComplianceOfficer     |
+| Treasury & Markets   | `treasury1`     | `Treasury@123`   | TreasuryDealer        |
+| Trade Finance        | `tradeFinance1` | `Trade@123`      | TradeFinanceOfficer   |
+| Product & GL         | `productGL1`    | `Product@123`    | ProductManager        |
+| Payments & Clearing  | `payments1`     | `Payments@123`   | PaymentsOfficer       |
+| Customer Digital     | `customer1`     | `Customer@123`   | Customer              |
+| Staff Self-Service   | `teller1`       | `Teller@123`     | Teller                |
+| Workflow & Task      | `manager1`      | `Manager@123`    | Manager               |
+
+> ⚠️  **Change all passwords before production deployment.**
 
 You can override with environment variables:
 
@@ -121,6 +142,15 @@ export MANAGER_USERNAME=manager1
 export MANAGER_PASSWORD=Manager@123
 export TELLER_USERNAME=teller1
 export TELLER_PASSWORD=Teller@123
+export SUPERVISOR_PASSWORD=Supervisor@123
+export COMPLIANCE_PASSWORD=Compliance@123
+export TREASURY_PASSWORD=Treasury@123
+export TRADE_FINANCE_PASSWORD=Trade@123
+export PAYMENTS_PASSWORD=Payments@123
+export PRODUCT_GL_PASSWORD=Product@123
+export CUSTOMER_PASSWORD=Customer@123
+export VAULT_PASSWORD=Vault@123
+export EXECUTIVE_PASSWORD=Executive@123
 ```
 
 ## Environment Variables

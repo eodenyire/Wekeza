@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, Card, Table, Tag, Spin, Alert, Button, Space } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 
+const APPROVALS_REFRESH_INTERVAL_MS = 30_000;
+
 interface PendingApproval {
   approvalId: string;
   type: string;
@@ -37,7 +39,7 @@ const WorkflowPortalPage: React.FC = () => {
 
   useEffect(() => {
     fetchApprovals();
-    const interval = setInterval(fetchApprovals, 30000);
+    const interval = setInterval(fetchApprovals, APPROVALS_REFRESH_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 
