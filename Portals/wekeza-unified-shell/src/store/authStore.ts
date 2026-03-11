@@ -24,23 +24,28 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
 
-      setAuth: (auth) =>
+      setAuth: (auth) => {
+        // Mirror token to 'authToken' key so portal pages using direct fetch() can read it
+        localStorage.setItem('authToken', auth.token);
         set({
           user: auth.user,
           token: auth.token,
           refreshToken: auth.refreshToken,
           isAuthenticated: true,
           isLoading: false,
-        }),
+        });
+      },
 
-      clearAuth: () =>
+      clearAuth: () => {
+        localStorage.removeItem('authToken');
         set({
           user: null,
           token: null,
           refreshToken: null,
           isAuthenticated: false,
           isLoading: false,
-        }),
+        });
+      },
 
       setLoading: (loading) => set({ isLoading: loading }),
 

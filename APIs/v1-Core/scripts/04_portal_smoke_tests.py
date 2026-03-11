@@ -66,12 +66,14 @@ def login(role_key: str):
     return token
 
 
-def run_checks(role_name: str, token: str, checks: list[tuple[str, str, str, dict | None, int]]):
+def run_checks(role_name: str, token: str, checks: list[tuple[str, str, str, dict | None, int | set]]):
+    """Run a list of checks; expected_status may be an int or a set of acceptable ints."""
     failures = []
     print(f"\n=== {role_name.upper()} CHECKS ===")
     for label, method, path, body, expected_status in checks:
         status, payload = request_json(method, path, token=token, body=body)
-        ok = status == expected_status
+        acceptable = expected_status if isinstance(expected_status, set) else {expected_status}
+        ok = status in acceptable
         marker = "PASS" if ok else "FAIL"
         print(f"[{marker}] {label} -> {method} {path} => {status}")
         if not ok:
@@ -101,6 +103,19 @@ def main():
         ("Branch staff", "GET", "/api/branch-manager/staff", None, 200),
         ("Supervisor team", "GET", "/api/supervisor/team", None, 200),
         ("Branch compliance", "GET", "/api/branch-manager/compliance", None, 200),
+        ("Supervisor pending approvals", "GET", "/api/supervisor/approvals/pending", None, 200),
+        ("Supervisor daily metrics", "GET", "/api/supervisor/operations/daily-metrics", None, 200),
+    ]
+
+    # Staff self-service checks use teller credentials (Teller role is authorized)
+    staff_checks = [
+        ("Staff profile", "GET", "/api/staff-self-service/profile", None, 200),
+        ("Leave balance", "GET", "/api/staff-self-service/leave/balance", None, 200),
+        ("Leave history", "GET", "/api/staff-self-service/leave/history", None, 200),
+        ("Payroll current", "GET", "/api/staff-self-service/payroll/current", None, 200),
+        ("Performance metrics", "GET", "/api/staff-self-service/performance/metrics", None, 200),
+        ("Training courses", "GET", "/api/staff-self-service/development/training", None, 200),
+        ("Login history", "GET", "/api/staff-self-service/account/login-history", None, 200),
     ]
 
     teller_checks = [
@@ -149,6 +164,8 @@ def main():
     all_failures.extend(run_checks("admin", admin_token, admin_checks))
     all_failures.extend(run_checks("manager", manager_token, manager_checks))
     all_failures.extend(run_checks("teller", teller_token, teller_checks))
+    # Staff self-service endpoints are authorized for Teller role
+    all_failures.extend(run_checks("staff-self-service (teller)", teller_token, staff_checks))
 
     print("\n=== SUMMARY ===")
     if all_failures:

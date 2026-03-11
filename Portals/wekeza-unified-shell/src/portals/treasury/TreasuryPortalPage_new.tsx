@@ -3,20 +3,20 @@ import { Tabs, Card, Table, Row, Col, Statistic, Spin, Alert, Button } from 'ant
 import { ReloadOutlined } from '@ant-design/icons';
 
 interface LiquidityData {
-  LCR: number;
-  NSFR: number;
-  NetLiquidityPosition: number;
-  CashReserves: number;
-  ExcessLiquidity: number;
+  lcr: number;
+  nsfr: number;
+  netLiquidityPosition: number;
+  cashReserves: number;
+  excessLiquidity: number;
 }
 
 interface FXDeal {
-  DealId: string;
-  Pair: string;
-  Amount: number;
-  Rate: number;
-  Direction: string;
-  Status: string;
+  dealId: string;
+  pair: string;
+  amount: number;
+  rate: number;
+  direction: string;
+  status: string;
 }
 
 const TreasuryPortalPage: React.FC = () => {
@@ -62,12 +62,12 @@ const TreasuryPortalPage: React.FC = () => {
   }, []);
 
   const fxColumns = [
-    { title: 'Deal ID', dataIndex: 'DealId', key: 'DealId' },
-    { title: 'Pair', dataIndex: 'Pair', key: 'Pair' },
-    { title: 'Amount', dataIndex: 'Amount', key: 'Amount', render: (val: number) => val.toLocaleString() },
-    { title: 'Rate', dataIndex: 'Rate', key: 'Rate' },
-    { title: 'Direction', dataIndex: 'Direction', key: 'Direction' },
-    { title: 'Status', dataIndex: 'Status', key: 'Status' }
+    { title: 'Deal ID', dataIndex: 'dealId', key: 'dealId' },
+    { title: 'Pair', dataIndex: 'pair', key: 'pair' },
+    { title: 'Amount', dataIndex: 'amount', key: 'amount', render: (val: number) => (val ?? 0).toLocaleString() },
+    { title: 'Rate', dataIndex: 'rate', key: 'rate' },
+    { title: 'Direction', dataIndex: 'direction', key: 'direction' },
+    { title: 'Status', dataIndex: 'status', key: 'status' }
   ];
 
   return (
@@ -95,9 +95,9 @@ const TreasuryPortalPage: React.FC = () => {
                     <Card>
                       <Statistic 
                         title="LCR" 
-                        value={liquidity.LCR.toFixed(2)}
+                        value={(liquidity.lcr ?? 0).toFixed(2)}
                         suffix="%"
-                        valueStyle={{ color: liquidity.LCR >= 100 ? 'green' : 'red' }}
+                        valueStyle={{ color: (liquidity.lcr ?? 0) >= 100 ? 'green' : 'red' }}
                       />
                     </Card>
                   </Col>
@@ -105,7 +105,7 @@ const TreasuryPortalPage: React.FC = () => {
                     <Card>
                       <Statistic 
                         title="NSFR" 
-                        value={liquidity.NSFR.toFixed(2)}
+                        value={(liquidity.nsfr ?? 0).toFixed(2)}
                         suffix="%"
                       />
                     </Card>
@@ -114,7 +114,7 @@ const TreasuryPortalPage: React.FC = () => {
                     <Card>
                       <Statistic 
                         title="Net Position" 
-                        value={Math.round(liquidity.NetLiquidityPosition / 1000000)}
+                        value={Math.round((liquidity.netLiquidityPosition ?? 0) / 1000000)}
                         prefix="KES "
                         suffix="M"
                       />
@@ -130,7 +130,7 @@ const TreasuryPortalPage: React.FC = () => {
                 <Table
                   columns={fxColumns}
                   dataSource={fxDeals}
-                  rowKey="DealId"
+                  rowKey="dealId"
                   pagination={false}
                   loading={loading}
                 />

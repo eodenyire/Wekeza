@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Wekeza Bank DB",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "WekezaCoreDB",
+      "Username": "wekeza_app",
+      "SSLMode": "prefer",
+      "PassFile": "/pgpass"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+# Wekeza Bank — Kubernetes Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wekeza-bank
+  labels:
+    app.kubernetes.io/name: wekeza-bank
+    app.kubernetes.io/part-of: wekeza-banking-system

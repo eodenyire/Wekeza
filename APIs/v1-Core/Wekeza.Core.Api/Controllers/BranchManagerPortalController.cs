@@ -14,7 +14,7 @@ namespace Wekeza.Core.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/branch-manager")]
-[Authorize(Roles = "BranchManager")]
+[Authorize(Roles = "BranchManager,VaultOfficer")]
 public class BranchManagerPortalController : BaseApiController
 {
     private readonly IConfiguration _configuration;

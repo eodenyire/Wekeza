@@ -55,7 +55,7 @@ public class CustomerPortalController : BaseApiController
     /// Returns account balances, recent transactions, and financial overview
     /// </summary>
     [HttpGet("dashboard")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> GetDashboard()
     {
         try
@@ -150,7 +150,7 @@ public class CustomerPortalController : BaseApiController
     /// Get recent transactions across all customer accounts
     /// </summary>
     [HttpGet("transactions/recent")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> GetRecentTransactions([FromQuery] int limit = 10)
     {
         try
@@ -173,7 +173,7 @@ public class CustomerPortalController : BaseApiController
                 SELECT 
                     t.""Id"",
                     t.""TransactionReference"" as ""Reference"",
-                    t.""Type"",
+                    t.""TransactionType"" as ""Type"",
                     a.""AccountNumber"",
                     t.""Amount"",
                     t.""CreatedAt"" as ""Timestamp"",
@@ -306,7 +306,7 @@ public class CustomerPortalController : BaseApiController
     /// Get customer profile
     /// </summary>
     [HttpGet("profile")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> GetProfile()
     {
         var query = new GetCustomerProfileQuery();
@@ -318,7 +318,7 @@ public class CustomerPortalController : BaseApiController
     /// Update customer profile
     /// </summary>
     [HttpPut("profile")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateCustomerProfileCommand command)
     {
         var result = await Mediator.Send(command);
@@ -329,7 +329,7 @@ public class CustomerPortalController : BaseApiController
     /// Change password
     /// </summary>
     [HttpPost("profile/change-password")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
     {
         var result = await Mediator.Send(command);
@@ -344,7 +344,7 @@ public class CustomerPortalController : BaseApiController
     /// Get customer accounts
     /// </summary>
     [HttpGet("accounts")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> GetAccounts()
     {
         var query = new GetCustomerAccountsQuery();
@@ -356,7 +356,7 @@ public class CustomerPortalController : BaseApiController
     /// Get account balance
     /// </summary>
     [HttpGet("accounts/{accountId:guid}/balance")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> GetAccountBalance(Guid accountId)
     {
         var query = new GetAccountBalanceQuery { AccountId = accountId };
@@ -368,7 +368,7 @@ public class CustomerPortalController : BaseApiController
     /// Get account transactions
     /// </summary>
     [HttpGet("accounts/{accountId:guid}/transactions")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> GetTransactions(Guid accountId, [FromQuery] int pageSize = 20, [FromQuery] int pageNumber = 1)
     {
         var query = new GetAccountTransactionsQuery
@@ -385,7 +385,7 @@ public class CustomerPortalController : BaseApiController
     /// Download account statement
     /// </summary>
     [HttpPost("accounts/{accountId:guid}/statement")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> DownloadStatement(Guid accountId, [FromBody] DownloadStatementCommand command)
     {
         var updatedCommand = command with { AccountId = accountId };
@@ -401,7 +401,7 @@ public class CustomerPortalController : BaseApiController
     /// Transfer funds between accounts
     /// </summary>
     [HttpPost("transactions/transfer")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> TransferFunds([FromBody] TransferFundsCommand command)
     {
         var result = await Mediator.Send(command);
@@ -420,7 +420,7 @@ public class CustomerPortalController : BaseApiController
     /// Pay bill
     /// </summary>
     [HttpPost("transactions/pay-bill")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> PayBill([FromBody] PayBillCommand command)
     {
         var result = await Mediator.Send(command);
@@ -431,7 +431,7 @@ public class CustomerPortalController : BaseApiController
     /// Buy airtime
     /// </summary>
     [HttpPost("transactions/buy-airtime")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> BuyAirtime([FromBody] BuyAirtimeCommand command)
     {
         var result = await Mediator.Send(command);
@@ -446,7 +446,7 @@ public class CustomerPortalController : BaseApiController
     /// Get customer cards
     /// </summary>
     [HttpGet("cards")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> GetCards()
     {
         // TODO: Get customer ID from authenticated user claims
@@ -459,7 +459,7 @@ public class CustomerPortalController : BaseApiController
     /// Request new card
     /// </summary>
     [HttpPost("cards/request")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> RequestCard([FromBody] RequestCardCommand command)
     {
         var result = await Mediator.Send(command);
@@ -470,7 +470,7 @@ public class CustomerPortalController : BaseApiController
     /// Request virtual card
     /// </summary>
     [HttpPost("cards/request-virtual")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> RequestVirtualCard([FromBody] RequestVirtualCardCommand command)
     {
         var result = await Mediator.Send(command);
@@ -492,7 +492,7 @@ public class CustomerPortalController : BaseApiController
     /// Block/Unblock card
     /// </summary>
     [HttpPost("cards/block")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> BlockCard([FromBody] BlockCardCommand command)
     {
         var result = await Mediator.Send(command);
@@ -507,7 +507,7 @@ public class CustomerPortalController : BaseApiController
     /// Get customer loans
     /// </summary>
     [HttpGet("loans")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> GetLoans()
     {
         var query = new GetLoansQuery();
@@ -519,7 +519,7 @@ public class CustomerPortalController : BaseApiController
     /// Apply for loan
     /// </summary>
     [HttpPost("loans/apply")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> ApplyForLoan([FromBody] ApplyForLoanCommand command)
     {
         var result = await Mediator.Send(command);
@@ -530,7 +530,7 @@ public class CustomerPortalController : BaseApiController
     /// Make loan repayment
     /// </summary>
     [HttpPost("loans/repay")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> RepayLoan([FromBody] RepayLoanCommand command)
     {
         var result = await Mediator.Send(command);
@@ -545,7 +545,7 @@ public class CustomerPortalController : BaseApiController
     /// Enroll in mobile banking
     /// </summary>
     [HttpPost("channels/mobile/enroll")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> EnrollMobileBanking([FromBody] EnrollMobileBankingCommand command)
     {
         var result = await Mediator.Send(command);
@@ -556,7 +556,7 @@ public class CustomerPortalController : BaseApiController
     /// Enroll in internet banking
     /// </summary>
     [HttpPost("channels/internet/enroll")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> EnrollInternetBanking([FromBody] EnrollInternetBankingCommand command)
     {
         var result = await Mediator.Send(command);
@@ -567,7 +567,7 @@ public class CustomerPortalController : BaseApiController
     /// Enroll in USSD banking
     /// </summary>
     [HttpPost("channels/ussd/enroll")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,RetailCustomer")]
     public async Task<IActionResult> EnrollUSSD([FromBody] EnrollUSSDCommand command)
     {
         var result = await Mediator.Send(command);

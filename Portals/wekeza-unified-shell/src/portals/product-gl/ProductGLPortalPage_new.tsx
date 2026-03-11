@@ -11,9 +11,9 @@ interface Product {
 }
 
 interface GLData {
-  Assets: { Cash: number; Loans: number; Investments: number; Total: number };
-  Liabilities: { Deposits: number; Borrowings: number; Total: number };
-  Equity: { Total: number };
+  assets: { cash: number; loans: number; investments: number; total: number };
+  liabilities: { deposits: number; borrowings: number; total: number };
+  equity: { total: number };
 }
 
 const ProductGLPortalPage: React.FC = () => {
@@ -66,18 +66,18 @@ const ProductGLPortalPage: React.FC = () => {
   }, []);
 
   const prodColumns = [
-    { title: 'Product ID', dataIndex: 'ProductId', key: 'ProductId' },
-    { title: 'Name', dataIndex: 'Name', key: 'Name' },
-    { title: 'Type', dataIndex: 'Type', key: 'Type' },
-    { title: 'Interest Rate', dataIndex: 'InterestRate', key: 'InterestRate', render: (val: number) => `${val}%` },
-    { title: 'Customers', dataIndex: 'Customers', key: 'Customers' }
+    { title: 'Product ID', dataIndex: "productId", key: "productId" },
+    { title: 'Name', dataIndex: "name", key: "name" },
+    { title: 'Type', dataIndex: "type", key: "type" },
+    { title: 'Interest Rate', dataIndex: "interestRate", key: "interestRate", render: (val: number) => `${val}%` },
+    { title: 'Customers', dataIndex: "customers", key: "customers" }
   ];
 
   const feeColumns = [
-    { title: 'Fee ID', dataIndex: 'FeeId', key: 'FeeId' },
-    { title: 'Description', dataIndex: 'Description', key: 'Description' },
-    { title: 'Amount', dataIndex: 'Amount', key: 'Amount', render: (val: number) => `KES ${val.toLocaleString()}` },
-    { title: 'Frequency', dataIndex: 'Frequency', key: 'Frequency' }
+    { title: 'Fee ID', dataIndex: "feeId", key: "feeId" },
+    { title: 'Description', dataIndex: "description", key: "description" },
+    { title: 'Amount', dataIndex: "amount", key: "amount", render: (val: number) => `KES ${val.toLocaleString()}` },
+    { title: 'Frequency', dataIndex: "frequency", key: "frequency" }
   ];
 
   return (
@@ -99,7 +99,7 @@ const ProductGLPortalPage: React.FC = () => {
             {
               key: '1',
               label: 'Products',
-              children: <Table columns={prodColumns} dataSource={products} rowKey="ProductId" pagination={false} />
+              children: <Table columns={prodColumns} dataSource={products} rowKey="productId" pagination={false} />
             },
             {
               key: '2',
@@ -108,16 +108,16 @@ const ProductGLPortalPage: React.FC = () => {
                 <Row gutter={[16, 16]}>
                   <Col xs={24} md={12}>
                     <Card title="Assets">
-                      <Statistic title="Cash" value={Math.round(glData.Assets.Cash / 1000000)} suffix="M KES" />
-                      <Statistic title="Loans" value={Math.round(glData.Assets.Loans / 1000000)} suffix="M KES" />
-                      <Statistic title="Total Assets" value={Math.round(glData.Assets.Total / 1000000)} suffix="M KES" />
+                      <Statistic title="Cash" value={Math.round((glData.assets?.cash ?? 0) / 1000000)} suffix="M KES" />
+                      <Statistic title="Loans" value={Math.round((glData.assets?.loans ?? 0) / 1000000)} suffix="M KES" />
+                      <Statistic title="Total Assets" value={Math.round((glData.assets?.total ?? 0) / 1000000)} suffix="M KES" />
                     </Card>
                   </Col>
                   <Col xs={24} md={12}>
                     <Card title="Liabilities & Equity">
-                      <Statistic title="Deposits" value={Math.round(glData.Liabilities.Deposits / 1000000)} suffix="M KES" />
-                      <Statistic title="Equity" value={Math.round(glData.Equity.Total / 1000000)} suffix="M KES" />
-                      <Statistic title="Total Liabilities+Equity" value={Math.round((glData.Liabilities.Total + glData.Equity.Total) / 1000000)} suffix="M KES" />
+                      <Statistic title="Deposits" value={Math.round((glData.liabilities?.deposits ?? 0) / 1000000)} suffix="M KES" />
+                      <Statistic title="Equity" value={Math.round((glData.equity?.total ?? 0) / 1000000)} suffix="M KES" />
+                      <Statistic title="Total Liabilities+Equity" value={Math.round(((glData.liabilities?.total ?? 0) + (glData.equity?.total ?? 0)) / 1000000)} suffix="M KES" />
                     </Card>
                   </Col>
                 </Row>
@@ -126,7 +126,7 @@ const ProductGLPortalPage: React.FC = () => {
             {
               key: '3',
               label: 'Fee Configuration',
-              children: <Table columns={feeColumns} dataSource={fees} rowKey="FeeId" pagination={false} />
+              children: <Table columns={feeColumns} dataSource={fees} rowKey="feeId" pagination={false} />
             }
           ]}
         />

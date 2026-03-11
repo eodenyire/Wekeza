@@ -7,26 +7,26 @@ interface DashboardData {
   accountCount: number;
   recentTransactionCount: number;
   accounts: Array<{
-    Id: string;
-    AccountNumber: string;
-    AccountType: string;
-    Balance: number;
-    Status: string;
-    Currency: string;
+    id?: string;          Id?: string;
+    accountNumber?: string; AccountNumber?: string;
+    accountType?: string;   AccountType?: string;
+    balance?: number;       Balance?: number;
+    status?: string;        Status?: string;
+    currency?: string;      Currency?: string;
   }>;
   customerId: string;
   lastUpdated: string;
 }
 
 interface Transaction {
-  Id: string;
-  Reference: string;
-  Type: string;
-  AccountNumber: string;
-  Amount: number;
-  Timestamp: string;
-  Description: string;
-  Status: string;
+  id?: string;          Id?: string;
+  reference?: string;   Reference?: string;
+  type?: string;        Type?: string;
+  accountNumber?: string; AccountNumber?: string;
+  amount?: number;      Amount?: number;
+  timestamp?: string;   Timestamp?: string;
+  description?: string; Description?: string;
+  status?: string;      Status?: string;
 }
 
 const CustomerPortalPage: React.FC = () => {
@@ -141,32 +141,34 @@ const CustomerPortalPage: React.FC = () => {
                     <Table
                       dataSource={dashboardData.accounts}
                       pagination={false}
-                      rowKey="Id"
+                      rowKey={(r, index) => r.id || r.Id || r.accountNumber || r.AccountNumber || String(index)}
                       columns={[
                         { 
                           title: 'Account Number', 
-                          dataIndex: 'AccountNumber', 
-                          key: 'AccountNumber' 
+                          key: 'AccountNumber',
+                          render: (_: any, r: any) => r.accountNumber || r.AccountNumber
                         },
                         { 
                           title: 'Type', 
-                          dataIndex: 'AccountType', 
-                          key: 'AccountType' 
+                          key: 'AccountType',
+                          render: (_: any, r: any) => r.accountType || r.AccountType
                         },
                         { 
                           title: 'Balance', 
-                          dataIndex: 'Balance', 
                           key: 'Balance',
-                          render: (balance: number, record: any) => 
-                            `${record.Currency || 'KES'} ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          render: (_: any, r: any) => {
+                            const bal = r.balance ?? r.Balance ?? 0;
+                            const cur = r.currency || r.Currency || 'KES';
+                            return `${cur} ${Number(bal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                          }
                         },
                         { 
                           title: 'Status', 
-                          dataIndex: 'Status', 
                           key: 'Status',
-                          render: (status: string) => (
-                            <Tag color={status === 'Active' ? 'green' : 'red'}>{status}</Tag>
-                          )
+                          render: (_: any, r: any) => {
+                            const status = r.status || r.Status || '';
+                            return <Tag color={status === 'Active' ? 'green' : 'red'}>{status}</Tag>;
+                          }
                         },
                       ]}
                     />
@@ -191,56 +193,59 @@ const CustomerPortalPage: React.FC = () => {
                 extra={<small>Last updated: {dashboardData?.lastUpdated ? new Date(dashboardData.lastUpdated).toLocaleTimeString() : ''}</small>}
               >
                 {transactions.length > 0 ? (
-                  <Table
+                   <Table
                     dataSource={transactions}
                     pagination={false}
-                    rowKey="Id"
+                    rowKey={(r: any, index?: number) => r.Id || r.id || r.Reference || r.reference || String(index ?? 0)}
                     columns={[
                       { 
                         title: 'Date', 
-                        dataIndex: 'Timestamp', 
                         key: 'Timestamp',
-                        render: (date: string) => new Date(date).toLocaleDateString()
+                        render: (_: any, r: any) => {
+                          const d = r.Timestamp || r.timestamp;
+                          return d ? new Date(d).toLocaleDateString() : '';
+                        }
                       },
                       { 
                         title: 'Reference', 
-                        dataIndex: 'Reference', 
-                        key: 'Reference' 
+                        key: 'Reference',
+                        render: (_: any, r: any) => r.Reference || r.reference
                       },
                       { 
                         title: 'Narration', 
-                        dataIndex: 'Description', 
                         key: 'Description',
-                        render: (desc: string, record: Transaction) => desc || record.Type
+                        render: (_: any, r: any) => r.Description || r.description || r.Type || r.type
                       },
                       { 
                         title: 'Account', 
-                        dataIndex: 'AccountNumber', 
-                        key: 'AccountNumber' 
+                        key: 'AccountNumber',
+                        render: (_: any, r: any) => r.AccountNumber || r.accountNumber
                       },
                       { 
                         title: 'Amount', 
-                        dataIndex: 'Amount', 
                         key: 'Amount',
-                        render: (amount: number, record: Transaction) => {
-                          const isCredit = record.Type.toLowerCase().includes('deposit') || 
-                                         record.Type.toLowerCase().includes('credit');
+                        render: (_: any, r: any) => {
+                          const amount = r.Amount ?? r.amount ?? 0;
+                          const type = (r.Type || r.type || '').toLowerCase();
+                          const isCredit = type.includes('deposit') || type.includes('credit');
                           return (
                             <span style={{ color: isCredit ? 'green' : 'red' }}>
-                              {isCredit ? '+' : '-'}{amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              {isCredit ? '+' : '-'}{Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </span>
                           );
                         }
                       },
                       {
                         title: 'Status',
-                        dataIndex: 'Status',
                         key: 'Status',
-                        render: (status: string) => (
-                          <Tag color={status === 'Success' ? 'green' : status === 'Pending' ? 'orange' : 'red'}>
-                            {status}
-                          </Tag>
-                        )
+                        render: (_: any, r: any) => {
+                          const status = r.Status || r.status || '';
+                          return (
+                            <Tag color={status === 'Success' ? 'green' : status === 'Pending' ? 'orange' : 'red'}>
+                              {status}
+                            </Tag>
+                          );
+                        }
                       }
                     ]}
                   />

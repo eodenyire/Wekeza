@@ -68,7 +68,12 @@ export const authService = {
       
       // Mock authentication for development/testing
       // This allows testing the portal UI while backend is being fixed
+      // NOTE: Keys are matched case-insensitively via .toLowerCase() below.
+      // The numbered accounts (tradeFinance1, vaultOfficer1) are stored in the DB
+      // with their original casing; the lookup normalises to lowercase so both
+      // 'tradeFinance1' and 'tradefinance1' resolve correctly.
       const mockRoles: Record<string, User['roles']> = {
+        // Legacy short-form usernames
         'admin': ['SystemAdministrator'],
         'teller': ['Teller'],
         'loanofficer': ['FinanceController'],
@@ -77,6 +82,19 @@ export const authService = {
         'branchmanager': ['BranchManager'],
         'compliance': ['ComplianceManager'],
         'treasury': ['TreasuryDealer'],
+        // Numbered portal-specific test accounts (matching seed SQL, all lowercase for lookup)
+        'admin1': ['SystemAdministrator'],
+        'manager1': ['BranchManager'],
+        'teller1': ['Teller'],
+        'supervisor1': ['Supervisor'],
+        'compliance1': ['ComplianceManager'],
+        'treasury1': ['TreasuryDealer'],
+        'tradefinance1': ['TradeFinanceOfficer'],  // DB username: tradeFinance1
+        'payments1': ['PaymentsOfficer'],
+        'productgl1': ['ProductManager'],           // DB username: productGL1
+        'customer1': ['RetailCustomer'],
+        'vaultofficer1': ['VaultOfficer'],          // DB username: vaultOfficer1
+        'executive1': ['CEO'],
       };
 
       const roles = mockRoles[credentials.username.toLowerCase()] || ['RetailCustomer'];

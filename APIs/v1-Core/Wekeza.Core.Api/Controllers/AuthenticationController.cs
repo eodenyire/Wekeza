@@ -61,11 +61,27 @@ public class AuthenticationController : ControllerBase
         var roles = ResolveRoles(user.Role);
         var permissions = ResolvePermissions(roles);
 
+        // For customer users, look up their CustomerId from the Customers table
+        // and include it as a claim so the CustomerPortalController can use it
+        List<Claim>? extraClaims = null;
+        if (roles.Contains(UserRole.Customer))
+        {
+            await using var cmd = new NpgsqlCommand(
+                @"SELECT ""Id"" FROM ""Customers"" WHERE ""Email"" = @email LIMIT 1",
+                connection);
+            cmd.Parameters.AddWithValue("email", user.Email);
+            var customerId = await cmd.ExecuteScalarAsync();
+            // Fallback: use userId as customerId for demo customer accounts
+            var customerIdValue = customerId?.ToString() ?? user.Id.ToString();
+            extraClaims = new List<Claim> { new("CustomerId", customerIdValue) };
+        }
+
         var token = _jwtTokenGenerator.GenerateToken(
             user.Id,
             user.Username,
             user.Email,
-            roles
+            roles,
+            extraClaims
         );
 
         await UpdateLastLoginAsync(connection, user.Id);
@@ -172,11 +188,20 @@ public class AuthenticationController : ControllerBase
         {
             "administrator" => new[] { UserRole.Administrator },
             "teller" => new[] { UserRole.Teller },
-            "manager" => new[] { UserRole.BranchManager },
-            "branchmanager" => new[] { UserRole.BranchManager },
-            "loanofficer" => new[] { UserRole.LoanOfficer },
+            "manager" or "branchmanager" => new[] { UserRole.BranchManager },
+            "supervisor" => new[] { UserRole.Supervisor },
+            "loanofficer" or "financecontroller" => new[] { UserRole.LoanOfficer },
             "riskofficer" => new[] { UserRole.RiskOfficer },
-            "complianceofficer" => new[] { UserRole.ComplianceOfficer },
+            "complianceofficer" or "compliancemanager" => new[] { UserRole.ComplianceOfficer },
+            "treasurydealer" or "treasury" => new[] { UserRole.TreasuryDealer },
+            "tradefinanceofficer" or "tradefinance" => new[] { UserRole.TradeFinanceOfficer },
+            "paymentsofficer" or "payments" => new[] { UserRole.PaymentsOfficer },
+            "clearingofficer" or "clearing" => new[] { UserRole.ClearingOfficer },
+            "productmanager" => new[] { UserRole.ProductManager },
+            "vaultofficer" => new[] { UserRole.VaultOfficer },
+            "corporatebankingofficer" => new[] { UserRole.CorporateBankingOfficer },
+            "ceo" or "executive" or "chiefexecutiveofficer" => new[] { UserRole.CEO },
+            "customer" or "retailcustomer" => new[] { UserRole.Customer },
             _ => new[] { UserRole.Customer }
         };
     }
@@ -213,6 +238,10 @@ public class AuthenticationController : ControllerBase
                     permissionSet.Add("branch:manage");
                     permissionSet.Add("transactions:approve");
                     break;
+                case UserRole.Supervisor:
+                    permissionSet.Add("transactions:approve");
+                    permissionSet.Add("accounts:view");
+                    break;
                 case UserRole.LoanOfficer:
                     permissionSet.Add("loans:manage");
                     break;
@@ -221,6 +250,27 @@ public class AuthenticationController : ControllerBase
                     break;
                 case UserRole.ComplianceOfficer:
                     permissionSet.Add("compliance:manage");
+                    break;
+                case UserRole.TreasuryDealer:
+                    permissionSet.Add("treasury:manage");
+                    break;
+                case UserRole.TradeFinanceOfficer:
+                    permissionSet.Add("tradefinance:manage");
+                    break;
+                case UserRole.PaymentsOfficer:
+                case UserRole.ClearingOfficer:
+                    permissionSet.Add("payments:manage");
+                    break;
+                case UserRole.ProductManager:
+                    permissionSet.Add("products:manage");
+                    break;
+                case UserRole.VaultOfficer:
+                    permissionSet.Add("vault:manage");
+                    permissionSet.Add("transactions:approve");
+                    break;
+                case UserRole.CEO:
+                    permissionSet.Add("executive:view");
+                    permissionSet.Add("reports:view");
                     break;
             }
         }
@@ -232,12 +282,28 @@ public class AuthenticationController : ControllerBase
     {
         return role switch
         {
-            UserRole.Administrator => "SystemAdministrator",
-            UserRole.Teller => "Teller",
-            UserRole.BranchManager => "BranchManager",
-            UserRole.LoanOfficer => "FinanceController",
-            UserRole.RiskOfficer => "RiskOfficer",
-            UserRole.ComplianceOfficer => "ComplianceManager",
+            // Must match allowedRoles in frontend src/config/portals.ts exactly
+            UserRole.Administrator      => "SystemAdministrator",
+            UserRole.ITAdministrator    => "ITSecurityAdmin",
+            UserRole.CEO                => "CEO",
+            UserRole.BranchManager      => "BranchManager",
+            UserRole.RegionalManager    => "RegionalManager",
+            UserRole.Supervisor         => "Supervisor",
+            UserRole.Teller             => "Teller",
+            UserRole.VaultOfficer       => "VaultOfficer",
+            UserRole.ComplianceOfficer  => "ComplianceManager",   // portal expects ComplianceManager
+            UserRole.RiskOfficer        => "RiskOfficer",
+            UserRole.TreasuryDealer     => "TreasuryDealer",
+            UserRole.TradeFinanceOfficer=> "TradeFinanceOfficer",
+            UserRole.CorporateBankingOfficer => "CorporateBankingOfficer",
+            UserRole.ProductManager     => "ProductManager",
+            UserRole.LoanOfficer        => "FinanceController",
+            UserRole.FinanceController  => "FinanceController",
+            UserRole.PaymentsOfficer    => "PaymentsOfficer",
+            UserRole.ClearingOfficer    => "ClearingOfficer",
+            UserRole.Customer           => "RetailCustomer",      // portal expects RetailCustomer
+            UserRole.BackOfficeStaff    => "BackOfficeStaff",
+            UserRole.CustomerService    => "CustomerService",
             _ => "RetailCustomer"
         };
     }

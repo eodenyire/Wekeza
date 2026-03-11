@@ -12,7 +12,7 @@ namespace Wekeza.Core.Api.Authentication;
 /// </summary>
 public interface IJwtTokenGenerator
 {
-    string GenerateToken(Guid userId, string username, string email, IEnumerable<UserRole> roles);
+    string GenerateToken(Guid userId, string username, string email, IEnumerable<UserRole> roles, IEnumerable<Claim>? extraClaims = null);
 }
 
 public class JwtTokenGenerator : IJwtTokenGenerator
@@ -24,7 +24,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _jwtSettings = jwtSettings.Value;
     }
 
-    public string GenerateToken(Guid userId, string username, string email, IEnumerable<UserRole> roles)
+    public string GenerateToken(Guid userId, string username, string email, IEnumerable<UserRole> roles, IEnumerable<Claim>? extraClaims = null)
     {
         var signingCredentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
@@ -40,6 +40,10 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
         // Add role claims
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role.ToString())));
+
+        // Add any extra claims (e.g. CustomerId for customer users)
+        if (extraClaims is not null)
+            claims.AddRange(extraClaims);
 
         var securityToken = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,

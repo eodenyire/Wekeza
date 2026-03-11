@@ -707,7 +707,7 @@ _logger.LogError($"Error processing request: {ex.Message}", ex);
 ### Step 1: Generate EF Core Migration
 
 ```bash
-cd /workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Infrastructure
+cd APIs/v1-Core/Wekeza.Core.Infrastructure
 dotnet ef migrations add AdminPortalPhase4_ServiceImplementations --startup-project ../Wekeza.Core.API
 ```
 
@@ -878,21 +878,21 @@ tail -f /var/log/wekeza/api.log
 ## File Inventory
 
 ### New Service Files (6)
-1. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Application/Admin/Services/SecurityAdminService.cs` (1,050 lines)
-2. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Application/Admin/Services/FinanceAdminService.cs` (1,100 lines)
-3. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Application/Admin/Services/BranchAdminService.cs` (1,000 lines)
-4. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Application/Admin/Services/CustomerServiceAdminService.cs` (950 lines)
-5. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Application/Admin/Services/AlertEngineService.cs` (1,600 lines)
-6. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Application/Admin/Services/GlobalSearchService.cs` (800 lines)
+1. `APIs/v1-Core/Wekeza.Core.Application/Admin/Services/SecurityAdminService.cs` (1,050 lines)
+2. `APIs/v1-Core/Wekeza.Core.Application/Admin/Services/FinanceAdminService.cs` (1,100 lines)
+3. `APIs/v1-Core/Wekeza.Core.Application/Admin/Services/BranchAdminService.cs` (1,000 lines)
+4. `APIs/v1-Core/Wekeza.Core.Application/Admin/Services/CustomerServiceAdminService.cs` (950 lines)
+5. `APIs/v1-Core/Wekeza.Core.Application/Admin/Services/AlertEngineService.cs` (1,600 lines)
+6. `APIs/v1-Core/Wekeza.Core.Application/Admin/Services/GlobalSearchService.cs` (800 lines)
 
 ### Modified Files (2)
-1. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Infrastructure/DependencyInjection.cs` (+22 lines)
-2. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Infrastructure/Persistence/ApplicationDbContext.cs` (+10 lines)
+1. `APIs/v1-Core/Wekeza.Core.Infrastructure/DependencyInjection.cs` (+22 lines)
+2. `APIs/v1-Core/Wekeza.Core.Infrastructure/Persistence/ApplicationDbContext.cs` (+10 lines)
 
 ### Existing Phase 3 Configuration Files (3)
-1. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Infrastructure/Persistence/Configurations/ProductEntityConfigurations.cs`
-2. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Infrastructure/Persistence/Configurations/RiskEntityConfigurations.cs`
-3. `/workspaces/Wekeza/APIs/v1-Core/Wekeza.Core.Infrastructure/Persistence/Configurations/AnalyticsEntityConfigurations.cs`
+1. `APIs/v1-Core/Wekeza.Core.Infrastructure/Persistence/Configurations/ProductEntityConfigurations.cs`
+2. `APIs/v1-Core/Wekeza.Core.Infrastructure/Persistence/Configurations/RiskEntityConfigurations.cs`
+3. `APIs/v1-Core/Wekeza.Core.Infrastructure/Persistence/Configurations/AnalyticsEntityConfigurations.cs`
 
 ---
 

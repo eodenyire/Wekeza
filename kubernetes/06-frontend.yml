@@ -1,0 +1,77 @@
+# Wekeza Bank — React Frontend Deployment on Kubernetes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wekeza-frontend
+  namespace: wekeza-bank
+  labels:
+    app: wekeza-frontend
+    app.kubernetes.io/part-of: wekeza-banking-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wekeza-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: wekeza-frontend
+    spec:
+      containers:
+        - name: frontend
+          # Build locally: docker build -t wekeza-frontend:local ./Portals/wekeza-unified-shell
+          # For Minikube: minikube image load wekeza-frontend:local
+          image: wekeza-frontend:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: VITE_AUTH_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: wekeza-config
+                  key: VITE_AUTH_MODE
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wekeza-frontend-service
+  namespace: wekeza-bank
+  labels:
+    app: wekeza-frontend
+    app.kubernetes.io/part-of: wekeza-banking-system
+spec:
+  selector:
+    app: wekeza-frontend
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      name: http
+  type: ClusterIP

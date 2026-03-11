@@ -1,0 +1,209 @@
+# Wekeza Banking System - Full-Stack Docker Compose (Option 1 / Option 2)
+# Runs: PostgreSQL, Redis, Backend API, React Frontend, Nginx reverse proxy, pgAdmin
+#
+# Usage:
+#   Option 1 — Simple (no build, mock-auth frontend):
+#     docker compose -f docker-compose.full.yml up -d
+#
+#   Option 2 — Full (build images locally):
+#     docker compose -f docker-compose.full.yml --profile tools up -d --build
+#
+#   Stop:
+#     docker compose -f docker-compose.full.yml down
+#
+#   Wipe volumes too:
+#     docker compose -f docker-compose.full.yml down -v
+#
+# Endpoints after startup:
+#   Frontend     → http://localhost:3000
+#   API          → http://localhost:8080
+#   Swagger UI   → http://localhost:8080/swagger
+#   pgAdmin      → http://localhost:5050  (with --profile tools)
+#   Health       → http://localhost:8080/health
+
+version: "3.9"
+
+# ---------------------------------------------------------------------------
+# Shared environment helpers
+# ---------------------------------------------------------------------------
+x-db-env: &db-env
+  POSTGRES_DB: WekezaCoreDB
+  POSTGRES_USER: wekeza_app
+  POSTGRES_PASSWORD: ${DB_PASSWORD:-WekeZa2026!SecurePass}
+
+x-api-env: &api-env
+  ASPNETCORE_ENVIRONMENT: Production
+  ASPNETCORE_URLS: http://+:8080
+  ConnectionStrings__DefaultConnection: >-
+    Host=postgres;Port=5432;Database=WekezaCoreDB;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}
+  ConnectionStrings__Redis: redis:6379
+  Redis__ConnectionString: redis:6379
+  JwtSettings__Secret: ${JWT_SECRET:-DEV-ONLY-SECRET-CHANGE-BEFORE-ANY-NON-LOCAL-USE-2026!}
+  JwtSettings__Issuer: ${JWT_ISSUER:-https://api.wekeza.com}
+  JwtSettings__Audience: ${JWT_AUDIENCE:-https://wekeza.com}
+  MpesaConfig__ConsumerKey: ${MPESA_CONSUMER_KEY:-placeholder}
+  MpesaConfig__ConsumerSecret: ${MPESA_CONSUMER_SECRET:-placeholder}
+  MpesaConfig__ShortCode: ${MPESA_SHORTCODE:-174379}
+  MpesaConfig__PassKey: ${MPESA_PASSKEY:-placeholder}
+
+services:
+  # ─────────────────────────────────────────────
+  # Database — PostgreSQL 15
+  # ─────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: wekeza-postgres
+    environment:
+      <<: *db-env
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      - ./scripts/seed-banking-data.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+      - ./scripts/seed-comprehensive-data.sql:/docker-entrypoint-initdb.d/03_comprehensive.sql:ro
+    networks:
+      - wekeza-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wekeza_app -d WekezaCoreDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Cache — Redis 7
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: wekeza-redis
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - wekeza-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Backend API — .NET 8 (Wekeza Core v1)
+  # ─────────────────────────────────────────────
+  api:
+    build:
+      context: ./APIs/v1-Core
+      dockerfile: Dockerfile
+    image: wekeza-api:local
+    container_name: wekeza-api
+    environment:
+      <<: *api-env
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - wekeza-net
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Frontend — React + Nginx
+  # ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./Portals/wekeza-unified-shell
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+        VITE_AUTH_MODE: ${VITE_AUTH_MODE:-real}
+    image: wekeza-frontend:local
+    container_name: wekeza-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - api
+    networks:
+      - wekeza-net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Reverse Proxy — Nginx (routes /api → backend)
+  # ─────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: wekeza-nginx
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - wekeza-net
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # DB Admin — pgAdmin 4  (opt-in: --profile tools)
+  # ─────────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: wekeza-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@wekeza.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./nginx/pgadmin-servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      - postgres
+    networks:
+      - wekeza-net
+    restart: unless-stopped
+    profiles:
+      - tools
+
+# ---------------------------------------------------------------------------
+# Named volumes
+# ---------------------------------------------------------------------------
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  pgadmin-data:
+    driver: local
+
+# ---------------------------------------------------------------------------
+# Networks
+# ---------------------------------------------------------------------------
+networks:
+  wekeza-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

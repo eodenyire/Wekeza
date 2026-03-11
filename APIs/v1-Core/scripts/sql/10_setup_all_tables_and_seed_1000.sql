@@ -80,9 +80,19 @@ CREATE INDEX IF NOT EXISTS idx_accounts_branchcode ON "Accounts"("BranchCode");
 -- Ensure baseline test users used by smoke tests
 -- -------------------------------------------------------------
 -- Hashes correspond to working environment credentials:
--- admin / Admin@123
--- manager1 / Manager@123
--- teller1 / Teller@123
+-- Portal Test Credentials
+-- admin        / Admin@123      -> Administrator  (Admin, Executive portals)
+-- manager1     / Manager@123    -> Manager        (Branch Manager, Supervisor, Branch Operations, Workflow portals)
+-- teller1      / Teller@123     -> Teller         (Teller, Staff Self-Service portals)
+-- supervisor1  / Supervisor@123 -> Supervisor      (Supervisor, Teller, Workflow, Staff portals)
+-- compliance1  / Compliance@123 -> ComplianceManager (Compliance & Risk portal)
+-- treasury1    / Treasury@123   -> TreasuryDealer  (Treasury & Markets portal)
+-- tradeFinance1/ Trade@123      -> TradeFinanceOfficer (Trade Finance portal)
+-- payments1    / Payments@123   -> PaymentsOfficer (Payments & Clearing portal)
+-- productGL1   / Product@123    -> ProductManager  (Product & GL portal)
+-- customer1    / Customer@123   -> RetailCustomer  (Customer Digital portal)
+-- vaultOfficer1/ Vault@123      -> VaultOfficer    (Branch Operations portal)
+-- executive1   / Executive@123  -> CEO             (Executive & Board portal)
 
 INSERT INTO "Users" (
     "Id", "Username", "Email", "PasswordHash", "FullName", "Role", "IsActive",
@@ -106,6 +116,60 @@ VALUES
     '$2a$06$e7iQaE/Wj.x6N.mIR5uMTuyBEVQrDPzdMLnKRwAQozDxvC4kWb7V.',
     'Teller One', 'Teller', true,
     'Retail Banking', 'BR100001', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'supervisor1', 'supervisor1@wekeza.com',
+    '$2b$06$qtHaIPL83a179GL53jbXrOcczj4eLH/xCyFJX4ZUotP2p9lOSM2wO',
+    'Supervisor One', 'Supervisor', true,
+    'Branch Operations', 'BR100001', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'compliance1', 'compliance1@wekeza.com',
+    '$2b$06$3vGBQarDeBX5Ll64CUl/GOftbeeKI5zhcCeohEyeSVXQKNK.ULYIy',
+    'Compliance Officer One', 'ComplianceOfficer', true,
+    'Compliance & Risk', 'HQ', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'treasury1', 'treasury1@wekeza.com',
+    '$2b$06$sjOOhZtv0738FOd1mxsVIuUh6bSd861lZHpxFWL9mlBN1w1KD0bw.',
+    'Treasury Dealer One', 'TreasuryDealer', true,
+    'Treasury & Markets', 'HQ', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'tradeFinance1', 'tradefinance1@wekeza.com',
+    '$2b$06$vBC5qWiNznyBJm2sBINtPuM99T0zOEf.H1nmRm4Il7b/yZk2R8axG',
+    'Trade Finance Officer One', 'TradeFinanceOfficer', true,
+    'Trade Finance', 'HQ', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'payments1', 'payments1@wekeza.com',
+    '$2b$06$V90d2bQSQ3.BQBubul805uZaViS7nDL6G45kpS3saNQHwWXMN3OB2',
+    'Payments Officer One', 'PaymentsOfficer', true,
+    'Payments & Clearing', 'HQ', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'productGL1', 'productgl1@wekeza.com',
+    '$2b$06$ijGaMdPwQDT58aPNvqm3leuZxPUJmAqy7viuaZhJjOng3g8vfGJBO',
+    'Product Manager One', 'ProductManager', true,
+    'Product Management', 'HQ', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'customer1', 'customer1@wekeza.com',
+    '$2b$06$yE3uc/xIvReYZVHZR0jBTuxxE8k4aU6LjE6TKkEF5FeXpsvQZb5Ky',
+    'Test Customer One', 'Customer', true,
+    'Retail Banking', 'BR100001', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'vaultOfficer1', 'vaultofficer1@wekeza.com',
+    '$2b$06$pQqltbH5UpMeDAHGLHfjxuQTD2xNaBWu/lndjgvZ8FvPyMLeaNBN.',
+    'Vault Officer One', 'VaultOfficer', true,
+    'Branch Operations', 'BR100001', NOW(), NOW()
+),
+(
+    uuid_generate_v4(), 'executive1', 'executive1@wekeza.com',
+    '$2b$06$0SzOFpHatqEPTVwu0O4y7OtfZ2b6op533XHWte2JPFsaBQaqQ6zHm',
+    'Executive One', 'CEO', true,
+    'Executive Management', 'HQ', NOW(), NOW()
 )
 ON CONFLICT ("Username") DO UPDATE SET
     "Email" = EXCLUDED."Email",

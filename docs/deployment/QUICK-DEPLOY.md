@@ -4,7 +4,8 @@
 
 ### Step 1: Commit Your Changes (2 minutes)
 ```bash
-cd /workspaces/Wekeza
+# From the repository root (e.g. ~/Wekeza  or  /workspaces/Wekeza in Codespaces)
+cd "$(git rev-parse --show-toplevel)"
 
 # Add all changes
 git add .
@@ -35,7 +36,7 @@ git push origin main
 ```bash
 npm install -g netlify-cli
 
-cd /workspaces/Wekeza/Portals/wekeza-unified-shell
+cd Portals/wekeza-unified-shell
 
 netlify deploy --prod --dir=dist
 ```

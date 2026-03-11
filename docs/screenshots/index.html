@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wekeza Portal Screenshots — Real Data</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;padding:20px;background:#f0f2f5}
+  h1{color:#1890ff;margin-bottom:4px}
+  h2{color:#555;font-weight:400;margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:16px;margin-top:20px}
+  .card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+  .card img{width:100%;display:block;border-bottom:1px solid #eee}
+  .card-title{padding:10px 14px;font-weight:700;font-size:.9rem;background:#1890ff;color:#fff}
+  .meta{padding:6px 14px;font-size:.8rem;color:#888}
+  .creds{background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:12px 16px;margin:16px 0;font-size:.85rem}
+  .creds code{background:#d9f7be;padding:2px 6px;border-radius:3px;font-family:monospace}
+  footer{text-align:right;color:#aaa;font-size:.8rem;margin-top:20px}
+</style>
+</head>
+<body>
+<h1>🏦 Wekeza Bank — Tier-1 Core Banking Platform</h1>
+<h2>Portal Screenshots — All portals running with real seeded data</h2>
+<div class="creds">
+  <strong>Quick Start:</strong>
+  <code>docker compose -f docker-compose.full.yml up -d</code>
+  &nbsp;then open&nbsp;
+  <code>http://localhost</code>
+  &nbsp;·&nbsp;
+  All portal passwords: <code>Admin@123</code>
+  &nbsp;·&nbsp;
+  See <a href="../../GETTING-STARTED.md">GETTING-STARTED.md</a> for full instructions.
+</div>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">01 — Login Page</div>
+    <a href="01-login-page.png" target="_blank"><img src="01-login-page.png" alt="Login Page" loading="lazy"/></a>
+    <div class="meta">Connected to Core Banking APIs · All 12 portal users verified</div>
+  </div>
+  <div class="card">
+    <div class="card-title">02 — Admin: System Overview</div>
+    <a href="02-admin-system-overview.png" target="_blank"><img src="02-admin-system-overview.png" alt="Admin Portal" loading="lazy"/></a>
+    <div class="meta">admin / Admin@123 · 12 Users · 23 Customers · 100% Health · 28 Txns · KES 2,567,000</div>
+  </div>
+  <div class="card">
+    <div class="card-title">03 — Teller Dashboard</div>
+    <a href="03-teller-dashboard.png" target="_blank"><img src="03-teller-dashboard.png" alt="Teller Dashboard" loading="lazy"/></a>
+    <div class="meta">teller1 / Admin@123 · KES 9,149,888.50 drawer · 26 txns today · 12 customers served</div>
+  </div>
+  <div class="card">
+    <div class="card-title">04 — Branch Manager Dashboard</div>
+    <a href="04-branch-manager-dashboard.png" target="_blank"><img src="04-branch-manager-dashboard.png" alt="Branch Manager" loading="lazy"/></a>
+    <div class="meta">manager1 / Admin@123 · 26 Today's Txns · 9.1M Cash Position · Branch Health: Fair</div>
+  </div>
+  <div class="card">
+    <div class="card-title">05 — Customer Digital Portal (Alice Customer)</div>
+    <a href="05-customer-digital-portal.png" target="_blank"><img src="05-customer-digital-portal.png" alt="Customer Portal" loading="lazy"/></a>
+    <div class="meta">customer1 / Admin@123 · KES 227,184.50 total · 2 accounts · 7 transactions (30 days)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">06 — Compliance &amp; Risk Portal</div>
+    <a href="06-compliance-risk-portal.png" target="_blank"><img src="06-compliance-risk-portal.png" alt="Compliance Portal" loading="lazy"/></a>
+    <div class="meta">compliance1 / Admin@123 · AML Alerts · Risk Metrics · Regulatory Reporting</div>
+  </div>
+  <div class="card">
+    <div class="card-title">07 — Executive &amp; Board Portal</div>
+    <a href="07-executive-board-portal.png" target="_blank"><img src="07-executive-board-portal.png" alt="Executive Portal" loading="lazy"/></a>
+    <div class="meta">executive1 / Admin@123 · 23 Customers · 28 Accounts · 28 Txns · 5 Branches · ROE 18.4%</div>
+  </div>
+</div>
+<footer>Wekeza Bank Tier-1 Core Banking Platform — © 2026 eodenyire · Generated 2026-03-11</footer>
+</body>
+</html>

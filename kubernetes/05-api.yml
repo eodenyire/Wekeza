@@ -1,0 +1,139 @@
+# Wekeza Bank — Backend API Deployment on Kubernetes
+# Replaces the original single-file deployment.yml with a full production setup.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wekeza-api
+  namespace: wekeza-bank
+  labels:
+    app: wekeza-api
+    version: v1
+    app.kubernetes.io/part-of: wekeza-banking-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wekeza-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: wekeza-api
+        version: v1
+    spec:
+      # Graceful shutdown — give .NET time to drain in-flight requests
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: api
+          # Build locally: docker build -t wekeza-api:local ./APIs/v1-Core
+          # For Minikube: minikube image load wekeza-api:local
+          image: wekeza-api:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: wekeza-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: wekeza-config
+                  key: ASPNETCORE_URLS
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                secretKeyRef:
+                  name: wekeza-secrets
+                  key: database-connection
+            - name: ConnectionStrings__Redis
+              value: "redis-service:6379"
+            - name: Redis__ConnectionString
+              value: "redis-service:6379"
+            - name: JwtSettings__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: wekeza-secrets
+                  key: jwt-secret
+            - name: JwtSettings__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: wekeza-config
+                  key: JWT_ISSUER
+            - name: JwtSettings__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: wekeza-config
+                  key: JWT_AUDIENCE
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 4
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wekeza-api-service
+  namespace: wekeza-bank
+  labels:
+    app: wekeza-api
+    app.kubernetes.io/part-of: wekeza-banking-system
+spec:
+  selector:
+    app: wekeza-api
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: http
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: wekeza-api-hpa
+  namespace: wekeza-bank
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: wekeza-api
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
