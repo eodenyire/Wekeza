@@ -20,7 +20,7 @@
     "source=${localWorkspaceFolderBasename}-node-modules,target=${containerWorkspaceFolder}/Portals/wekeza-unified-shell/node_modules,type=volume"
   ],
 
-  "forwardPorts": [3000, 5000, 8080, 5432],
+  "forwardPorts": [3000, 5000, 8080, 5432, 6379],
 
   "portsAttributes": {
     "3000": {
@@ -37,6 +37,10 @@
     },
     "5432": {
       "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
       "onAutoForward": "silent"
     }
   },
@@ -72,7 +76,7 @@
         "[python]": {
           "editor.defaultFormatter": "ms-python.python"
         },
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
         "dotnet.defaultSolution": "APIs/v1-Core/Wekeza.Core.sln",
         "typescript.preferences.importModuleSpecifier": "relative"
       }
