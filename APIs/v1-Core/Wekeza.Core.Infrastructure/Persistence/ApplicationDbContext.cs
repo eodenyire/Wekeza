@@ -177,6 +177,58 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Ignore(e => e.AccrualEntries);
         });
 
+        builder.Entity<FixedDeposit>(entity =>
+        {
+            // Deposit compatibility: these value-object/navigation members are not fully configured yet.
+            entity.Ignore(d => d.PrincipalAmount);
+            entity.Ignore(d => d.InterestRate);
+            entity.Ignore(d => d.MaturityAmount);
+            entity.Ignore(d => d.AccruedInterest);
+            entity.Ignore(d => d.PenaltyAmount);
+            entity.Ignore(d => d.Account);
+            entity.Ignore(d => d.Customer);
+        });
+
+        builder.Entity<RecurringDeposit>(entity =>
+        {
+            entity.Ignore(d => d.MonthlyInstallment);
+            entity.Ignore(d => d.InterestRate);
+            entity.Ignore(d => d.MaturityAmount);
+            entity.Ignore(d => d.TotalDeposited);
+            entity.Ignore(d => d.AccruedInterest);
+            entity.Ignore(d => d.PenaltyAmount);
+            entity.Ignore(d => d.Account);
+            entity.Ignore(d => d.Customer);
+            entity.Ignore(d => d.AutoDebitAccount);
+        });
+
+        builder.Entity<TermDeposit>(entity =>
+        {
+            entity.Ignore(d => d.PrincipalAmount);
+            entity.Ignore(d => d.InterestRate);
+            entity.Ignore(d => d.MaturityAmount);
+            entity.Ignore(d => d.MinimumBalance);
+            entity.Ignore(d => d.AccruedInterest);
+            entity.Ignore(d => d.WithdrawnAmount);
+            entity.Ignore(d => d.PenaltyAmount);
+            entity.Ignore(d => d.Account);
+            entity.Ignore(d => d.Customer);
+            entity.Ignore(d => d.Transactions);
+        });
+
+        builder.Entity<CallDeposit>(entity =>
+        {
+            entity.Ignore(d => d.Balance);
+            entity.Ignore(d => d.CurrentInterestRate);
+            entity.Ignore(d => d.MinimumBalance);
+            entity.Ignore(d => d.MaximumBalance);
+            entity.Ignore(d => d.AccruedInterest);
+            entity.Ignore(d => d.Account);
+            entity.Ignore(d => d.Customer);
+            entity.Ignore(d => d.Transactions);
+            entity.Ignore(d => d.WithdrawalNotices);
+        });
+
         builder.Entity<SystemMonitor>(entity =>
         {
             entity.Ignore(m => m.MonitoringRules);
@@ -186,6 +238,111 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Ignore(m => m.LastCheckResult);
             entity.Ignore(m => m.Metadata);
         });
+
+        builder.Entity<AuditLog>(entity =>
+        {
+            // Temporary compatibility mapping: these collection/dictionary fields are
+            // not configured as JSON/owned types yet and break model validation.
+            entity.Ignore(a => a.OldValues);
+            entity.Ignore(a => a.NewValues);
+            entity.Ignore(a => a.RequestData);
+            entity.Ignore(a => a.AdditionalData);
+            entity.Ignore(a => a.ComplianceFlags);
+        });
+
+        builder.Entity<Analytics>(entity =>
+        {
+            // Temporary compatibility mapping for complex aggregate fields.
+            // These collections/dictionaries are used in domain logic but are not yet configured
+            // as owned/json columns, so we ignore them to keep DbContext model validation stable.
+            entity.Ignore(a => a.DataFilters);
+            entity.Ignore(a => a.Metrics);
+            entity.Ignore(a => a.Dimensions);
+            entity.Ignore(a => a.KPIs);
+            entity.Ignore(a => a.Insights);
+            entity.Ignore(a => a.ComputationParameters);
+            entity.Ignore(a => a.TrendData);
+            entity.Ignore(a => a.Forecasts);
+            entity.Ignore(a => a.PreviousPeriodMetrics);
+            entity.Ignore(a => a.BenchmarkMetrics);
+            entity.Ignore(a => a.VarianceMetrics);
+            entity.Ignore(a => a.Metadata);
+        });
+
+        builder.Entity<Anomaly>(entity =>
+        {
+            // Dictionary-backed metadata is currently domain-only and not persisted.
+            // Ignore until a concrete JSON/owned mapping is introduced.
+            entity.Ignore(a => a.Metadata);
+        });
+
+        builder.Entity<AnomalyRule>(entity =>
+        {
+            // Same temporary compatibility approach as Anomaly.
+            entity.Ignore(r => r.Metadata);
+        });
+
+        builder.Entity<CardApplication>(entity =>
+        {
+            // Card application requested limits are domain value-objects and not fully configured yet.
+            entity.Ignore(a => a.RequestedDailyWithdrawalLimit);
+            entity.Ignore(a => a.RequestedDailyPurchaseLimit);
+            entity.Ignore(a => a.RequestedMonthlyLimit);
+        });
+
+        // Fallback compatibility: for entities without explicit EF configuration, ignore
+        // complex domain value-objects/dictionaries/collections that would otherwise be
+        // interpreted as shared-type navigations.
+        var configuredEntityTypes = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .SelectMany(t => t.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
+                .Select(i => i.GenericTypeArguments[0]))
+            .ToHashSet();
+
+        bool IsSimpleElementType(Type t)
+        {
+            var type = Nullable.GetUnderlyingType(t) ?? t;
+            return type.IsPrimitive ||
+                   type.IsEnum ||
+                   type == typeof(string) ||
+                   type == typeof(decimal) ||
+                   type == typeof(DateTime) ||
+                   type == typeof(Guid) ||
+                   type == typeof(TimeSpan) ||
+                   type == typeof(byte[]);
+        }
+
+        var allDomainEntities = typeof(ApplicationDbContext).Assembly.GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && typeof(Entity).IsAssignableFrom(t));
+
+        foreach (var entityType in allDomainEntities.Where(t => !configuredEntityTypes.Contains(t)))
+        {
+            var entityBuilder = builder.Entity(entityType);
+
+            foreach (var property in entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+                var isDomainValueObject = propertyType == typeof(Wekeza.Core.Domain.ValueObjects.Money)
+                    || propertyType == typeof(Wekeza.Core.Domain.ValueObjects.InterestRate)
+                    || propertyType == typeof(Wekeza.Core.Domain.ValueObjects.Currency);
+
+                var isDictionary = typeof(System.Collections.IDictionary).IsAssignableFrom(propertyType)
+                    || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>));
+
+                var isNonSimpleCollection = propertyType != typeof(string)
+                    && propertyType != typeof(byte[])
+                    && typeof(System.Collections.IEnumerable).IsAssignableFrom(propertyType)
+                    && propertyType.IsGenericType
+                    && !IsSimpleElementType(propertyType.GetGenericArguments()[0]);
+
+                if (isDomainValueObject || isDictionary || isNonSimpleCollection)
+                {
+                    entityBuilder.Ignore(property.Name);
+                }
+            }
+        }
 
         // Ignore shared-type owned navigation issues  
         var types = typeof(ApplicationDbContext).Assembly.GetTypes();

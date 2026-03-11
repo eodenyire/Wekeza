@@ -27,11 +27,89 @@ public class CardConfiguration : IEntityTypeConfiguration<Card>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(c => c.DailyWithdrawalLimit)
-            .HasPrecision(18, 2);
+        builder.OwnsOne(c => c.DailyWithdrawalLimit, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("DailyWithdrawalLimitAmount")
+                .HasPrecision(18, 2);
 
-        builder.Property(c => c.DailyWithdrawnToday)
-            .HasPrecision(18, 2);
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("DailyWithdrawalLimitCurrency")
+                    .HasMaxLength(3);
+            });
+        });
+
+        builder.OwnsOne(c => c.DailyPurchaseLimit, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("DailyPurchaseLimitAmount")
+                .HasPrecision(18, 2);
+
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("DailyPurchaseLimitCurrency")
+                    .HasMaxLength(3);
+            });
+        });
+
+        builder.OwnsOne(c => c.MonthlyLimit, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("MonthlyLimitAmount")
+                .HasPrecision(18, 2);
+
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("MonthlyLimitCurrency")
+                    .HasMaxLength(3);
+            });
+        });
+
+        builder.OwnsOne(c => c.DailyWithdrawnToday, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("DailyWithdrawnTodayAmount")
+                .HasPrecision(18, 2);
+
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("DailyWithdrawnTodayCurrency")
+                    .HasMaxLength(3);
+            });
+        });
+
+        builder.OwnsOne(c => c.DailyPurchasedToday, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("DailyPurchasedTodayAmount")
+                .HasPrecision(18, 2);
+
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("DailyPurchasedTodayCurrency")
+                    .HasMaxLength(3);
+            });
+        });
+
+        builder.OwnsOne(c => c.MonthlySpent, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("MonthlySpentAmount")
+                .HasPrecision(18, 2);
+
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("MonthlySpentCurrency")
+                    .HasMaxLength(3);
+            });
+        });
 
         builder.Property(c => c.CancellationReason)
             .HasMaxLength(200);

@@ -39,10 +39,13 @@ public class LetterOfCreditConfiguration : IEntityTypeConfiguration<LetterOfCred
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
-            money.Property(m => m.Currency)
-                .HasColumnName("Currency")
-                .HasMaxLength(3)
-                .IsRequired();
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("Currency")
+                    .HasMaxLength(3)
+                    .IsRequired();
+            });
         });
 
         builder.Property(lc => lc.IssueDate)
@@ -100,9 +103,12 @@ public class LetterOfCreditConfiguration : IEntityTypeConfiguration<LetterOfCred
                     .HasColumnName("PreviousAmount")
                     .HasColumnType("decimal(18,2)");
 
-                money.Property(m => m.Currency)
-                    .HasColumnName("PreviousCurrency")
-                    .HasMaxLength(3);
+                money.OwnsOne(m => m.Currency, currency =>
+                {
+                    currency.Property(c => c.Code)
+                        .HasColumnName("PreviousCurrency")
+                        .HasMaxLength(3);
+                });
             });
 
             amendment.OwnsOne(a => a.NewAmount, money =>
@@ -111,9 +117,12 @@ public class LetterOfCreditConfiguration : IEntityTypeConfiguration<LetterOfCred
                     .HasColumnName("NewAmount")
                     .HasColumnType("decimal(18,2)");
 
-                money.Property(m => m.Currency)
-                    .HasColumnName("NewCurrency")
-                    .HasMaxLength(3);
+                money.OwnsOne(m => m.Currency, currency =>
+                {
+                    currency.Property(c => c.Code)
+                        .HasColumnName("NewCurrency")
+                        .HasMaxLength(3);
+                });
             });
 
             amendment.Property(a => a.PreviousExpiryDate);

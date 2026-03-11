@@ -39,10 +39,13 @@ public class BankGuaranteeConfiguration : IEntityTypeConfiguration<BankGuarantee
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
-            money.Property(m => m.Currency)
-                .HasColumnName("Currency")
-                .HasMaxLength(3)
-                .IsRequired();
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("Currency")
+                    .HasMaxLength(3)
+                    .IsRequired();
+            });
         });
 
         // Configure ClaimedAmount as nullable Money
@@ -52,9 +55,12 @@ public class BankGuaranteeConfiguration : IEntityTypeConfiguration<BankGuarantee
                 .HasColumnName("ClaimedAmount")
                 .HasColumnType("decimal(18,2)");
 
-            money.Property(m => m.Currency)
-                .HasColumnName("ClaimedCurrency")
-                .HasMaxLength(3);
+            money.OwnsOne(m => m.Currency, currency =>
+            {
+                currency.Property(c => c.Code)
+                    .HasColumnName("ClaimedCurrency")
+                    .HasMaxLength(3);
+            });
         });
 
         builder.Property(bg => bg.IssueDate)
@@ -102,10 +108,13 @@ public class BankGuaranteeConfiguration : IEntityTypeConfiguration<BankGuarantee
                     .HasColumnType("decimal(18,2)")
                     .IsRequired();
 
-                money.Property(m => m.Currency)
-                    .HasColumnName("ClaimCurrency")
-                    .HasMaxLength(3)
-                    .IsRequired();
+                money.OwnsOne(m => m.Currency, currency =>
+                {
+                    currency.Property(c => c.Code)
+                        .HasColumnName("ClaimCurrency")
+                        .HasMaxLength(3)
+                        .IsRequired();
+                });
             });
 
             claim.Property(c => c.ClaimReason)
@@ -181,9 +190,12 @@ public class BankGuaranteeConfiguration : IEntityTypeConfiguration<BankGuarantee
                     .HasColumnName("PreviousAmount")
                     .HasColumnType("decimal(18,2)");
 
-                money.Property(m => m.Currency)
-                    .HasColumnName("PreviousCurrency")
-                    .HasMaxLength(3);
+                money.OwnsOne(m => m.Currency, currency =>
+                {
+                    currency.Property(c => c.Code)
+                        .HasColumnName("PreviousCurrency")
+                        .HasMaxLength(3);
+                });
             });
 
             amendment.OwnsOne(a => a.NewAmount, money =>
@@ -192,9 +204,12 @@ public class BankGuaranteeConfiguration : IEntityTypeConfiguration<BankGuarantee
                     .HasColumnName("NewAmount")
                     .HasColumnType("decimal(18,2)");
 
-                money.Property(m => m.Currency)
-                    .HasColumnName("NewCurrency")
-                    .HasMaxLength(3);
+                money.OwnsOne(m => m.Currency, currency =>
+                {
+                    currency.Property(c => c.Code)
+                        .HasColumnName("NewCurrency")
+                        .HasMaxLength(3);
+                });
             });
 
             amendment.Property(a => a.PreviousExpiryDate);

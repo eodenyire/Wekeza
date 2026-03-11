@@ -111,6 +111,7 @@ public class BatchJobConfiguration : IEntityTypeConfiguration<BatchJob>
             e.Property(x => x.StartedAt).IsRequired();
             e.Property(x => x.Status).HasMaxLength(50);
             e.Property(x => x.ErrorMessage).HasMaxLength(2000);
+            e.Ignore(x => x.RuntimeParameters);
         });
 
         builder.OwnsMany(j => j.PerformanceMetrics, m =>
@@ -127,6 +128,7 @@ public class BatchJobConfiguration : IEntityTypeConfiguration<BatchJob>
             e.Property(x => x.ErrorMessage).HasMaxLength(2000).IsRequired();
             e.Property(x => x.ErrorTime).IsRequired();
             e.Property(x => x.RetryCount).IsRequired();
+            e.Ignore(x => x.StackTrace);
         });
 
         // Indexes for performance
