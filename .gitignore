@@ -194,3 +194,13 @@ storage_version.txt
 
 ## Frontend build output (not needed in VCS)
 Portals/wekeza-unified-shell/dist/
+
+## Playwright screenshots and reports (generated locally, not committed)
+docs/screenshots/*.png
+playwright-report/
+test-results/
+
+## Node.js (root-level from Playwright install)
+node_modules/
+package-lock.json
+package.json

@@ -11,6 +11,9 @@ import { useAuthStore } from '@store/authStore';
 const { Text } = Typography;
 
 const BRANCH_OPS_REFRESH_INTERVAL_MS = 30_000;
+// Default branch ID used for BOD/EOD/Cash-transfer calls.
+// Override at runtime via the VITE_DEFAULT_BRANCH_ID env variable or match your seed data.
+const DEFAULT_BRANCH_ID = import.meta.env.VITE_DEFAULT_BRANCH_ID ?? '11111111-1111-1111-1111-111111111111';
 
 interface CashPosition {
   cashOnHand: number;
@@ -72,7 +75,7 @@ const BranchOperationsPortalPage: React.FC = () => {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(
-        `/api/branchoperations/bod?branchId=00000000-0000-0000-0000-000000000001&processedBy=${encodeURIComponent(currentUser)}`,
+        `/api/branchoperations/bod?branchId=${DEFAULT_BRANCH_ID}&processedBy=${encodeURIComponent(currentUser)}`,
         { method: 'POST', headers: { Authorization: `Bearer ${token}` } },
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -92,7 +95,7 @@ const BranchOperationsPortalPage: React.FC = () => {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          BranchId: '00000000-0000-0000-0000-000000000001',
+          BranchId: DEFAULT_BRANCH_ID,
           ProcessedBy: currentUser,
           EODDate: new Date().toISOString().split('T')[0],
         }),

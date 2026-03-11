@@ -1,0 +1,22 @@
+# Wekeza Bank — Kubernetes ConfigMap
+# Non-sensitive configuration shared by API pods.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wekeza-config
+  namespace: wekeza-bank
+  labels:
+    app.kubernetes.io/part-of: wekeza-banking-system
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:8080"
+  JWT_ISSUER: "https://api.wekeza.com"
+  JWT_AUDIENCE: "https://wekeza.com"
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "WekezaCoreDB"
+  POSTGRES_USER: "wekeza_app"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  MPESA_SHORTCODE: "174379"
+  VITE_AUTH_MODE: "real"
