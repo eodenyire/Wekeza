@@ -75,7 +75,7 @@ Password: any value
 
 **1. Check Current Status** (1 minute)
 ```bash
-cd /workspaces/Wekeza/APIs/v1-Core
+cd APIs/v1-Core
 dotnet build Wekeza.Core.Api/Wekeza.Core.Api.csproj 2>&1 | tail -5
 # Should show: 305 Error(s)
 ```
@@ -229,8 +229,8 @@ docker build -t wekeza . && docker run -p 3000:3000 wekeza
 
 ### Backend Fixes (When Ready)
 ```bash
-# Start
-cd /workspaces/Wekeza/APIs/v1-Core
+# Start (run from the repository root)
+cd APIs/v1-Core
 cat BACKEND-FIX-GUIDE.md
 
 # Check progress
