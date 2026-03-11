@@ -172,11 +172,20 @@ public class AuthenticationController : ControllerBase
         {
             "administrator" => new[] { UserRole.Administrator },
             "teller" => new[] { UserRole.Teller },
-            "manager" => new[] { UserRole.BranchManager },
-            "branchmanager" => new[] { UserRole.BranchManager },
-            "loanofficer" => new[] { UserRole.LoanOfficer },
+            "manager" or "branchmanager" => new[] { UserRole.BranchManager },
+            "supervisor" => new[] { UserRole.Supervisor },
+            "loanofficer" or "financecontroller" => new[] { UserRole.LoanOfficer },
             "riskofficer" => new[] { UserRole.RiskOfficer },
-            "complianceofficer" => new[] { UserRole.ComplianceOfficer },
+            "complianceofficer" or "compliancemanager" => new[] { UserRole.ComplianceOfficer },
+            "treasurydealer" or "treasury" => new[] { UserRole.TreasuryDealer },
+            "tradefinanceofficer" or "tradefinance" => new[] { UserRole.TradeFinanceOfficer },
+            "paymentsofficer" or "payments" => new[] { UserRole.PaymentsOfficer },
+            "clearingofficer" or "clearing" => new[] { UserRole.ClearingOfficer },
+            "productmanager" => new[] { UserRole.ProductManager },
+            "vaultofficer" => new[] { UserRole.VaultOfficer },
+            "corporatebankingofficer" => new[] { UserRole.CorporateBankingOfficer },
+            "ceo" or "executive" or "chiefexecutiveofficer" => new[] { UserRole.CEO },
+            "customer" or "retailcustomer" => new[] { UserRole.Customer },
             _ => new[] { UserRole.Customer }
         };
     }
@@ -213,6 +222,10 @@ public class AuthenticationController : ControllerBase
                     permissionSet.Add("branch:manage");
                     permissionSet.Add("transactions:approve");
                     break;
+                case UserRole.Supervisor:
+                    permissionSet.Add("transactions:approve");
+                    permissionSet.Add("accounts:view");
+                    break;
                 case UserRole.LoanOfficer:
                     permissionSet.Add("loans:manage");
                     break;
@@ -221,6 +234,27 @@ public class AuthenticationController : ControllerBase
                     break;
                 case UserRole.ComplianceOfficer:
                     permissionSet.Add("compliance:manage");
+                    break;
+                case UserRole.TreasuryDealer:
+                    permissionSet.Add("treasury:manage");
+                    break;
+                case UserRole.TradeFinanceOfficer:
+                    permissionSet.Add("tradefinance:manage");
+                    break;
+                case UserRole.PaymentsOfficer:
+                case UserRole.ClearingOfficer:
+                    permissionSet.Add("payments:manage");
+                    break;
+                case UserRole.ProductManager:
+                    permissionSet.Add("products:manage");
+                    break;
+                case UserRole.VaultOfficer:
+                    permissionSet.Add("vault:manage");
+                    permissionSet.Add("transactions:approve");
+                    break;
+                case UserRole.CEO:
+                    permissionSet.Add("executive:view");
+                    permissionSet.Add("reports:view");
                     break;
             }
         }
@@ -235,10 +269,20 @@ public class AuthenticationController : ControllerBase
             UserRole.Administrator => "SystemAdministrator",
             UserRole.Teller => "Teller",
             UserRole.BranchManager => "BranchManager",
+            UserRole.Supervisor => "Supervisor",
             UserRole.LoanOfficer => "FinanceController",
             UserRole.RiskOfficer => "RiskOfficer",
-            UserRole.ComplianceOfficer => "ComplianceManager",
-            _ => "RetailCustomer"
+            UserRole.ComplianceOfficer => "ComplianceOfficer",
+            UserRole.TreasuryDealer => "TreasuryDealer",
+            UserRole.TradeFinanceOfficer => "TradeFinanceOfficer",
+            UserRole.PaymentsOfficer => "PaymentsOfficer",
+            UserRole.ClearingOfficer => "ClearingOfficer",
+            UserRole.ProductManager => "ProductManager",
+            UserRole.VaultOfficer => "VaultOfficer",
+            UserRole.CorporateBankingOfficer => "CorporateBankingOfficer",
+            UserRole.CEO => "CEO",
+            UserRole.Customer => "Customer",
+            _ => "Customer"
         };
     }
 

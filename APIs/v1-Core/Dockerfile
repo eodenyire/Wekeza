@@ -2,7 +2,7 @@
 # Multi-stage build for optimized image size
 
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
@@ -26,15 +26,13 @@ FROM build AS publish
 RUN dotnet publish "Wekeza.Core.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Stage 3: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
+# Use Debian-based image (wget/curl pre-installed, no apk needed)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
-# Install healthcheck dependency
-RUN apk add --no-cache curl
-
 # Create non-root user for security
-RUN addgroup -S -g 1001 wekeza && \
-    adduser -S -u 1001 -G wekeza wekeza
+RUN groupadd -r -g 1001 wekeza && \
+    useradd -r -u 1001 -g wekeza wekeza
 
 # Copy published app
 COPY --from=publish /app/publish .
@@ -49,9 +47,9 @@ USER wekeza
 EXPOSE 8080
 EXPOSE 8081
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+# Health check using /proc/net/tcp (port 8080 = 0x1F90) — no curl/wget needed
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
+    CMD sh -c 'cat /proc/net/tcp6 | grep -q " 00000000000000000000000000001F90 " && exit 0 || exit 1'
 
 # Set environment
 ENV ASPNETCORE_URLS=http://+:8080

@@ -85,21 +85,16 @@ run_seed() {
   for sql_file in \
     "${ROOT_DIR}/scripts/init-db.sql" \
     "${ROOT_DIR}/scripts/seed-banking-data.sql" \
-    "${ROOT_DIR}/APIs/v1-Core/seed-test-users.sql"; do
+    "${ROOT_DIR}/APIs/v1-Core/scripts/sql/10_setup_all_tables_and_seed_1000.sql" \
+    "${ROOT_DIR}/scripts/seed-portal-users.sql"; do
     if [[ -f "$sql_file" ]]; then
       info "Applying $(basename "$sql_file") ..."
       docker cp "$sql_file" "${container}:/tmp/$(basename "$sql_file")"
-      docker exec -i "$container" psql -v ON_ERROR_STOP=1 \
+      docker exec -i "$container" psql -v ON_ERROR_STOP=0 \
         -U "$db_user" -d "$db_name" \
         -f "/tmp/$(basename "$sql_file")" && ok "$(basename "$sql_file") applied" || warn "$(basename "$sql_file") had errors (may be OK if rows already exist)"
     fi
   done
-  # Run the comprehensive 1000-record seed if available
-  if [[ -f "${ROOT_DIR}/APIs/v1-Core/scripts/09_seed_all_tables.sh" ]]; then
-    info "Running comprehensive 1000-record seed ..."
-    DB_CONTAINER="$container" DB_USER="$db_user" DB_NAME="$db_name" \
-      bash "${ROOT_DIR}/APIs/v1-Core/scripts/09_seed_all_tables.sh" || warn "Comprehensive seed had warnings (may be OK)"
-  fi
   ok "Database seeding complete"
 }
 

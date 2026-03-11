@@ -20,38 +20,38 @@ interface DashboardData {
 }
 
 interface Transaction {
-  Id: string;
-  Reference: string;
-  Type: string;
-  AccountNumber: string;
-  Amount: number;
-  Timestamp: string;
-  Description: string;
-  Status: string;
+  id: string;
+  reference: string;
+  type: string;
+  accountNumber: string;
+  amount: number;
+  timestamp: string;
+  description: string;
+  status: string;
 }
 
 const transactionColumns = [
-  { title: 'Reference', dataIndex: 'Reference', key: 'Reference', width: '15%' },
-  { title: 'Type', dataIndex: 'Type', key: 'Type', width: '15%' },
-  { title: 'Account', dataIndex: 'AccountNumber', key: 'AccountNumber', width: '15%' },
+  { title: 'Reference', dataIndex: 'reference', key: 'reference', width: '15%' },
+  { title: 'Type', dataIndex: 'type', key: 'type', width: '15%' },
+  { title: 'Account', dataIndex: 'accountNumber', key: 'accountNumber', width: '15%' },
   { 
     title: 'Amount', 
-    dataIndex: 'Amount', 
-    key: 'Amount', 
+    dataIndex: 'amount', 
+    key: 'amount', 
     width: '15%',
-    render: (amount: number) => `KES ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    render: (amount: number) => `KES ${(amount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   },
   { 
     title: 'Time', 
-    dataIndex: 'Timestamp', 
-    key: 'Timestamp', 
+    dataIndex: 'timestamp', 
+    key: 'timestamp', 
     width: '15%',
-    render: (timestamp: string) => new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    render: (timestamp: string) => timestamp ? new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''
   },
   {
     title: 'Status',
-    dataIndex: 'Status',
-    key: 'Status',
+    dataIndex: 'status',
+    key: 'status',
     width: '15%',
     render: (status: string) => {
       const colors: { [key: string]: string } = {

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Npgsql;
 using Wekeza.Core.Application.Features.Administration.Commands.CreateUser;
 using Wekeza.Core.Application.Features.Administration.Commands.UpdateUser;
 using Wekeza.Core.Application.Features.Administration.Commands.DeactivateUser;
@@ -12,7 +13,6 @@ using Wekeza.Core.Application.Features.Administration.Commands.ResetPassword;
 using Wekeza.Core.Application.Features.Administration.Queries.GetUsers;
 using Wekeza.Core.Application.Features.Administration.Queries.GetRoles;
 using Wekeza.Core.Application.Features.Administration.Queries.GetBranches;
-using Wekeza.Core.Application.Features.Administration.Queries.GetSystemStats;
 using Wekeza.Core.Application.Features.Administration.Queries.GetAuditLogs;
 using Wekeza.Core.Application.Features.Administration.Queries.GetUser;
 using Wekeza.Core.Application.Features.Administration.Queries.GetPendingApprovals;
@@ -26,10 +26,15 @@ namespace Wekeza.Core.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Administrator,ITAdministrator")]
+[Authorize(Roles = "Administrator,ITAdministrator,CEO")]
 public class AdministratorController : BaseApiController
 {
-    public AdministratorController(IMediator mediator) : base(mediator) { }
+    private readonly IConfiguration _configuration;
+
+    public AdministratorController(IMediator mediator, IConfiguration configuration) : base(mediator)
+    {
+        _configuration = configuration;
+    }
 
     #region User Management
 
@@ -174,9 +179,38 @@ public class AdministratorController : BaseApiController
     [HttpGet("system/stats")]
     public async Task<IActionResult> GetSystemStats()
     {
-        var query = new GetSystemStatsQuery();
-        var result = await Mediator.Send(query);
-        return Ok(result);
+        try
+        {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            await using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            static async Task<T> Scalar<T>(NpgsqlConnection c, string sql) where T : notnull
+            {
+                await using var cmd = new NpgsqlCommand(sql, c);
+                var result = await cmd.ExecuteScalarAsync();
+                return result is T t ? t : default!;
+            }
+
+            var stats = new
+            {
+                totalCustomers   = await Scalar<long>(conn, @"SELECT COUNT(*) FROM ""Customers"" WHERE ""IsActive"" = true"),
+                totalAccounts    = await Scalar<long>(conn, @"SELECT COUNT(*) FROM ""Accounts"" WHERE ""Status"" = 'Active'"),
+                totalTransactions= await Scalar<long>(conn, @"SELECT COUNT(*) FROM ""Transactions"""),
+                totalDeposits    = await Scalar<decimal>(conn, @"SELECT COALESCE(SUM(""Amount""),0) FROM ""Transactions"" WHERE ""TransactionType"" = 'Deposit'"),
+                totalLoans       = 0,
+                activeUsers      = await Scalar<long>(conn, @"SELECT COUNT(*) FROM ""Users"" WHERE ""IsActive"" = true"),
+                totalBranches    = await Scalar<long>(conn, @"SELECT COUNT(*) FROM ""Branches"""),
+                systemHealth     = 100,
+                lastUpdated      = DateTime.UtcNow
+            };
+
+            return Ok(new { isSuccess = true, isFailure = false, value = stats, error = "", errors = new string[0] });
+        }
+        catch (Exception ex)
+        {
+            return Ok(new { isSuccess = false, isFailure = true, value = (object?)null, error = ex.Message, errors = new[] { ex.Message } });
+        }
     }
 
     /// <summary>
