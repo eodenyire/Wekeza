@@ -33,6 +33,8 @@ from collections import defaultdict
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8080").rstrip("/")
 ACTIVE_ACCOUNT = os.getenv("ACTIVE_ACCOUNT_NUMBER", "ACC0000055583")
+# Test branch ID used in session-start and other branch-scoped API calls
+TEST_BRANCH_ID = os.getenv("TEST_BRANCH_ID", "11111111-1111-1111-1111-111111111111")
 
 # ---------------------------------------------------------------------------
 # All portal test users
@@ -134,7 +136,7 @@ def build_checks(tokens: dict[str, str | None]) -> list[tuple]:
         ("Teller: cash drawer balance", tel, "GET",  "/api/teller/cash-drawer/balance",          None, {200}),
         ("Teller: customer search",     tel, "GET",  "/api/teller/customers/search?searchTerm=john", None, {200}),
         ("Teller: start session",       tel, "POST", "/api/teller/session/start", {
-            "branchId": "11111111-1111-1111-1111-111111111111",
+            "branchId": TEST_BRANCH_ID,
             "tellerCode": "TEL001",
             "tellerName": "Teller One",
             "branchCode": "MAIN",

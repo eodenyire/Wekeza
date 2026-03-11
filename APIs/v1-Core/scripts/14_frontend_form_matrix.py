@@ -7,6 +7,8 @@ import urllib.request
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8080").rstrip("/")
 ACCOUNT = os.getenv("ACTIVE_ACCOUNT_NUMBER", "ACC0000055583")
+# Test branch ID used in session-start and other branch-scoped calls
+TEST_BRANCH_ID = os.getenv("TEST_BRANCH_ID", "11111111-1111-1111-1111-111111111111")
 
 
 def request_json(method: str, path: str, token: str | None = None, body: dict | None = None):
@@ -46,7 +48,7 @@ def main() -> int:
     form_calls = [
         # -- Teller Portal --------------------------------------------------------
         ("Teller session start", "POST", "/api/teller/session/start", teller, {
-            "branchId": "11111111-1111-1111-1111-111111111111",
+            "branchId": TEST_BRANCH_ID,
             "tellerCode": "TEL001",
             "tellerName": "Teller One",
             "branchCode": "MAIN",
