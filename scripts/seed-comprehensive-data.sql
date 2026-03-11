@@ -232,7 +232,7 @@ ON CONFLICT ("BranchCode") DO NOTHING;
 -- ──────────────────────────────────────────────
 INSERT INTO audit.audit_log (table_name, operation, new_data, changed_by)
 VALUES ('system', 'SEED',
-        '{"message": "Comprehensive banking data seeded - 12 portal users, 20 customers, 25 accounts, 28 transactions, 5 branches"}',
+        '{"message": "Comprehensive banking data seeded - 12 portal users, 20 customers, 28 accounts, 28 transactions, 5 branches"}',
         'system')
 ON CONFLICT DO NOTHING;
 

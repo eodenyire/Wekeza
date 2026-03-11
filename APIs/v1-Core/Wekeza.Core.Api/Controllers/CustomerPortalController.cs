@@ -173,7 +173,7 @@ public class CustomerPortalController : BaseApiController
                 SELECT 
                     t.""Id"",
                     t.""TransactionReference"" as ""Reference"",
-                    t.""Type"",
+                    t.""TransactionType"" as ""Type"",
                     a.""AccountNumber"",
                     t.""Amount"",
                     t.""CreatedAt"" as ""Timestamp"",

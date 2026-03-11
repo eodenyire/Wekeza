@@ -146,7 +146,7 @@ const BranchDashboard: React.FC = () => {
           <Card>
             <Statistic
               title="Active Staff"
-              value={dashboardData?.ActiveTellers || 0}
+              value={dashboardData?.activeTellers ?? dashboardData?.ActiveTellers ?? 0}
               prefix={<TeamOutlined />}
               loading={loading}
             />
@@ -156,7 +156,7 @@ const BranchDashboard: React.FC = () => {
           <Card>
             <Statistic
               title="Today's Transactions"
-              value={dashboardData?.DailyTransactions || 0}
+              value={dashboardData?.dailyTransactions ?? dashboardData?.DailyTransactions ?? 0}
               prefix={<UserOutlined />}
               valueStyle={{ color: '#3f8600' }}
               loading={loading}
@@ -167,7 +167,9 @@ const BranchDashboard: React.FC = () => {
           <Card>
             <Statistic
               title="Cash Position"
-              value={dashboardData?.CashOnHand ? (dashboardData.CashOnHand / 1000000).toFixed(1) : 0}
+              value={dashboardData?.cashOnHand ?? dashboardData?.CashOnHand
+                ? ((dashboardData?.cashOnHand ?? dashboardData?.CashOnHand) / 1000000).toFixed(1)
+                : 0}
               prefix={<DollarOutlined />}
               suffix="M"
               loading={loading}
@@ -178,7 +180,7 @@ const BranchDashboard: React.FC = () => {
           <Card>
             <Statistic
               title="Branch Health"
-              value={dashboardData?.BranchHealth || 'Unknown'}
+              value={dashboardData?.branchHealth ?? dashboardData?.BranchHealth ?? 'Unknown'}
               prefix={<RiseOutlined />}
               valueStyle={{ color: '#3f8600', fontSize: '14px' }}
               loading={loading}

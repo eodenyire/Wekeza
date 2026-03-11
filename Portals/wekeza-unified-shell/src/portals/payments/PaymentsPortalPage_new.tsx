@@ -118,7 +118,7 @@ const PaymentsPortalPage: React.FC = () => {
                         title="Success Rate" 
                         value={paymentStatus.SuccessRate?.toFixed(1)}
                         suffix="%"
-                        valueStyle={{ color: paymentStatus.SuccessRate >= 99 ? 'green' : 'orange' }}
+                        valueStyle={{ color: (paymentStatus.SuccessRate ?? 0) >= 99 ? 'green' : 'orange' }}
                       />
                     </Card>
                   </Col>
