@@ -148,6 +148,40 @@ services:
     restart: unless-stopped
 
   # ─────────────────────────────────────────────
+  # ERMS — Enterprise Risk Management System API
+  # ─────────────────────────────────────────────
+  erms:
+    build:
+      context: ./WekezaERMS
+      dockerfile: Dockerfile
+    image: wekeza-erms:local
+    container_name: wekeza-erms
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:5000
+      UseInMemoryDatabase: "false"
+      ConnectionStrings__ERMSConnection: >-
+        Host=postgres;Port=5432;Database=WekezaERMS;Username=wekeza_app;Password=${DB_PASSWORD:-WekeZa2026!SecurePass}
+      JwtSettings__Secret: ${ERMS_JWT_SECRET:-WekezaERMS-PrOdUcTiOn-SeCrEt-KeY-2026-ChAnGe-ThIs-In-PrOd!}
+      JwtSettings__Issuer: ${ERMS_JWT_ISSUER:-WekezaERMS}
+      JwtSettings__Audience: ${ERMS_JWT_AUDIENCE:-WekezaERMS-Users}
+      JwtSettings__ExpiryMinutes: "480"
+    ports:
+      - "${ERMS_PORT:-5000}:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wekeza-net
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q ':1388 ' /proc/net/tcp6 2>/dev/null || grep -q ':1388 ' /proc/net/tcp 2>/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
   # Reverse Proxy — Nginx (routes /api → backend)
   # ─────────────────────────────────────────────
   nginx:
