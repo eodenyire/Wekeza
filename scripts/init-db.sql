@@ -1,6 +1,9 @@
 -- Wekeza Bank - Database Initialization Script
 -- This script runs when the PostgreSQL container first starts
 
+-- Create WekezaERMS database for the Enterprise Risk Management System
+CREATE DATABASE "WekezaERMS" ENCODING 'UTF8';
+
 -- Create extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";

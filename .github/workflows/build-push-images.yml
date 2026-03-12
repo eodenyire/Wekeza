@@ -129,12 +129,62 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Build and push wekeza-erms (.NET 10)
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-erms:
+    name: Build ERMS image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.REPO }}/wekeza-erms
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push ERMS image
+        uses: docker/build-push-action@v5
+        with:
+          context: WekezaERMS
+          file: WekezaERMS/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Create image manifest (summary of what was published)
   # ─────────────────────────────────────────────────────────────────────────────
   summarize:
     name: Publish summary
     runs-on: ubuntu-latest
-    needs: [build-api, build-frontend]
+    needs: [build-api, build-frontend, build-erms]
     if: always()
 
     steps:
@@ -146,14 +196,16 @@ jobs:
           echo "|-------|-----|" >> $GITHUB_STEP_SUMMARY
           echo "| \`${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.REPO }}/wekeza-api\` | \`${{ needs.build-api.outputs.image }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| \`${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.REPO }}/wekeza-frontend\` | \`${{ needs.build-frontend.outputs.image }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.REPO }}/wekeza-erms\` | \`${{ needs.build-erms.outputs.image }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Pull and run" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.REPO }}/wekeza-api:latest" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.REPO }}/wekeza-frontend:latest" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.REPO }}/wekeza-erms:latest" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "# Or use docker compose:" >> $GITHUB_STEP_SUMMARY
           echo "git clone https://github.com/${{ env.ORG }}/${{ env.REPO }}.git" >> $GITHUB_STEP_SUMMARY
           echo "cd ${{ env.REPO }}" >> $GITHUB_STEP_SUMMARY
-          echo "docker compose -f docker-compose.full.yml up -d" >> $GITHUB_STEP_SUMMARY
+          echo "docker compose up -d" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
