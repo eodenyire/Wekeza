@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Card, Typography, Alert, Collapse, Table, Tag } from 'antd';
-import { UserOutlined, LockOutlined, BankOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { UserOutlined, LockOutlined, BankOutlined, InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '@store/authStore';
 import { authService } from '@services/api';
 import type { LoginCredentials } from '@app-types/index';
@@ -32,9 +32,15 @@ const credentialColumns = [
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setAuth, setLoading, isLoading } = useAuthStore();
   const [error, setError] = React.useState<string | null>(null);
   const [form] = Form.useForm<LoginCredentials>();
+
+  // Destination to redirect to after a successful login.
+  // ProtectedRoute stores the originally requested path in location.state.from.
+  // The LandingPage passes the same value directly.
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/dashboard';
 
   const onFinish = async (values: LoginCredentials) => {
     try {
@@ -42,7 +48,7 @@ export const LoginPage: React.FC = () => {
       setLoading(true);
       const response = await authService.login(values);
       setAuth(response);
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
       setLoading(false);
@@ -66,6 +72,13 @@ export const LoginPage: React.FC = () => {
       }}
     >
       <Card style={{ width: 420, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', marginBottom: 16 }}>
+        <div style={{ marginBottom: 8 }}>
+          <Link to="/">
+            <Button type="link" icon={<ArrowLeftOutlined />} style={{ padding: 0 }}>
+              All Portals
+            </Button>
+          </Link>
+        </div>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <BankOutlined style={{ fontSize: 48, color: '#1890ff' }} />
           <Title level={2} style={{ margin: '16px 0 8px 0' }}>

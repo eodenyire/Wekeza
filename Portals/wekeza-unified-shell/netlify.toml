@@ -14,12 +14,6 @@
   status = 200
   force = true
 
-# Always send the root to the portal login page
-[[redirects]]
-  from   = "/"
-  to     = "/login"
-  status = 302
-
 # SPA routing - always serve index.html for unknown routes
 [[redirects]]
   from = "/*"
