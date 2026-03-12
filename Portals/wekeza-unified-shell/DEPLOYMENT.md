@@ -28,9 +28,14 @@ git push origin main
 2. Click **"New site from Git"**
 3. Connect your GitHub repository
 4. Select branch: `main`
-5. Build settings (should auto-detect):
+5. Build settings — set these **exactly** (do not rely on auto-detect):
+   - **Base directory**: `Portals/wekeza-unified-shell`
    - **Build command**: `npm run build`
    - **Publish directory**: `dist`
+   > ⚠️ **Important**: The portal lives in a subdirectory. Setting the base
+   > directory ensures Netlify builds from the right folder and serves the
+   > portal (not the root of the repository). If the base directory is left
+   > blank users will land on the repository root instead of the login page.
 6. Click **Deploy**
 
 #### Step 3: Configure Environment Variables
@@ -53,11 +58,17 @@ VITE_AUTH_MODE = mock (for testing) or real (with backend)
 npm install -g vercel
 ```
 
-#### Step 2: Deploy
+#### Step 2: Deploy from the portal subdirectory
 ```bash
 cd /workspaces/Wekeza/Portals/wekeza-unified-shell
 vercel
 ```
+
+> ⚠️ **Important**: Always run `vercel` from inside `Portals/wekeza-unified-shell/`.
+> If you import the project in the Vercel dashboard from the repo root, set
+> **Root Directory** to `Portals/wekeza-unified-shell` in the project settings
+> so Vercel uses the correct `vercel.json` and builds the portal — not the
+> repository root.
 
 #### Step 3: Follow Prompts
 - Link to GitHub account
