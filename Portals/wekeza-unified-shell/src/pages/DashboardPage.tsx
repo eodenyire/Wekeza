@@ -6,6 +6,7 @@ import {
   TransactionOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store/authStore';
 import { PORTAL_CONFIGS } from '@config/portals';
 import type { UserRole } from '@app-types/index';
@@ -14,6 +15,7 @@ const { Title, Text } = Typography;
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   const accessiblePortals = PORTAL_CONFIGS.filter((portal) =>
     user?.roles.some((role: UserRole) => portal.allowedRoles.includes(role))
@@ -72,9 +74,12 @@ export const DashboardPage: React.FC = () => {
               size="small"
               dataSource={accessiblePortals}
               renderItem={(portal) => (
-                <List.Item>
+                <List.Item
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate(portal.route)}
+                >
                   <div>
-                    <Text strong>{portal.name}</Text>
+                    <Text strong style={{ color: '#1890ff' }}>{portal.name}</Text>
                     <br />
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       {portal.description}

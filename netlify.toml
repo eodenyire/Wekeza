@@ -20,12 +20,6 @@
   status = 200
   force  = true
 
-# Always send the root to the portal login page
-[[redirects]]
-  from   = "/"
-  to     = "/login"
-  status = 302
-
 # SPA routing — serve index.html for all remaining paths so React Router works
 [[redirects]]
   from   = "/*"
