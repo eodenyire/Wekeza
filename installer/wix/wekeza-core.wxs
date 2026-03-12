@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Wekeza Core Banking API — WiX v4 MSI installer source
+  -------------------------------------------------------
+  Build prerequisites (handled by the GitHub Actions workflow):
+    dotnet tool install --global wix
+    wix extension add WixToolset.UI.wixext
+    wix extension add WixToolset.Util.wixext
+
+  The workflow harvests the published directory first, then compiles this
+  file together with the harvested fragment:
+
+    wix harvest dir <publish-dir> -cg AppFiles -dr INSTALLFOLDER \
+        -out harvested.wxs
+
+    wix build wekeza-core.wxs harvested.wxs \
+        -ext WixToolset.UI.wixext                   \
+        -ext WixToolset.Util.wixext                 \
+        -d ProductVersion=<version>                 \
+        -b <publish-dir>                            \
+        -o wekeza-core-<version>.msi
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <!--
+    UpgradeCode must remain constant across all versions of this product so
+    that Windows Installer can locate an existing installation when upgrading.
+  -->
+  <Package Name="Wekeza Core Banking API"
+           Manufacturer="Wekeza Bank"
+           Version="$(var.ProductVersion)"
+           UpgradeCode="7F8A9B0C-1D2E-3F4A-5B6C-7D8E9F0A1B2C"
+           Scope="perMachine"
+           InstallerVersion="500">
+
+    <!-- Remove older versions automatically before installing this one -->
+    <MajorUpgrade
+      DowngradeErrorMessage="A newer version of Wekeza Core Banking API is already installed. Please uninstall it first." />
+
+    <!-- Embed all cab files inside the MSI for a single-file distribution -->
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <!-- ── UI ───────────────────────────────────────────────────────────── -->
+    <WixVariable Id="WixUILicenseRtf" Value="$(sys.CURRENTDIR)LICENSE.rtf" Overridable="yes" />
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <!-- ── Directory tree ───────────────────────────────────────────────── -->
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="WekeZaFolder" Name="Wekeza Bank">
+        <Directory Id="INSTALLFOLDER" Name="Core API" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppProgramMenuFolder" Name="Wekeza Bank" />
+    </StandardDirectory>
+
+    <!-- ── Windows Service component ───────────────────────────────────── -->
+    <!--
+      The service runs the API as a self-hosted background service.
+      The executable is started during install and stopped/deleted on removal.
+    -->
+    <Component Id="ServiceComponent"
+               Directory="INSTALLFOLDER"
+               Guid="2A3B4C5D-6E7F-8090-A1B2-C3D4E5F6A7B8">
+      <ServiceInstall Id="WekeZaServiceInstall"
+                      Name="WekeZaCoreAPI"
+                      DisplayName="Wekeza Core Banking API"
+                      Description="Wekeza Bank Core Banking REST API — provides account management, transactions, loans, and card services."
+                      Type="ownProcess"
+                      Start="auto"
+                      ErrorControl="normal"
+                      Account="LocalSystem"
+                      Arguments="--service" />
+      <ServiceControl Id="WekeZaServiceControl"
+                      Name="WekeZaCoreAPI"
+                      Start="install"
+                      Stop="both"
+                      Remove="uninstall"
+                      Wait="yes" />
+    </Component>
+
+    <!-- ── Start-Menu shortcut component ────────────────────────────────── -->
+    <Component Id="ProgramMenuShortcuts"
+               Directory="AppProgramMenuFolder"
+               Guid="3B4C5D6E-7F80-91A2-B3C4-D5E6F7A8B9C0">
+      <Shortcut Id="UninstallShortcut"
+                Name="Uninstall Wekeza Core Banking API"
+                Description="Uninstalls Wekeza Core Banking API"
+                Target="[SystemFolder]msiexec.exe"
+                Arguments="/x [ProductCode]" />
+      <RemoveFolder Id="RemoveAppProgramMenuFolder" Directory="AppProgramMenuFolder" On="uninstall" />
+      <RegistryValue Root="HKCU"
+                     Key="Software\WekeZaBank\CoreAPI"
+                     Name="installed"
+                     Type="integer"
+                     Value="1"
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- ── Feature definition ───────────────────────────────────────────── -->
+    <Feature Id="ProductFeature"
+             Title="Wekeza Core Banking API"
+             Level="1"
+             Description="Installs the Wekeza Core Banking API and registers it as a Windows Service.">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="ServiceComponent" />
+      <ComponentRef Id="ProgramMenuShortcuts" />
+    </Feature>
+
+  </Package>
+</Wix>
