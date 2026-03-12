@@ -1,0 +1,155 @@
+name: Build Windows Installers
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Builds the Wekeza Core Banking API v1 as a self-contained win-x64 binary,
+# then packages it into two Windows installers:
+#
+#   • .msi  — built with WiX Toolset v4 (dotnet global tool)
+#   • .exe  — built with Inno Setup 6 (pre-installed on windows-latest)
+#
+# Artifacts are uploaded to GitHub Actions for every run.
+# When the workflow is triggered by a version tag (v*.*.*) the installers are
+# also attached to the corresponding GitHub Release.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'copilot/**'
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Installer version (e.g. 1.0.0). Defaults to 1.0.0.'
+        required: false
+        default: '1.0.0'
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  PROJECT_DIR: APIs/v1-Core
+  PROJECT_FILE: APIs/v1-Core/Wekeza.Core.Api/Wekeza.Core.Api.csproj
+  PUBLISH_DIR: APIs/v1-Core/publish
+  WIX_MAIN: installer/wix/wekeza-core.wxs
+  INNO_SCRIPT: installer/inno/wekeza-core.iss
+
+jobs:
+  build-windows-installers:
+    name: Build .exe and .msi installers
+    runs-on: windows-latest
+
+    permissions:
+      contents: write   # needed to upload Release assets
+
+    steps:
+      # ── 1. Source ──────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Resolve version ─────────────────────────────────────────────
+      - name: Resolve installer version
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -match '^refs/tags/v(.+)$') {
+            $ver = $Matches[1]
+          } elseif ('${{ github.event.inputs.version }}' -ne '') {
+            $ver = '${{ github.event.inputs.version }}'
+          } else {
+            $ver = '1.0.0'
+          }
+          Write-Host "Installer version: $ver"
+          echo "APP_VERSION=$ver" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      # ── 3. .NET SDK ────────────────────────────────────────────────────
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # ── 4. Restore & publish (self-contained, win-x64) ─────────────────
+      - name: Restore NuGet packages
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: dotnet restore Wekeza.Core.sln
+
+      - name: Publish self-contained win-x64 binary
+        shell: pwsh
+        run: |
+          dotnet publish ${{ env.PROJECT_FILE }} `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            --output ${{ env.PUBLISH_DIR }} `
+            /p:Version=${{ env.APP_VERSION }}
+
+      # ── 5. MSI via WiX v4 ──────────────────────────────────────────────
+      - name: Install WiX Toolset v4
+        shell: pwsh
+        run: |
+          dotnet tool install --global wix
+          wix extension add --global WixToolset.UI.wixext
+          wix extension add --global WixToolset.Util.wixext
+
+      - name: Harvest published directory (generate file component list)
+        shell: pwsh
+        run: |
+          wix harvest dir ${{ env.PUBLISH_DIR }} `
+            -cg AppFiles `
+            -dr INSTALLFOLDER `
+            -out installer/wix/harvested.wxs
+
+      - name: Build MSI installer
+        shell: pwsh
+        run: |
+          wix build ${{ env.WIX_MAIN }} installer/wix/harvested.wxs `
+            -ext WixToolset.UI.wixext `
+            -ext WixToolset.Util.wixext `
+            -d ProductVersion=${{ env.APP_VERSION }} `
+            -b ${{ env.PUBLISH_DIR }} `
+            -o wekeza-core-v${{ env.APP_VERSION }}.msi
+
+      # ── 6. EXE via Inno Setup ──────────────────────────────────────────
+      - name: Build EXE installer (Inno Setup)
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup --yes --no-progress
+            $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          }
+          # Build an absolute path so Inno Setup can locate the files
+          # regardless of where the .iss script sits in the tree.
+          $publishAbs = Join-Path (Get-Location) '${{ env.PUBLISH_DIR }}'
+          & $iscc `
+            "/DPublishDir=$publishAbs" `
+            /DAppVersion="${{ env.APP_VERSION }}" `
+            ${{ env.INNO_SCRIPT }}
+
+      # ── 7. Upload artifacts ────────────────────────────────────────────
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wekeza-core-msi-v${{ env.APP_VERSION }}
+          path: '*.msi'
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wekeza-core-exe-v${{ env.APP_VERSION }}
+          path: installer/inno/Output/*.exe
+          retention-days: 30
+          if-no-files-found: error
+
+      # ── 8. Attach to GitHub Release (tagged pushes only) ───────────────
+      - name: Attach installers to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.msi
+            installer/inno/Output/*.exe
+          generate_release_notes: true
