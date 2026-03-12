@@ -152,7 +152,7 @@ services:
   # ─────────────────────────────────────────────
   erms:
     build:
-      context: ./WekezaERMS
+      context: ./Other/WekezaERMS
       dockerfile: Dockerfile
     image: wekeza-erms:local
     container_name: wekeza-erms
