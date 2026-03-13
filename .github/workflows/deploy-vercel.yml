@@ -52,7 +52,10 @@ jobs:
           VITE_ENVIRONMENT: production
 
       - name: Deploy to Vercel (Production)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: >
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push' &&
+          secrets.VERCEL_TOKEN
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -62,13 +65,22 @@ jobs:
           vercel-args: '--prod'
 
       - name: Deploy to Vercel (Preview)
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/develop'
+        if: >
+          (github.event_name == 'pull_request' || github.ref == 'refs/heads/develop') &&
+          secrets.VERCEL_TOKEN
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./Portals/wekeza-unified-shell
+
+      - name: Vercel Secrets Missing (info)
+        if: "!secrets.VERCEL_TOKEN"
+        run: |
+          echo "ℹ️  VERCEL_TOKEN secret is not configured — skipping Vercel deployment."
+          echo "   To enable deployment, add VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID"
+          echo "   to the repository secrets (Settings → Secrets and variables → Actions)."
 
       - name: Upload Build Artifact
         if: always()
