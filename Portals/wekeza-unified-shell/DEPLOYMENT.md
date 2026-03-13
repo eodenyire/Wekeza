@@ -58,17 +58,26 @@ VITE_AUTH_MODE = mock (for testing) or real (with backend)
 npm install -g vercel
 ```
 
-#### Step 2: Deploy from the portal subdirectory
+#### Step 2: Deploy
+
+**Option A — From the portal subdirectory (CLI)**
 ```bash
 cd /workspaces/Wekeza/Portals/wekeza-unified-shell
 vercel
 ```
 
-> ⚠️ **Important**: Always run `vercel` from inside `Portals/wekeza-unified-shell/`.
-> If you import the project in the Vercel dashboard from the repo root, set
-> **Root Directory** to `Portals/wekeza-unified-shell` in the project settings
-> so Vercel uses the correct `vercel.json` and builds the portal — not the
-> repository root.
+**Option B — From the repository root (CLI)**
+```bash
+cd /workspaces/Wekeza
+vercel
+```
+The root-level `vercel.json` automatically directs the build to
+`Portals/wekeza-unified-shell`, so the correct portal is always built.
+
+> ℹ️ **Vercel Dashboard (GitHub import)**: If you connect the repository root
+> in the Vercel dashboard, the root-level `vercel.json` handles the build
+> automatically — you do **not** need to change the Root Directory setting.
+> The portal (not the banking website) will be deployed.
 
 #### Step 3: Follow Prompts
 - Link to GitHub account
@@ -80,7 +89,20 @@ In Vercel Dashboard → **Settings → Environment Variables**:
 ```
 VITE_API_URL = https://api.wekeza.bank
 VITE_AUTH_MODE = mock
+API_URL      = https://api.wekeza.bank
 ```
+> `API_URL` is used by the `vercel.json` rewrite rule to proxy `/api/*` calls
+> to your backend. Set it to your backend's base URL (without a trailing slash).
+
+#### Step 5: Add GitHub Actions Secrets (for CI/CD)
+In GitHub → **Settings → Secrets and variables → Actions**, add:
+```
+VERCEL_TOKEN      = <your Vercel personal token>
+VERCEL_ORG_ID     = <your Vercel team/user ID>
+VERCEL_PROJECT_ID = <your Vercel project ID>
+```
+The `deploy-vercel.yml` workflow will skip deployment gracefully if these
+secrets are absent, so the build step always passes.
 
 ---
 

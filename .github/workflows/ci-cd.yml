@@ -26,16 +26,16 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore APIs/v1-Core/Wekeza.Core.sln
 
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build APIs/v1-Core/Wekeza.Core.sln --no-restore --configuration Release
 
     - name: Run Unit Tests
-      run: dotnet test Tests/Wekeza.Core.UnitTests --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test APIs/v1-Core/Tests/Wekeza.Core.UnitTests --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
 
     - name: Run Integration Tests
-      run: dotnet test Tests/Wekeza.Core.IntegrationTests --no-build --configuration Release --verbosity normal
+      run: dotnet test APIs/v1-Core/Tests/Wekeza.Core.IntegrationTests --no-build --configuration Release --verbosity normal
 
     - name: Upload Coverage Reports
       uses: codecov/codecov-action@v3
@@ -61,7 +61,7 @@ jobs:
       run: dotnet tool install -g dotnet-format
 
     - name: Run Code Formatting Check
-      run: dotnet format --verify-no-changes --verbosity diagnostic
+      run: dotnet format APIs/v1-Core/Wekeza.Core.sln --verify-no-changes --verbosity diagnostic
 
     - name: Run Security Scan
       uses: securego/gosec@master
