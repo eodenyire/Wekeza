@@ -3,7 +3,10 @@
 <div align="center">
   <h1>🏦 Wekeza Mobile Banking</h1>
   <p>A comprehensive mobile banking application built with Flutter/Dart</p>
-  <p>Integrated with Wekeza Core Banking System</p>
+  <p>Integrated with Wekeza Core Banking System (v1-Core)</p>
+  <p>
+    <strong>Platforms:</strong> Android · iOS · Web (PWA)
+  </p>
 </div>
 
 ---
@@ -12,7 +15,64 @@
 
 Wekeza Mobile is a full-featured mobile banking application developed using Flutter and Dart. It provides customers with seamless access to their Wekeza Bank accounts, enabling them to perform various banking operations from their mobile devices.
 
-The app is designed to work like modern mobile banking apps (KCB, NCBA, Equity Bank) with a clean, intuitive interface and robust functionality.
+The app targets **three platforms from a single codebase**:
+
+| Platform | Directory | Notes |
+|----------|-----------|-------|
+| Android  | `android/` | Minimum SDK 21 (Android 5.0) |
+| iOS      | `ios/`     | Minimum iOS 12.0 |
+| Web (PWA)| `web/`     | Progressive Web App, installable |
+
+For a standalone **mobile web** version (React PWA), see `../MobileWeb/`.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Flutter 3.10+
+- Dart 3.0+
+- Android SDK (for Android builds)
+- Xcode 14+ (for iOS builds, macOS only)
+
+### Setup
+
+```bash
+# Get dependencies
+flutter pub get
+
+# Run on Android emulator
+flutter run -d android
+
+# Run on iOS simulator  
+flutter run -d ios
+
+# Run as web app (PWA)
+flutter run -d chrome
+
+# Build for Android
+flutter build apk --flavor production
+
+# Build for iOS (requires macOS + Xcode)
+flutter build ios --flavor production
+
+# Build for Web
+flutter build web --release
+```
+
+### API Configuration
+
+Edit `lib/config/app_config.dart`:
+
+```dart
+// Development (Android emulator)
+static const String apiBaseUrl = 'http://10.0.2.2:5000/api';
+
+// Development (iOS simulator)
+// static const String apiBaseUrl = 'http://127.0.0.1:5000/api';
+
+// Production
+// static const String apiBaseUrl = 'https://api.wekeza.com/api';
+```
 
 ## ✨ Features
 
@@ -44,11 +104,11 @@ The app is designed to work like modern mobile banking apps (KCB, NCBA, Equity B
 - ✅ Balance validation
 - ✅ Transfer limits enforcement
 
-### 📱 Mobile Money (Coming Soon)
-- ⏳ M-Pesa integration
-- ⏳ Send money to mobile
-- ⏳ Buy airtime
-- ⏳ Pay bills (Paybill/Till)
+### 📱 Mobile Money
+- ✅ M-Pesa STK Push deposit
+- ✅ Send money to mobile (M-Pesa, Airtel Money, T-Kash)
+- ✅ Buy airtime (all networks)
+- ✅ Pay bills (Paybill/Till) via `MobileMoneyService`
 
 ### 🏦 Loan Management
 - ✅ View all loans

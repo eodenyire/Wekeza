@@ -4,6 +4,7 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'services/storage_service.dart';
 import 'services/auth_service.dart';
+import 'providers/auth_provider.dart';
 import 'config/app_config.dart';
 
 void main() async {
@@ -22,7 +23,7 @@ class WekezaMobileApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // You can add more providers here if needed
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
         Provider<AuthService>(create: (_) => AuthService()),
         Provider<StorageService>(create: (_) => StorageService()),
       ],
