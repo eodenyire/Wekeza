@@ -1,19 +1,23 @@
 name: wekeza_mobile
-description: Wekeza Bank Mobile Banking Application - A comprehensive mobile banking solution integrated with Wekeza Core Banking System
+description: Wekeza Bank Mobile Banking Application - A comprehensive mobile banking solution integrated with Wekeza Core Banking System (v1-Core). Supports Android, iOS, and Web (PWA).
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   
   # UI Components
   cupertino_icons: ^1.0.6
   flutter_svg: ^2.0.9
   cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
   
   # State Management
   provider: ^6.1.1
@@ -32,7 +36,6 @@ dependencies:
   
   # QR Code
   qr_flutter: ^4.1.0
-  qr_code_scanner: ^1.0.1
   
   # Image Picker
   image_picker: ^1.0.7
@@ -43,7 +46,7 @@ dependencies:
   # Permissions
   permission_handler: ^11.2.0
   
-  # Biometrics
+  # Biometrics (not supported on web)
   local_auth: ^2.1.8
   
   # Pin Code
@@ -65,6 +68,21 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
+  # Launcher icons for all platforms
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  web:
+    generate: true
+    image_path: "assets/images/app_icon.png"
+    background_color: "#2E7D32"
+    theme_color: "#2E7D32"
+  windows:
+    generate: false
+  macos:
+    generate: false
 
 flutter:
   uses-material-design: true
