@@ -1,0 +1,68 @@
+{
+  "name": "Wekeza Mobile Banking",
+  "short_name": "Wekeza",
+  "description": "Wekeza Bank Mobile Banking Application - Secure, fast, and convenient banking on the go.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#2E7D32",
+  "theme_color": "#2E7D32",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["finance", "banking"],
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/Icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/Icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Check Balance",
+      "short_name": "Balance",
+      "description": "Quickly view your account balance",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "icons/Icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Transfer Money",
+      "short_name": "Transfer",
+      "description": "Send money to another account",
+      "url": "/transfer",
+      "icons": [
+        {
+          "src": "icons/Icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

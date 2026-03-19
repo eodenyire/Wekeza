@@ -28,9 +28,14 @@ git push origin main
 2. Click **"New site from Git"**
 3. Connect your GitHub repository
 4. Select branch: `main`
-5. Build settings (should auto-detect):
+5. Build settings — set these **exactly** (do not rely on auto-detect):
+   - **Base directory**: `Portals/wekeza-unified-shell`
    - **Build command**: `npm run build`
    - **Publish directory**: `dist`
+   > ⚠️ **Important**: The portal lives in a subdirectory. Setting the base
+   > directory ensures Netlify builds from the right folder and serves the
+   > portal (not the root of the repository). If the base directory is left
+   > blank users will land on the repository root instead of the login page.
 6. Click **Deploy**
 
 #### Step 3: Configure Environment Variables
@@ -54,10 +59,25 @@ npm install -g vercel
 ```
 
 #### Step 2: Deploy
+
+**Option A — From the portal subdirectory (CLI)**
 ```bash
 cd /workspaces/Wekeza/Portals/wekeza-unified-shell
 vercel
 ```
+
+**Option B — From the repository root (CLI)**
+```bash
+cd /workspaces/Wekeza
+vercel
+```
+The root-level `vercel.json` automatically directs the build to
+`Portals/wekeza-unified-shell`, so the correct portal is always built.
+
+> ℹ️ **Vercel Dashboard (GitHub import)**: If you connect the repository root
+> in the Vercel dashboard, the root-level `vercel.json` handles the build
+> automatically — you do **not** need to change the Root Directory setting.
+> The portal (not the banking website) will be deployed.
 
 #### Step 3: Follow Prompts
 - Link to GitHub account
@@ -69,7 +89,20 @@ In Vercel Dashboard → **Settings → Environment Variables**:
 ```
 VITE_API_URL = https://api.wekeza.bank
 VITE_AUTH_MODE = mock
+API_URL      = https://api.wekeza.bank
 ```
+> `API_URL` is used by the `vercel.json` rewrite rule to proxy `/api/*` calls
+> to your backend. Set it to your backend's base URL (without a trailing slash).
+
+#### Step 5: Add GitHub Actions Secrets (for CI/CD)
+In GitHub → **Settings → Secrets and variables → Actions**, add:
+```
+VERCEL_TOKEN      = <your Vercel personal token>
+VERCEL_ORG_ID     = <your Vercel team/user ID>
+VERCEL_PROJECT_ID = <your Vercel project ID>
+```
+The `deploy-vercel.yml` workflow will skip deployment gracefully if these
+secrets are absent, so the build step always passes.
 
 ---
 

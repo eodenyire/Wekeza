@@ -50,14 +50,34 @@ Wekeza Bank is a modern, production-ready core banking system built with .NET 8,
 
 ```
 Wekeza/
-├── Core/
-│   ├── Wekeza.Core.Domain/          # Domain entities, value objects, aggregates
-│   ├── Wekeza.Core.Application/     # Use cases, commands, queries, validators
-│   ├── Wekeza.Core.Infrastructure/  # Data access, external services
-│   └── Wekeza.Core.Api/            # REST API, controllers, middleware
-└── Tests/
-    ├── Wekeza.Core.UnitTests/       # Unit tests
-    └── Wekeza.Core.IntegrationTests/ # Integration tests
+├── APIs/                            # All API implementations (v1-Core through v6-Enhanced)
+│   └── v1-Core/                     # Production Core Banking API (.NET 8)
+│       ├── Wekeza.Core.Domain/      # Domain entities, value objects, aggregates
+│       ├── Wekeza.Core.Application/ # Use cases, commands, queries, validators
+│       ├── Wekeza.Core.Infrastructure/ # Data access, external services
+│       ├── Wekeza.Core.Api/         # REST API, controllers, middleware
+│       └── Tests/                   # Unit and integration tests
+├── Core/                            # Core banking system documentation
+├── Portals/                         # Admin panels and portal interfaces
+│   └── wekeza-unified-shell/        # React-based unified portal shell
+├── Assets/                          # Logos and branding assets
+├── scripts/                         # Operational scripts for managing the system
+├── monitoring/                      # System monitoring and observability configs
+├── kubernetes/                      # Kubernetes orchestration configs
+├── nginx/                           # Nginx reverse-proxy configuration
+├── docs/                            # Project-level documentation
+├── docker-compose.yml               # Start API + Portal + Database
+├── docker-compose.full.yml          # Full stack with Redis and Nginx
+├── docker-compose.master.yml        # All API versions
+├── Dockerfile                       # Core API Docker image
+└── Other/                           # Non-core application components
+    ├── BankWebsite/                  # Django-based bank website
+    ├── Mobile/                       # .NET MAUI mobile app
+    ├── Wekeza Mobile/                # Flutter mobile app
+    ├── WekezaERMS/                   # Enterprise Risk Management System
+    ├── WekezaNexus/                  # Nexus integration system
+    ├── Wekeza.Nexus.*/              # Nexus application layers
+    └── banking/                     # Django banking module
 ```
 
 ### Technology Stack

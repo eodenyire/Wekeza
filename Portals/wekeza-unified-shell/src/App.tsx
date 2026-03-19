@@ -3,6 +3,7 @@ import { ConfigProvider, theme } from 'antd';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ProtectedRoute } from '@components/auth/ProtectedRoute';
 import { AppLayout } from '@components/layout/AppLayout';
+import { LandingPage } from '@pages/LandingPage';
 import { LoginPage } from '@pages/LoginPage';
 import { DashboardPage } from '@pages/DashboardPage';
 import { UnauthorizedPage } from '@pages/UnauthorizedPage';
@@ -45,6 +46,7 @@ function App() {
       >
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
@@ -170,7 +172,6 @@ function App() {
                         }
                       />
 
-                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
                       <Route path="*" element={<Navigate to="/dashboard" replace />} />
                     </Routes>
                   </AppLayout>
