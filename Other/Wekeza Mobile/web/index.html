@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Wekeza Mobile Banking - Secure, fast, and convenient banking on the go. Manage accounts, transfer funds, pay bills, and more.">
+  <meta name="keywords" content="Wekeza, mobile banking, Kenya, M-Pesa, digital banking, finance">
+  <meta name="author" content="Wekeza Bank">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Wekeza Mobile">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Theme color for browser chrome -->
+  <meta name="theme-color" content="#2E7D32">
+  <meta name="msapplication-navbutton-color" content="#2E7D32">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#2E7D32">
+
+  <!-- Responsive viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <title>Wekeza Mobile Banking</title>
+
+  <!-- Service Worker registration for PWA offline support -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('flutter-first-frame', function () {
+        navigator.serviceWorker.register('flutter_service_worker.js?v=1.0.0');
+      });
+    }
+  </script>
+
+  <!-- Splash screen style while Flutter loads -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #2E7D32;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    #loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    #loading-screen .logo-container {
+      width: 100px;
+      height: 100px;
+      background: white;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    #loading-screen h1 {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 0 0 8px 0;
+    }
+
+    #loading-screen p {
+      font-size: 14px;
+      margin: 0 0 32px 0;
+      opacity: 0.9;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading splash screen shown while Flutter loads -->
+  <div id="loading-screen">
+    <div class="logo-container">
+      <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20 L30 40 L50 20 M20 10 L40 10 M30 10 L30 45" stroke="#2E7D32" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1>Wekeza Mobile</h1>
+    <p>Banking Made Simple</p>
+    <div class="spinner"></div>
+  </div>
+
+  <script>
+    window.addEventListener('flutter-first-frame', function() {
+      document.getElementById('loading-screen').style.display = 'none';
+    });
+  </script>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

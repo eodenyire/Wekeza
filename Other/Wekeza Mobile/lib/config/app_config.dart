@@ -4,6 +4,12 @@ class AppConfig {
   static const String apiBaseUrl = 'http://localhost:5000/api';
   static const String apiBaseUrlHttps = 'https://localhost:5001/api';
   
+  // Use this for Android emulator (maps to host machine localhost)
+  // static const String apiBaseUrl = 'http://10.0.2.2:5000/api';
+  
+  // Use this for iOS simulator
+  // static const String apiBaseUrl = 'http://127.0.0.1:5000/api';
+  
   // Use this for production
   // static const String apiBaseUrl = 'https://api.wekeza.com/api';
   
@@ -16,6 +22,8 @@ class AppConfig {
   static const String paymentsEndpoint = '/payments';
   static const String depositsEndpoint = '/deposits';
   static const String dashboardEndpoint = '/dashboard';
+  static const String digitalChannelsEndpoint = '/digitalchannels';
+  static const String mobileMoneyEndpoint = '/mobilemoney';
   
   // App Information
   static const String appName = 'Wekeza Mobile';
