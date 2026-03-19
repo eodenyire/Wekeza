@@ -1,9 +1,27 @@
 #!/usr/bin/env python3
 """
-Wekeza v1-Core Banking API – Screenshot Generator
-==================================================
-Generates screenshots for every major portal / screen in the
-Wekeza v1-Core Banking API system using Playwright (headless Chromium).
+Wekeza v1-Core Banking API – Comprehensive Screenshot Generator
+===============================================================
+Generates 120+ screenshots for every major portal, role, and workflow
+in the Wekeza v1-Core Banking API system using Playwright (headless Chromium).
+
+Coverage:
+  01_login/               – Landing page, login flows, all role logins
+  02_customer_registration/ – Full registration / account-opening flow
+  03_sysadmin_portal/     – System Administrator full portal
+  04_branch_manager/      – Branch Manager operations
+  05_teller_operations/   – Deposit, withdrawal, receipts, till
+  06_customer_service/    – Customer-care portal & CIF management
+  07_accounts/            – Account types, statements, management
+  08_transactions/        – Transfers, payments, reversals
+  09_loans/               – Loan products, application, approval, repayment
+  10_customer_portal/     – Self-service customer portal
+  11_digital_banking/     – M-Pesa, USSD, mobile & internet banking
+  12_compliance_aml/      – AML alerts, KYC, sanctions, SAR
+  13_reports/             – Financial statements, branch performance
+  14_general_ledger/      – Chart of accounts, journals, trial balance
+  15_payments/            – RTGS, EFT, M-Pesa gateway
+  16_api_docs/            – Swagger / OpenAPI documentation
 
 Usage:
     python3 APIs/v1-Core/tests/e2e/take_screenshots.py
